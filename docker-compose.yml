@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+    backend:
+        build: ./backend
+        container_name: erp_backend
+        volumes:
+            - ./backend:/app
+        ports:
+            - "8000:8000"
+        depends_on:
+            - db
+
+    frontend:
+        build: ./frontend
+        container_name: erp_frontend
+        volumes:
+            - ./frontend:/app
+        ports:
+            - "3000:80"
+
+    db:
+        image: postgres:15
+        container_name: erp_db
+        environment:
+            POSTGRES_DB: ${DB_NAME}
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - "5432:5432"
