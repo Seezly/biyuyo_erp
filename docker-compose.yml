@@ -3,28 +3,43 @@ version: "3.9"
 services:
     backend:
         build: ./backend
-        container_name: erp_backend
+        container_name: biyuyo_backend
         volumes:
             - ./backend:/app
         ports:
             - "8000:8000"
         depends_on:
             - db
+        networks:
+            - biyuyo_network
 
     frontend:
         build: ./frontend
-        container_name: erp_frontend
+        container_name: biyuyo_frontend
         volumes:
             - ./frontend:/app
         ports:
             - "3000:80"
+        networks:
+            - biyuyo_network
 
     db:
-        image: postgres:15
-        container_name: erp_db
+        image: postgres:18
+        container_name: biyuyo_db
         environment:
             POSTGRES_DB: ${DB_NAME}
             POSTGRES_USER: ${DB_USER}
             POSTGRES_PASSWORD: ${DB_PASSWORD}
         ports:
             - "5432:5432"
+        volumes:
+            - db_data:var/lib/postgresql/data
+        networks:
+            - biyuyo_network
+
+    networks:
+        biyuyo_network:
+            driver: bridge
+
+    volumes:
+        db_data:
