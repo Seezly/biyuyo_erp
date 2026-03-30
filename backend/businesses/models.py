@@ -5,10 +5,10 @@ from django.db import models
 class Business(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
-    rif = models.CharField(max_length=10)
+    rif = models.CharField(max_length=10, unique=True)
     address = models.CharField(max_length=255)
-    phone = models.CharField(max_length=16)
-    email = models.EmailField()
+    phone = models.CharField(max_length=16, unique=True)
+    email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
