@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.apps import apps
 
 
 # Create your models here.
@@ -21,7 +22,7 @@ class CustomUserManager(BaseUserManager):
         phone,
         role,
         password,
-        **extra_fields
+        **extra_fields,
     ):
         """Custom user creation method to create a user using email instead of username
 
@@ -65,7 +66,7 @@ class CustomUserManager(BaseUserManager):
             identification_number=identification_number,
             phone=phone,
             role=role,
-            **extra_fields
+            **extra_fields,
         )
         user.set_password(password)
         user.save()
@@ -82,7 +83,7 @@ class CustomUserManager(BaseUserManager):
         phone,
         role,
         password,
-        **extra_fields
+        **extra_fields,
     ):
         """Custom superuser creation method
 
@@ -114,6 +115,16 @@ class CustomUserManager(BaseUserManager):
         if role != "superadmin":
             raise ValueError("Superuser must have role='superadmin'.")
 
+        # Convert business_id to a Business instance if needed
+        if not isinstance(
+            business_id, models.Model
+        ):  # or check against Business directly
+            Business = apps.get_model("businesses", "Business")
+            try:
+                business_id = Business.objects.get(pk=business_id)
+            except (Business.DoesNotExist, ValueError):
+                raise ValueError(f"Business with id {business_id} does not exist")
+
         return self.create_user(
             first_name,
             last_name,
@@ -123,7 +134,7 @@ class CustomUserManager(BaseUserManager):
             phone,
             role,
             password,
-            **extra_fields
+            **extra_fields,
         )
 
 
@@ -158,14 +169,7 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return [
-            self.first_name,
-            self.last_name,
-            self.email,
-            self.role,
-            self.phone,
-            self.identification_number,
-        ]
+        return self.email
 
     def __bool__(self):
         return self.is_active

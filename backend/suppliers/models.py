@@ -24,7 +24,7 @@ class Supplier(models.Model):
         ]
 
     def __str__(self):
-        return [self.name, self.email, self.address, self.phone, self.rif]
+        return self.name
 
     def __bool__(self):
         return self.is_active

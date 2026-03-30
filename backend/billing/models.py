@@ -39,7 +39,7 @@ class Invoice(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return [self.status, self.method]
+        return self.method
 
     def __float__(self):
         return self.amount

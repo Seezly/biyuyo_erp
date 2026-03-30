@@ -17,7 +17,7 @@ class Category(models.Model):
         ]
 
     def __str__(self):
-        return [self.name, self.description]
+        return self.name
 
 
 class Product(models.Model):
@@ -41,13 +41,7 @@ class Product(models.Model):
         ]
 
     def __str__(self):
-        return [self.name, self.description, self.sku]
-
-    def __float__(self):
-        return [self.cost_price, self.sell_price]
-
-    def __int__(self):
-        return [self.stock, self.min_stock]
+        return self.name
 
 
 class InventoryMovement(models.Model):
@@ -68,7 +62,7 @@ class InventoryMovement(models.Model):
         ]
 
     def __str__(self):
-        return [self.type, self.reference]
+        return self.type
 
     def __int__(self):
         return self.quantity

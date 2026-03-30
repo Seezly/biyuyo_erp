@@ -21,7 +21,7 @@ class Sale(models.Model):
         return self.status
 
     def __float__(self):
-        return [self.subtotal, self.discount, self.tax, self.total]
+        return self.total
 
 
 class SaleItem(models.Model):
@@ -44,7 +44,7 @@ class SaleItem(models.Model):
         return self.quantity
 
     def __float__(self):
-        return [self.unit_price, self.total_price]
+        return self.total_price
 
 
 class Payment(models.Model):
@@ -64,7 +64,7 @@ class Payment(models.Model):
         ]
 
     def __str__(self):
-        return [self.method, self.status, self.reference]
+        return self.method
 
     def __float__(self):
         return self.amount
