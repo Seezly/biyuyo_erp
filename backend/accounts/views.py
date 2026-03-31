@@ -1,8 +1,8 @@
 from django.contrib.auth.models import Group
 from accounts.models import CustomUser
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, views
 
-from accounts.serializers import GroupSerializer, UserSerializer
+from accounts.serializers import GroupSerializer, UserSerializer, RegisterSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -23,3 +23,22 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all().order_by("name")
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class RegisterView(views.APIView):
+    """
+    API endpoint that allows business owners to register and create a new user
+    along with their business.
+    """
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.save()
+
+        return views.Response(
+            {"message": "Business and business owner created successfully."}
+        )
