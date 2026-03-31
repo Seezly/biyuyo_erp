@@ -15,7 +15,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [permissions.IsAdminUser]
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -25,7 +24,6 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAdminUser]
 
 
 class InventoryMovementViewSet(viewsets.ModelViewSet):
@@ -35,4 +33,3 @@ class InventoryMovementViewSet(viewsets.ModelViewSet):
 
     queryset = InventoryMovement.objects.all()
     serializer_class = InventoryMovementSerializer
-    permission_classes = [permissions.IsAdminUser]

@@ -11,7 +11,6 @@ class SaleViewSet(viewsets.ModelViewSet):
 
     queryset = Sale.objects.all()
     serializer_class = SaleSerializer
-    permission_classes = [permissions.IsAdminUser]
 
 
 class SaleItemViewSet(viewsets.ModelViewSet):
@@ -21,7 +20,6 @@ class SaleItemViewSet(viewsets.ModelViewSet):
 
     queryset = SaleItem.objects.all()
     serializer_class = SaleItemSerializer
-    permission_classes = [permissions.IsAdminUser]
 
 
 class PaymentViewSet(viewsets.ModelViewSet):
@@ -31,4 +29,3 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
-    permission_classes = [permissions.IsAdminUser]

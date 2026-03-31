@@ -15,7 +15,6 @@ class SupplierViewSet(viewsets.ModelViewSet):
 
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
 class PurchaseViewSet(viewsets.ModelViewSet):
@@ -25,7 +24,6 @@ class PurchaseViewSet(viewsets.ModelViewSet):
 
     queryset = Purchase.objects.all()
     serializer_class = PurchaseSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
 class PurchaseItemViewSet(viewsets.ModelViewSet):
@@ -35,4 +33,3 @@ class PurchaseItemViewSet(viewsets.ModelViewSet):
 
     queryset = PurchaseItem.objects.all()
     serializer_class = PurchaseItemSerializer
-    permission_classes = [permissions.IsAuthenticated]

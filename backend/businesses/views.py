@@ -11,4 +11,3 @@ class BusinessViewSet(viewsets.ModelViewSet):
 
     queryset = Business.objects.all()
     serializer_class = BusinessSerializers
-    permission_classes = [permissions.IsAdminUser]

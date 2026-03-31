@@ -25,7 +25,6 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
 
     queryset = Subscription.objects.all().order_by("-start_date")
     serializer_class = SubscriptionSerializer
-    permission_classes = [permissions.IsAdminUser]
 
 
 class InvoiceViewSet(viewsets.ModelViewSet):
@@ -35,4 +34,3 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
     queryset = Invoice.objects.all().order_by("-created_at")
     serializer_class = InvoiceSerializer
-    permission_classes = [permissions.IsAdminUser]

@@ -11,4 +11,3 @@ class CustomerViewSet(viewsets.ModelViewSet):
 
     queryset = Customer.objects.all().order_by("-created_at")
     serializer_class = CustomerSerializer
-    permission_classes = [permissions.IsAdminUser]
