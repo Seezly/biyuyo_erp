@@ -1,8 +1,14 @@
 from django.contrib.auth.models import Group
 from accounts.models import CustomUser
 from rest_framework import permissions, viewsets, views
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from accounts.serializers import GroupSerializer, UserSerializer, RegisterSerializer
+from accounts.serializers import (
+    GroupSerializer,
+    UserSerializer,
+    RegisterSerializer,
+    CustomTokenSerializer,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -42,3 +48,13 @@ class RegisterView(views.APIView):
         return views.Response(
             {"message": "Business and business owner created successfully."}
         )
+
+
+class CustomTokenView(TokenObtainPairView):
+    """
+    API endpoint for user login, which returns a JWT token along with additional
+    user information.
+    """
+
+    serializer_class = CustomTokenSerializer
+    permission_classes = [permissions.AllowAny]

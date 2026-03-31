@@ -67,6 +67,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
     path("api/register", accounts_views.RegisterView.as_view(), name="register"),
+    path("api/login", accounts_views.CustomTokenView.as_view(), name="login"),
     path(
         "api/token/",
         TokenObtainPairView.as_view(permission_classes=[AllowAny]),

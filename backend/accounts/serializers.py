@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Group
 from accounts.models import CustomUser
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from businesses.models import Business
 
@@ -88,6 +89,8 @@ class RegisterSerializer(serializers.HyperlinkedModelSerializer):
             description=business_description,
             rif=business_rif,
             address=business_address,
+            phone=validated_data["phone"],
+            email=validated_data["email"],
         )
 
         user = CustomUser.objects.create_user(
@@ -95,3 +98,33 @@ class RegisterSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         return user
+
+
+class CustomTokenSerializer(TokenObtainPairSerializer):
+    """
+    Serializer for user login, which extends the TokenObtainPairSerializer to
+    include additional user information in the token response.
+    """
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # extra info from user
+        token["business_id"] = user.business_id.id
+        token["business_name"] = user.business_id.name
+        token["first_name"] = user.first_name
+
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        data["user"] = {
+            "id": self.user.id,
+            "business_id": self.user.business_id.id,
+            "business_name": self.user.business_id.name,
+            "first_name": self.user.first_name,
+        }
+
+        return data
