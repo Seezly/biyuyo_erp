@@ -15,6 +15,8 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
+from datetime import timedelta
+
 # Loads all the environment variables needed from the .env file
 load_dotenv()
 
@@ -65,6 +67,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.BusinessMiddleware",
 ]
 
 ROOT_URLCONF = "app.urls"
@@ -142,7 +145,10 @@ STATIC_URL = "static/"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    ),
+    "DEFAULT_PERMISSION_CLASSES": [
+        "core.permissions.IsAdminOrBusinessUser",
+    ],
 }
 
 # Default User Model
@@ -153,3 +159,10 @@ CORS_ALLOWED_ORIGINS = ["http://frontend:80", "http://localhost:3000"]
 
 # Restrict CORS to the frontend domain for all API endpoints
 CORS_URLS_REGEX = r"^/api/.*$"
+
+# Simple JWT settings
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
