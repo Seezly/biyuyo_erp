@@ -66,6 +66,7 @@ router.register(r"purchase-items", suppliers_views.PurchaseItemViewSet)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
+    path("api/register", accounts_views.RegisterView.as_view(), name="register"),
     path(
         "api/token/",
         TokenObtainPairView.as_view(permission_classes=[AllowAny]),

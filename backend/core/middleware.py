@@ -19,7 +19,7 @@ class BusinessMiddleware:
 
         if business_id:
             try:
-                request.business = Business.objects.get(id=business_id)
+                request.business = business_id
             except Business.DoesNotExist:
                 request.business = None
         else:
