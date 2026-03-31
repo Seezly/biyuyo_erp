@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",
+    "corsheaders",
     "accounts",
     "billing",
     "businesses",
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -136,5 +138,18 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+# djangorestframework Authentication Classes
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+}
+
 # Default User Model
 AUTH_USER_MODEL = "accounts.CustomUser"
+
+# Restrict CORS to the frontend domain
+CORS_ALLOWED_ORIGINS = ["http://frontend:80", "http://localhost:3000"]
+
+# Restrict CORS to the frontend domain for all API endpoints
+CORS_URLS_REGEX = r"^/api/.*$"
