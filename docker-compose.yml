@@ -4,6 +4,7 @@ services:
     backend:
         build: ./backend
         container_name: biyuyo-backend
+        restart: unless-stopped
         volumes:
             - ./backend:/app
         ports:
@@ -16,15 +17,18 @@ services:
     frontend:
         build: ./frontend
         container_name: biyuyo-frontend
+        restart: unless-stopped
         volumes:
             - ./frontend:/app
         ports:
             - "3000:80"
+        depends_on:
+            - backend
         networks:
             - biyuyo-network
 
     db:
-        image: postgres:18.3
+        image: postgres:17-alpine3.22
         container_name: biyuyo-db
         restart: unless-stopped
         environment:
@@ -34,7 +38,7 @@ services:
         ports:
             - "5432:5432"
         volumes:
-            - db_data:/var/lib/postgresql/data
+            - biyuyo_data:/var/lib/postgresql/data
         networks:
             - biyuyo-network
 
@@ -43,4 +47,4 @@ networks:
         driver: bridge
 
 volumes:
-    db_data:
+    biyuyo_data:
