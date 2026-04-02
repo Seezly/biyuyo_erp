@@ -3,6 +3,7 @@ import { ref } from 'vue'
 
 import ButtonItem from '@/components/ui/ButtonItem.vue'
 import InputItem from '@/components/ui/InputItem.vue'
+import StepsItem from '@/components/StepsItem.vue'
 
 const step = ref<number>(1)
 </script>
@@ -15,37 +16,13 @@ const step = ref<number>(1)
 				Rellena tus datos para crear una cuenta y empezar a utilizar Biyuyo ERP
 			</p>
 		</div>
-		<div class="w-md mb-8">
-			<h2 class="sr-only">Steps</h2>
-
-			<div
-				class="relative after:absolute after:inset-x-0 after:top-1/2 after:block after:h-px after:-translate-y-1/2 after:rounded-lg after:bg-secondary"
-			>
-				<ol class="relative z-10 flex justify-between text-sm font-medium">
-					<li class="flex items-center gap-2 p-2 bg-[#FFFFFF]">
-						<span
-							:class="step >= 1 ? 'bg-primary text-white' : 'bg-white text-primary'"
-							class="size-6 rounded-full text-center text-[10px]/6 font-bold transition-colors duration-200"
-						>
-							1
-						</span>
-
-						<span class="hidden sm:block text-dark"> Háblanos de ti </span>
-					</li>
-
-					<li class="flex items-center gap-2 p-2 bg-[#FFFFFF]">
-						<span
-							:class="step >= 2 ? 'bg-primary text-white' : 'bg-white text-primary'"
-							class="size-6 rounded-full text-center text-[10px]/6 font-bold transition-colors duration-200"
-						>
-							2
-						</span>
-
-						<span class="hidden sm:block text-dark"> Cuéntanos de tu negocio </span>
-					</li>
-				</ol>
-			</div>
-		</div>
+		<StepsItem
+			:step="step"
+			:steps="[
+				{ step: 1, label: 'Datos personales' },
+				{ step: 2, label: 'Datos del negocio' },
+			]"
+		/>
 		<form action="" class="flex justify-start items-center flex-col gap-4 w-md">
 			<section class="w-full flex justify-start items-start overflow-hidden">
 				<article
