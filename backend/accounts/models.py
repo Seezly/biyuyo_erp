@@ -20,7 +20,6 @@ class CustomUserManager(BaseUserManager):
         business_id,
         identification_number,
         phone,
-        role,
         password,
         **extra_fields,
     ):
@@ -33,7 +32,6 @@ class CustomUserManager(BaseUserManager):
             business_id (integer): business ID to which the user belongs
             identification_number (string): User unique identification number
             phone (string): User phone number
-            role (string): User role
             password (string): User password
 
         Raises:
@@ -54,8 +52,6 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("The Identification Number field must be set")
         if not phone:
             raise ValueError("The Phone field must be set")
-        if not role:
-            raise ValueError("The Role field must be set")
 
         email = self.normalize_email(email)
         user = self.model(
@@ -65,7 +61,6 @@ class CustomUserManager(BaseUserManager):
             business_id=business_id,
             identification_number=identification_number,
             phone=phone,
-            role=role,
             **extra_fields,
         )
         user.set_password(password)
@@ -81,7 +76,6 @@ class CustomUserManager(BaseUserManager):
         business_id,
         identification_number,
         phone,
-        role,
         password,
         **extra_fields,
     ):
@@ -92,7 +86,6 @@ class CustomUserManager(BaseUserManager):
             business_id (integer): business ID to which the user belongs
             identification_number (string): User unique identification number
             phone (string): User phone number
-            role (string): User role
             password (string): User password
 
         Raises:
@@ -112,9 +105,6 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        if role != "superadmin":
-            raise ValueError("Superuser must have role='superadmin'.")
-
         # Convert business_id to a Business instance if needed
         if not isinstance(
             business_id, models.Model
@@ -132,7 +122,6 @@ class CustomUserManager(BaseUserManager):
             business_id,
             identification_number,
             phone,
-            role,
             password,
             **extra_fields,
         )
@@ -152,7 +141,6 @@ class CustomUser(AbstractUser):
     business_id = models.ForeignKey("businesses.Business", on_delete=models.CASCADE)
     identification_number = models.CharField(max_length=10, unique=True)
     phone = models.CharField(max_length=16, unique=True)
-    role = models.CharField(max_length=25)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -163,7 +151,6 @@ class CustomUser(AbstractUser):
         "business_id",
         "identification_number",
         "phone",
-        "role",
     ]
 
     objects = CustomUserManager()
