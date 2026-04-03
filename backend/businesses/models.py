@@ -8,6 +8,8 @@ class Business(models.Model):
     description = models.TextField()
     rif = models.CharField(max_length=10, unique=True)
     address = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    municipality = models.CharField(max_length=255)
     phone = models.CharField(max_length=16, unique=True)
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
