@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "accounts",
     "billing",
@@ -127,9 +128,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "es-VE"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "America/Caracas"
 
 USE_I18N = True
 
@@ -144,6 +145,7 @@ STATIC_URL = "static/"
 # djangorestframework Authentication Classes
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
+        "accounts.authentication.CookieJWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -155,6 +157,9 @@ REST_FRAMEWORK = {
 # Default User Model
 AUTH_USER_MODEL = "accounts.CustomUser"
 
+# Allow CORS to receive and use credentials
+CORS_ALLOW_CREDENTIALS = True
+
 # Restrict CORS to the frontend domain
 CORS_ALLOWED_ORIGINS = ["http://frontend:80", "http://localhost:3000"]
 
@@ -163,7 +168,9 @@ CORS_URLS_REGEX = r"^/api/.*$"
 
 # Simple JWT settings
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "AUTH_HEADER_TYPES": ("Bearer",),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "TOKEN_OBTAIN_SERIALIZER": "accounts.serializers.CustomTokenSerializer",
 }

@@ -15,7 +15,7 @@ class CustomUserAdmin(UserAdmin):
         "phone",
         "identification_number",
         "business_id",
-        "role",
+        "get_role",
         "is_staff",
         "is_active",
     )
@@ -26,7 +26,7 @@ class CustomUserAdmin(UserAdmin):
         "phone",
         "identification_number",
         "business_id",
-        "role",
+        "groups",
         "is_staff",
         "is_active",
     )
@@ -42,7 +42,7 @@ class CustomUserAdmin(UserAdmin):
                     "phone",
                     "identification_number",
                     "business_id",
-                    "role",
+                    "groups",
                 )
             },
         ),
@@ -64,7 +64,7 @@ class CustomUserAdmin(UserAdmin):
                     "phone",
                     "identification_number",
                     "business_id",
-                    "role",
+                    "groups",
                     "is_staff",
                     "is_active",
                     "groups",
@@ -75,6 +75,11 @@ class CustomUserAdmin(UserAdmin):
     )
     search_fields = ("email",)
     ordering = ("email",)
+
+    def get_role(self, obj):
+        group = obj.groups.first()
+        return group.name if group else None
+    get_role.short_description = "role"
 
 
 admin.site.register(models.CustomUser, CustomUserAdmin)

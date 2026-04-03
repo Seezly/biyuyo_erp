@@ -11,6 +11,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     Serializer for the User model.
     """
 
+    role = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUser
         fields = [
@@ -23,10 +25,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "identification_number",
             "phone",
             "is_active",
-            "role",
             "created_at",
             "updated_at",
         ]
+
+    def get_role(self, obj):
+        group = obj.groups.first()
+        return group.name if group else None
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
@@ -94,8 +99,13 @@ class RegisterSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         user = CustomUser.objects.create_user(
-            **validated_data, role="owner", business_id=business
+            **validated_data, business_id=business
         )
+
+        # Assign owner group to the created business owner
+        owner_group, _ = Group.objects.get_or_create(name="owner")
+        user.groups.add(owner_group)
+        user.save()
 
         return user
 
@@ -114,17 +124,22 @@ class CustomTokenSerializer(TokenObtainPairSerializer):
         token["business_id"] = user.business_id.id
         token["business_name"] = user.business_id.name
         token["first_name"] = user.first_name
+        # Use first Group name as the role
+        group = user.groups.first()
+        token["role"] = group.name if group else None
 
         return token
 
     def validate(self, attrs):
         data = super().validate(attrs)
 
+        group = self.user.groups.first()
         data["user"] = {
             "id": self.user.id,
             "business_id": self.user.business_id.id,
             "business_name": self.user.business_id.name,
             "first_name": self.user.first_name,
+            "role": group.name if group else None,
         }
 
         return data

@@ -23,11 +23,12 @@ class Business(models.Model):
         return self.is_active
 
     def get_owner(self):
-        User = apps.get_model("accounts", "User")
-        return User.objects.filter(business_id=self.id, role="owner").first()
+        User = apps.get_model("accounts", "CustomUser")
+        # Filter users that belong to this business and are in the 'owner' group
+        return User.objects.filter(business_id=self.id, groups__name="owner").first()
 
     def get_users(self):
-        User = apps.get_model("accounts", "User")
+        User = apps.get_model("accounts", "CustomUser")
         return User.objects.filter(business_id=self.id)
 
     def get_customers(self):
