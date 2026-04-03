@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from businesses.models import Business
+from accounts.services.user_service import create_user_with_role
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -98,13 +99,8 @@ class RegisterSerializer(serializers.HyperlinkedModelSerializer):
             email=validated_data["email"],
         )
 
-        user = CustomUser.objects.create_user(
-            **validated_data, business_id=business
-        )
+        user = create_user_with_role(validated_data, business, "owner")
 
-        # Assign owner group to the created business owner
-        owner_group, _ = Group.objects.get_or_create(name="owner")
-        user.groups.add(owner_group)
         user.save()
 
         return user
