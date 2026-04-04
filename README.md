@@ -15,13 +15,17 @@ Biyuyo is made based in a rock-solid tech stack, aligned with my desire to explo
 ### Front-end
 
 - Vue.js
+
 - Vite
+
 - TailwindCSS
 
 ### Back-end
 
 - Python (with Django)
+
 - Django Rest Framework
+
 - Django Rest Framework Simple JWT
 
 ### Database
@@ -34,64 +38,70 @@ Biyuyo is made based in a rock-solid tech stack, aligned with my desire to explo
 
 ## How can I install this project?
 
-1. First things first: you have to clone this repo using the terminal and running the following commands:
+### Clone this repo
+
+First things first: you have to clone this repo using the terminal and running the following commands:
 
 `git clone https://github.com/Seezly/biyuyo_erp.git`
 
-2.  Now that you have cloned this repo, you have to install both front-end and back-end dependencies:
+### Install dependencies and set-up environment variables
 
-    2.1. Backend:
+Now that you have cloned this repo, you have to install both front-end and back-end dependencies:
 
-        2.1.1. Enter the backend directory:
+#### Backend
 
-        `cd backend`
-
-        2.1.2. Start the virtual environment with:
-
-        `python -m venv venv`
-
-        2.1.3. Install all the required dependencies:
-
-        `pip install -r requirements.txt`
-
-        Done! You have your backend ready to go.
-
-    2.2. Frontend:
-
-        2.2.1. Enter the frontend directory:
-
-        `cd frontend`
-
-        2.2.2. Install all the required dependencies:
-
-        `npm install`
-
-        2.2.3. Build the frontend
-
-        `npm run build`
-
-        Done! You have your frontend ready to show.
-
-3.  Now that both frontend and backend are ready, we now have to copy or .env.example file into .env, so we can declare our environment variables:
+##### Enter the backend directory:
 
 `cd backend`
 
+##### Start the virtual environment with:
+
+`python -m venv venv`
+
+##### Install all the required dependencies:
+
+`pip install -r requirements.txt`
+
+##### Now that both frontend and backend are ready, we now have to copy or .env.example file into .env, so we can declare our environment variables:
+
 `cp .env.example .env`
 
-4. We're almost there! Now, we are going to make migrations. But first, please be sure your PostgreSQL server is up and all the credentials are correct **and** are inside the environment variables in .env
+**Done! You have your backend ready to go.**
 
-    4.0. Of course, you will have to create a new database with the information you've written in the environment variables before going any further.
+#### Frontend:
 
-    4.1. Start the backend!:
+##### Enter the frontend directory:
 
-    `python manage.py runserver`
+`cd frontend`
 
-    4.2. Make migrations:
+##### Install all the required dependencies:
 
-    `python -m django-admin migrate`
+`npm install`
 
-    We're ready to go.
+##### Build the frontend
 
-5. Installation using Docker:
+`npm run build`
+
+**Done! You have your frontend ready to show.**
+
+### Database
+
+We're almost there! Now, we are going to make migrations. But first, please be sure your PostgreSQL server is up and all the credentials are correct **and** are inside the environment variables in .env
+
+Of course, you will have to create a new database with the information you've written in the environment variables before going any further.
+
+##### Make migrations:
+
+`python manage.py migrate`
+
+##### Start the backend!:
+
+`python manage.py runserver`
+
+**We're ready to go.**
+
+### Installation using Docker:
+
+You will have to follow the above steps for copying and edit the .env file. Then you're free to execute the following command (make sure you have Docker Compose installed and running):
 
 `docker compose --env-file ./backend/.env up --build`
