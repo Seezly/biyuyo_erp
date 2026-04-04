@@ -42,7 +42,6 @@ class CustomUserAdmin(UserAdmin):
                     "phone",
                     "identification_number",
                     "business_id",
-                    "groups",
                 )
             },
         ),
@@ -64,7 +63,6 @@ class CustomUserAdmin(UserAdmin):
                     "phone",
                     "identification_number",
                     "business_id",
-                    "groups",
                     "is_staff",
                     "is_active",
                     "groups",
