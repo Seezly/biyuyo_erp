@@ -161,7 +161,7 @@ AUTH_USER_MODEL = "accounts.CustomUser"
 CORS_ALLOW_CREDENTIALS = True
 
 # Restrict CORS to the frontend domain
-CORS_ALLOWED_ORIGINS = ["http://frontend:80", "http://localhost:3000"]
+CORS_ALLOWED_ORIGINS = ["http://frontend:80", "http://localhost:5173"]
 
 # Restrict CORS to the frontend domain for all API endpoints
 CORS_URLS_REGEX = r"^/api/.*$"

@@ -33,6 +33,8 @@ class LoginView(views.APIView):
     authorization and refresh tokens into cookies. Returns a response.
     """
 
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
