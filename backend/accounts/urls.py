@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from accounts.views.viewsets import UserViewSet, GroupViewSet
 from accounts.views.tokens import CustomTokenView, RefreshView
-from accounts.views.auth import RegisterView, LoginView, LogoutView
+from accounts.views.auth import RegisterView, LoginView, LogoutView, MeView
 
 
 router = routers.DefaultRouter()
@@ -18,4 +18,5 @@ urlpatterns = [
 	path("login/", LoginView.as_view(), name="login"),
 	path("logout/", LogoutView.as_view(), name="logout"),
 	path("refresh/", RefreshView.as_view(), name="token_refresh_cookie"),
+	path("me/", MeView.as_view(), name="me"),
 ]

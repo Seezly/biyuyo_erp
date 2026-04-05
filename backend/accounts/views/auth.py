@@ -107,3 +107,16 @@ class LogoutView(views.APIView):
         response.delete_cookie("refresh_token")
 
         return response
+
+class MeView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        return Response({
+            "id": user.id,
+            "role": user.groups.first().name if user.groups.exists() else None,
+            "business_id": user.business_id.id,
+            "first_name": user.first_name,
+        })
