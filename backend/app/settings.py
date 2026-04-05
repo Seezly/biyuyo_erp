@@ -33,7 +33,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,frontend").split(",")
 
 
 # Application definition
@@ -160,7 +160,7 @@ AUTH_USER_MODEL = "accounts.CustomUser"
 CORS_ALLOW_CREDENTIALS = True
 
 # Restrict CORS to the frontend domain
-CORS_ALLOWED_ORIGINS = ["http://frontend:80", "http://localhost:5173"]
+CORS_ALLOWED_ORIGINS = ["http://frontend:80", "http://localhost:5173", "http://frontend:5173"]
 
 # Restrict CORS to the frontend domain for all API endpoints
 CORS_URLS_REGEX = r"^/api/.*$"

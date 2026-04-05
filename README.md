@@ -102,6 +102,10 @@ Of course, you will have to create a new database with the information you've wr
 
 ### Installation using Docker:
 
-You will have to follow the above steps for copying and edit the .env file. Then you're free to execute the following command (make sure you have Docker Compose installed and running):
+You will have to follow the above steps for copying and edit the .env file both in backend directory and root directory. Then you're free to execute the following command (make sure you have Docker Compose installed and running):
 
-`docker compose --env-file ./backend/.env up --build`
+For development:
+`docker compose -f docker-compose.dev.yml up --build`
+
+For production:
+`docker compose -f docker-compose.prod.yml up --build`
