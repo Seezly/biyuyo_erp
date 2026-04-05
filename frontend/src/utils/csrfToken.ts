@@ -1,5 +1,5 @@
 export default async function csrfToken(): Promise<void> {
-	await fetch('/api/csrf', {
+	await fetch(import.meta.env.BASE_URL + '/api/csrf/', {
 		method: 'GET',
 		credentials: 'include',
 	})

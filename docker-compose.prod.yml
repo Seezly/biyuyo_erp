@@ -4,6 +4,9 @@ services:
     backend:
         build: ./backend
         container_name: biyuyo-backend
+        command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+        env_file:
+            - ./backend/.env.production
         restart: unless-stopped
         volumes:
             - ./backend:/app
@@ -15,13 +18,15 @@ services:
             - biyuyo-network
 
     frontend:
-        build: ./frontend
+        build:
+            context: ./frontend
+            target: production-stage
         container_name: biyuyo-frontend
         restart: unless-stopped
         volumes:
             - ./frontend:/app
         ports:
-            - "3000:80"
+            - "80:80"
         depends_on:
             - backend
         networks:
@@ -31,6 +36,8 @@ services:
         image: postgres:17-alpine3.22
         container_name: biyuyo-db
         restart: unless-stopped
+        env_file:
+            - .env
         environment:
             POSTGRES_DB: ${DB_NAME}
             POSTGRES_USER: ${DB_USER}

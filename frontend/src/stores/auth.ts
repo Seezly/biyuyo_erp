@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', {
 			this.isAuthenticated = false
 
 			try {
-				await fetch(`http://localhost:8000/api/logout/`, {
+				await fetch('/api/logout/', {
 					method: 'POST',
 					credentials: 'include',
 				})
@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
 
 		async fetchUser() {
 			try {
-				const res = await apiFetch('http://localhost:8000/api/me/')
+				const res = await apiFetch('/api/me/')
 
 				if (!res.ok) throw new Error()
 

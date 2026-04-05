@@ -21,7 +21,7 @@ const form = ref<LoginForm>({
 
 const submit = async () => {
 	try {
-		const response = await apiFetch('http://localhost:8000/api/login/', {
+		const response = await apiFetch('/api/login/', {
 			method: 'POST',
 			body: JSON.stringify(form.value),
 		})

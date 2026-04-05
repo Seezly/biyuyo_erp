@@ -7,6 +7,9 @@ RUN adduser --disabled-password --gecos '' appuser
 
 WORKDIR /app
 
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
@@ -18,5 +21,3 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8000
-
-CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]

@@ -13,7 +13,7 @@ refresh the token, retry the fetch and returns the final response
 export async function apiFetch(url: string, options: RequestInit = {}) {
 	const csrfToken = getCookie('csrftoken') || ''
 
-	const res = await fetch(url, {
+	const res = await fetch(import.meta.env.BASE_URL + url, {
 		credentials: 'include',
 		headers: {
 			'Content-Type': 'application/json',
@@ -24,13 +24,13 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 	})
 
 	if (res.status === 401) {
-		const refreshResponse = await fetch('http://localhost:8000/api/refresh/', {
+		const refreshResponse = await fetch(import.meta.env.BASE_URL + '/api/refresh/', {
 			method: 'POST',
 			credentials: 'include',
 		})
 
 		if (refreshResponse.ok) {
-			return fetch(url, {
+			return fetch(import.meta.env.BASE_URL + url, {
 				...options,
 				credentials: 'include',
 				headers: {
@@ -40,7 +40,10 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 				},
 			})
 		} else {
-			await fetch('http://localhost:8000/api/logout/', { method: 'POST', credentials: 'include' })
+			await fetch(import.meta.env.BASE_URL + '/api/logout/', {
+				method: 'POST',
+				credentials: 'include',
+			})
 			throw new Error('Session expired')
 		}
 	}
