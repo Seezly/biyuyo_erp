@@ -11,6 +11,8 @@ class RefreshView(views.APIView):
     """
     API endpoint for JWT token refresh. Returns a response
     """
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
@@ -18,7 +20,7 @@ class RefreshView(views.APIView):
         if not refresh_token:
             return Response({"error": "No refresh token"}, status=401)
         try:
-            old_refresh = RefreshToken(refresh_token)
+            old_refresh = RefreshToken(refresh_token)   
 
             # Get the user from the token's user_id claim
             user_id = old_refresh.get("user_id")

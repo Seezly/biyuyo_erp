@@ -89,6 +89,7 @@ class LogoutView(views.APIView):
     API endpoint for users to logout, which sets the JWT token in a blacklist and
     returns a response.
     """
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
 
@@ -109,8 +110,9 @@ class LogoutView(views.APIView):
         return response
 
 class MeView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
+    """
+    API endpoint that retrieves the information of the current authenticated user.
+    """
     def get(self, request):
         user = request.user
 
