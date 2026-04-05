@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
 
 import { apiFetch } from '@/utils/helpers'
 
@@ -53,7 +54,9 @@ const submit = async () => {
 			</div>
 			<InputItem v-model="form.password" type="password" name="password" placeholder="Contraseña" />
 		</label>
-		<ButtonItem @click.prevent="submit" text="Iniciar sesión" />
-		<ButtonItem text="Regístrate" type="outlined" />
+		<ButtonItem @click="submit" text="Iniciar sesión" />
+		<RouterLink to="/register" class="w-full">
+			<ButtonItem text="Regístrate" variant="outlined" />
+		</RouterLink>
 	</form>
 </template>
