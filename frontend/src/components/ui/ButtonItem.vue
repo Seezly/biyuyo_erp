@@ -3,7 +3,8 @@ import { computed } from 'vue'
 
 const props = defineProps<{
 	text: string
-	type?: 'primary' | 'secondary' | 'outlined' | 'inverted'
+	variant?: 'primary' | 'secondary' | 'outlined' | 'inverted'
+	type?: 'button' | 'submit' | 'reset'
 	width?: 'full' | 'auto'
 }>()
 
@@ -20,14 +21,16 @@ const widths = {
 }
 
 const buttonClasses = computed(() => [
-	colors[props.type || 'primary'],
+	colors[props.variant || 'primary'],
 	widths[props.width || 'full'],
 	'py-2 px-4 rounded-lg cursor-pointer',
 ])
+
+const types = props.type || 'button'
 </script>
 
 <template>
-	<button :class="buttonClasses">
+	<button :type="types" :class="buttonClasses">
 		{{ $props.text }}
 	</button>
 </template>
