@@ -24,7 +24,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 	})
 
 	if (res.status === 401) {
-		await fetch('/api/refresh/', {
+		await fetch('http://localhost:8000/api/refresh/', {
 			method: 'POST',
 			credentials: 'include',
 		})
