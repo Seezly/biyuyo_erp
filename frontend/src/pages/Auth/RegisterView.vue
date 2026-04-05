@@ -146,7 +146,7 @@ const submit = async () => {
 							/>
 						</label>
 					</div>
-					<ButtonItem text="Siguiente paso" @click.prevent="step++" />
+					<ButtonItem text="Siguiente paso" @click="step++" />
 				</article>
 				<article
 					:class="step === 2 ? '-translate-x-full' : 'translate-x-0'"
@@ -203,7 +203,7 @@ const submit = async () => {
 							placeholder="Descripción del negocio"
 						/>
 					</label>
-					<ButtonItem @click.prevent="submit" text="Crear cuenta" />
+					<ButtonItem @click="submit" text="Crear cuenta" />
 				</article>
 			</section>
 		</form>
