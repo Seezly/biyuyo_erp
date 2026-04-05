@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
 import { type User } from '@/types/Auth'
+import { apiFetch } from '@/utils/helpers'
 
 export const useAuthStore = defineStore('auth', {
 	state: () => ({
@@ -11,7 +12,8 @@ export const useAuthStore = defineStore('auth', {
 
 	actions: {
 		setUser(user: User) {
-			;((this.user = user), (this.isAuthenticated = true))
+			this.user = user
+			this.isAuthenticated = true
 		},
 
 		async logout() {
@@ -19,7 +21,7 @@ export const useAuthStore = defineStore('auth', {
 			this.isAuthenticated = false
 
 			try {
-				await fetch(`htts://localhost:8000/api/logout/`, {
+				await fetch(`http://localhost:8000/api/logout/`, {
 					method: 'POST',
 					credentials: 'include',
 				})
@@ -30,17 +32,15 @@ export const useAuthStore = defineStore('auth', {
 
 		async fetchUser() {
 			try {
-				const res = await fetch('http://localhost:8000/api/me/', {
-					credentials: 'include',
-				})
+				const res = await apiFetch('http://localhost:8000/api/me/')
 
 				if (!res.ok) throw new Error()
 
 				const data = await res.json()
 
 				this.setUser(data)
-			} catch {
-				this.logout()
+			} catch (e) {
+				console.error('fetchUser error:', e)
 			} finally {
 				this.loading = false
 			}

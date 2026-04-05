@@ -24,20 +24,25 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 	})
 
 	if (res.status === 401) {
-		await fetch('http://localhost:8000/api/refresh/', {
+		const refreshResponse = await fetch('http://localhost:8000/api/refresh/', {
 			method: 'POST',
 			credentials: 'include',
 		})
 
-		return fetch(url, {
-			...options,
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': csrfToken,
-				...(options.headers || {}),
-			},
-		})
+		if (refreshResponse.ok) {
+			return fetch(url, {
+				...options,
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRFToken': csrfToken,
+					...(options.headers || {}),
+				},
+			})
+		} else {
+			await fetch('http://localhost:8000/api/logout/', { method: 'POST', credentials: 'include' })
+			throw new Error('Session expired')
+		}
 	}
 
 	return res

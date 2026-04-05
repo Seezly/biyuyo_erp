@@ -8,7 +8,7 @@ const router = createRouter({
 			path: '/login',
 			name: 'Login',
 			component: () => import('@/pages/Auth/LoginView.vue'),
-			meta: { requiresAuth: true },
+			meta: { guestOnly: true },
 		},
 		{
 			path: '/register',
@@ -16,17 +16,30 @@ const router = createRouter({
 			component: () => import('@/pages/Auth/RegisterView.vue'),
 			meta: { guestOnly: true },
 		},
+		{
+			path: '/dashboard',
+			name: 'Dashboard',
+			component: () => import('@/pages/DashboardView.vue'),
+			meta: { requiresAuth: true },
+		},
 	],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
 	const auth = useAuthStore()
 
-	if (to.meta.requiresAuth && !auth.isAuthenticated) {
+	if (auth.loading) {
+		await auth.fetchUser()
+	}
+
+	const requiresAuth = to.matched.some((r) => r.meta.requiresAuth)
+	const guestOnly = to.matched.some((r) => r.meta.guestOnly)
+
+	if (requiresAuth && !auth.isAuthenticated) {
 		return next('/login')
 	}
 
-	if (to.meta.guestOnly && auth.isAuthenticated) {
+	if (guestOnly && auth.isAuthenticated) {
 		return next('/dashboard')
 	}
 
