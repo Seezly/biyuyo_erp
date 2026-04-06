@@ -108,4 +108,9 @@ For development:
 `docker compose -f docker-compose.dev.yml up --build`
 
 For production:
+
+`cd backend`
+
+`cp .env.example .env.production` (Don't forget to change the variables)
+
 `docker compose -f docker-compose.prod.yml up --build`
