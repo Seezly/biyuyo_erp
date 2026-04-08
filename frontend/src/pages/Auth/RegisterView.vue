@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import router from '@/router'
 
-import ButtonItem from '@/components/ui/ButtonItem.vue'
-import InputItem from '@/components/ui/InputItem.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseInput from '@/components/ui/BaseInput.vue'
 import StepsItem from '@/components/StepsItem.vue'
 
 import { apiFetch } from '@/utils/helpers'
@@ -92,7 +92,7 @@ const submit = async () => {
 					<div class="flex justify-between items-center gap-4">
 						<label class="w-full flex flex-col text-dark">
 							Primer Nombre
-							<InputItem
+							<BaseInput
 								v-model="form.first_name"
 								type="text"
 								name="firstName"
@@ -101,7 +101,7 @@ const submit = async () => {
 						</label>
 						<label class="w-full flex flex-col text-dark">
 							Primer Apellido
-							<InputItem
+							<BaseInput
 								v-model="form.last_name"
 								type="text"
 								name="lastName"
@@ -111,11 +111,11 @@ const submit = async () => {
 					</div>
 					<label class="w-full flex flex-col text-dark">
 						Correo electrónico
-						<InputItem v-model="form.email" type="email" name="email" placeholder="Correo electrónico" />
+						<BaseInput v-model="form.email" type="email" name="email" placeholder="Correo electrónico" />
 					</label>
 					<label class="w-full flex flex-col text-dark">
 						Cédula de identidad
-						<InputItem
+						<BaseInput
 							v-model="form.identification_number"
 							type="text"
 							name="identificationNumber"
@@ -124,12 +124,12 @@ const submit = async () => {
 					</label>
 					<label class="w-full flex flex-col text-dark">
 						Teléfono
-						<InputItem v-model="form.phone" type="text" name="phone" placeholder="Teléfono" />
+						<BaseInput v-model="form.phone" type="text" name="phone" placeholder="Teléfono" />
 					</label>
 					<div class="flex justify-between items-center gap-4 mb-8">
 						<label class="w-full flex flex-col text-dark">
 							Contraseña
-							<InputItem
+							<BaseInput
 								v-model="form.password"
 								type="password"
 								name="password"
@@ -138,7 +138,7 @@ const submit = async () => {
 						</label>
 						<label class="w-full flex flex-col text-dark">
 							Confirmar Contraseña
-							<InputItem
+							<BaseInput
 								v-model="form.confirm_password"
 								type="password"
 								name="confirmPassword"
@@ -146,7 +146,7 @@ const submit = async () => {
 							/>
 						</label>
 					</div>
-					<ButtonItem text="Siguiente paso" @click="step++" />
+					<BaseButton text="Siguiente paso" @click="step++" />
 				</article>
 				<article
 					:class="step === 2 ? '-translate-x-full' : 'translate-x-0'"
@@ -154,7 +154,7 @@ const submit = async () => {
 				>
 					<label class="w-full flex flex-col text-dark">
 						Nombre del negocio
-						<InputItem
+						<BaseInput
 							v-model="form.business_name"
 							type="text"
 							name="businessName"
@@ -163,7 +163,7 @@ const submit = async () => {
 					</label>
 					<label class="w-full flex flex-col text-dark">
 						Dirección del negocio
-						<InputItem
+						<BaseInput
 							v-model="form.business_address"
 							type="text"
 							name="businessAddress"
@@ -173,11 +173,11 @@ const submit = async () => {
 					<div class="flex justify-between items-center gap-4">
 						<label class="w-full flex flex-col text-dark">
 							Estado
-							<InputItem v-model="form.state" type="text" name="state" placeholder="Estado" />
+							<BaseInput v-model="form.state" type="text" name="state" placeholder="Estado" />
 						</label>
 						<label class="w-full flex flex-col text-dark">
 							Municipio
-							<InputItem
+							<BaseInput
 								v-model="form.municipality"
 								type="text"
 								name="municipality"
@@ -187,7 +187,7 @@ const submit = async () => {
 					</div>
 					<label class="w-full flex flex-col text-dark">
 						R.I.F. del negocio (o personal)
-						<InputItem
+						<BaseInput
 							v-model="form.business_rif"
 							type="text"
 							name="rif"
@@ -196,14 +196,14 @@ const submit = async () => {
 					</label>
 					<label class="w-full flex flex-col text-dark mb-8">
 						Descripción del negocio
-						<InputItem
+						<BaseInput
 							v-model="form.business_description"
 							type="text"
 							name="businessDescription"
 							placeholder="Descripción del negocio"
 						/>
 					</label>
-					<ButtonItem @click="submit" text="Crear cuenta" />
+					<BaseButton @click="submit" text="Crear cuenta" />
 				</article>
 			</section>
 		</form>

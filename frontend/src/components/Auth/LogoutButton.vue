@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ButtonItem from '@/components/ui/ButtonItem.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
@@ -13,5 +13,5 @@ const handleLogout = async () => {
 </script>
 
 <template>
-	<ButtonItem @click="handleLogout" text="Cerrar sesión" />
+	<BaseButton @click="handleLogout" text="Cerrar sesión" />
 </template>

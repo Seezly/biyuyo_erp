@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
 
 import { apiFetch } from '@/utils/helpers'
 
-import ButtonItem from '@/components/ui/ButtonItem.vue'
-import InputItem from '@/components/ui/InputItem.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseInput from '@/components/ui/BaseInput.vue'
 
 interface LoginForm {
 	email: string
@@ -45,18 +44,16 @@ const submit = async () => {
 	<form action="" class="flex justify-start items-center flex-col gap-4 w-md">
 		<label class="w-full flex flex-col text-dark">
 			Correo electrónico
-			<InputItem v-model="form.email" type="email" name="email" placeholder="Correo electrónico" />
+			<BaseInput v-model="form.email" type="email" name="email" placeholder="Correo electrónico" />
 		</label>
 		<label class="w-full flex flex-col text-dark mb-8">
 			<div class="flex justify-between items-center">
 				Contraseña
 				<a href="#" class="text-primary underline text-xs font-light">¿Olvidaste tu contraseña?</a>
 			</div>
-			<InputItem v-model="form.password" type="password" name="password" placeholder="Contraseña" />
+			<BaseInput v-model="form.password" type="password" name="password" placeholder="Contraseña" />
 		</label>
-		<ButtonItem @click="submit" text="Iniciar sesión" />
-		<RouterLink to="/register" class="w-full">
-			<ButtonItem text="Regístrate" variant="outlined" />
-		</RouterLink>
+		<BaseButton @click="submit" text="Iniciar sesión" />
+		<BaseButton to="/register" text="Regístrate" variant="outlined" />
 	</form>
 </template>
