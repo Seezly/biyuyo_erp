@@ -15,6 +15,8 @@ class BusinessSerializers(serializers.HyperlinkedModelSerializer):
             "description",
             "rif",
             "address",
+            "state",
+            "municipality",
             "phone",
             "email",
             "is_active",

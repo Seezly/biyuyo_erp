@@ -55,6 +55,8 @@ class RegisterSerializer(serializers.HyperlinkedModelSerializer):
     business_description = serializers.CharField(required=True)
     business_rif = serializers.CharField(max_length=10, required=True)
     business_address = serializers.CharField(max_length=255, required=True)
+    business_state = serializers.CharField(max_length=255, required=True)
+    business_municipality = serializers.CharField(max_length=255, required=True)
 
     class Meta:
         """
@@ -76,6 +78,8 @@ class RegisterSerializer(serializers.HyperlinkedModelSerializer):
             "business_description",
             "business_rif",
             "business_address",
+            "business_state",
+            "business_municipality",
         ]
 
         extra_kwargs = {
@@ -89,12 +93,16 @@ class RegisterSerializer(serializers.HyperlinkedModelSerializer):
         business_description = validated_data.pop("business_description")
         business_rif = validated_data.pop("business_rif")
         business_address = validated_data.pop("business_address")
+        business_state = validated_data.pop("business_state")
+        business_municipality = validated_data.pop("business_municipality")
 
         business = Business.objects.create(
             name=business_name,
             description=business_description,
             rif=business_rif,
             address=business_address,
+            state=business_state,
+            municipality=business_municipality,
             phone=validated_data["phone"],
             email=validated_data["email"],
         )
