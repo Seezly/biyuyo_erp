@@ -14,7 +14,7 @@ const colors = {
 
 const cardClasses = computed(() => [
 	colors[props.variant || 'primary'],
-	'rounded-xl bg-primary p-10 shadow-sm',
+	'rounded-xl p-10 shadow-sm',
 ])
 </script>
 
