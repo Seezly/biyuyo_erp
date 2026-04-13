@@ -8,7 +8,7 @@ const props = defineProps<{
 const colors = {
 	primary: 'bg-primary',
 	secondary: 'bg-secondary',
-	outlined: 'border border-secondary',
+	outlined: 'border border-secondary bg-[#fff]',
 	inverted: 'bg-dark text-white',
 }
 
