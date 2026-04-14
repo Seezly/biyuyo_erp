@@ -12,10 +12,7 @@ const colors = {
 	inverted: 'bg-dark text-white',
 }
 
-const cardClasses = computed(() => [
-	colors[props.variant || 'primary'],
-	'rounded-xl p-10 shadow-sm',
-])
+const cardClasses = computed(() => [colors[props.variant || 'primary'], 'rounded-xl p-8 shadow-sm'])
 </script>
 
 <template>

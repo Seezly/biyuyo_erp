@@ -23,6 +23,6 @@ const onInput = (e: Event) => {
 		:placeholder="props.placeholder"
 		:value="props.modelValue"
 		@input="onInput"
-		class="py-2 px-3 rounded-xl border border-secondary text-primary"
+		class="py-2 px-4 rounded-xl border border-secondary text-primary"
 	/>
 </template>
