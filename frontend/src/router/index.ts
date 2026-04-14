@@ -23,6 +23,27 @@ const router = createRouter({
 			meta: { requiresAuth: true },
 		},
 		{
+			path: '/profile',
+			meta: { requiresAuth: true },
+			children: [
+				{
+					path: '',
+					name: 'Profile',
+					component: () => import('@/pages/Users/Profile/ProfileView.vue'),
+				},
+				{
+					path: 'change-password',
+					name: 'ChangePassword',
+					component: () => import('@/pages/Users/Profile/ChangePasswordView.vue'),
+				},
+				{
+					path: 'notifications',
+					name: 'Notifications',
+					component: () => import('@/pages/Users/Profile/NotificationsView.vue'),
+				},
+			],
+		},
+		{
 			path: '/logout',
 			name: 'Logout',
 			component: () => import('@/pages/Auth/LogoutView.vue'),
