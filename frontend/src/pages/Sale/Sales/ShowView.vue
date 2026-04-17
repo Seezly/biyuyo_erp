@@ -3,7 +3,7 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 </script>
 
 <template>
-	<section class="w-full min-h-screen flex flex-col gap-8 mx-8 justify-start items-start self-start">
+	<section class="w-full flex flex-col gap-8 mx-8 justify-start items-start self-start">
 		<div>
 			<h1 class="text-primary text-2xl font-bold">Historial de ventas</h1>
 			<p>Consulta y gestiona el historial de ventas</p>
