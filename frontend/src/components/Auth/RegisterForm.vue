@@ -4,11 +4,10 @@ import router from '@/router'
 
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import StepsItem from '@/components/StepsItem.vue'
 import { apiFetch } from '@/utils/helpers'
 
-const props = defineProps<{
-	step: number
-}>()
+const step = ref<number>(1)
 
 interface RegisterForm {
 	first_name: string
@@ -44,7 +43,7 @@ const form = ref<RegisterForm>({
 })
 
 const validateStep = () => {
-	if (props.step === 1) {
+	if (step.value === 1) {
 		if (
 			form.value.first_name.trim() !== '' &&
 			form.value.last_name.trim() !== '' &&
@@ -55,9 +54,9 @@ const validateStep = () => {
 			form.value.confirm_password.trim() !== '' &&
 			form.value.password === form.value.confirm_password
 		) {
-			return emit('incrementStep')
+			return step.value++
 		}
-	} else if (props.step === 2) {
+	} else if (step.value === 2) {
 		if (
 			form.value.business_name.trim() !== '' &&
 			form.value.business_address.trim() !== '' &&
@@ -97,13 +96,20 @@ const submit = async () => {
 </script>
 
 <template>
-	<form action="" class="flex justify-start items-center flex-col gap-4 w-124">
+	<form action="" class="flex justify-start items-center flex-col gap-4 w-full lg:w-md">
+		<StepsItem
+			:step="step"
+			:steps="[
+				{ step: 1, label: 'Datos personales' },
+				{ step: 2, label: 'Datos del negocio' },
+			]"
+		/>
 		<section class="w-full flex justify-start items-start overflow-hidden">
 			<article
 				:class="step === 1 ? 'translate-x-0' : '-translate-x-full'"
 				class="shrink-0 basis-full w-full transform transition duration-200 flex flex-col gap-4"
 			>
-				<div class="flex justify-between items-center gap-4">
+				<div class="grid grid-cols-2 grid-rows-1 gap-4">
 					<label class="w-full flex flex-col text-dark">
 						Primer Nombre
 						<BaseInput
@@ -140,7 +146,7 @@ const submit = async () => {
 					Teléfono
 					<BaseInput v-model="form.phone" type="text" name="phone" placeholder="Teléfono" />
 				</label>
-				<div class="flex justify-between items-center gap-4 mb-8">
+				<div class="grid grid-cols-2 grid-rows-1 gap-4 mb-8">
 					<label class="w-full flex flex-col text-dark">
 						Contraseña
 						<BaseInput v-model="form.password" type="password" name="password" placeholder="Contraseña" />
@@ -179,7 +185,7 @@ const submit = async () => {
 						placeholder="Dirección del negocio"
 					/>
 				</label>
-				<div class="flex justify-between items-center gap-4">
+				<div class="grid grid-cols-2 grid-rows-1 gap-4">
 					<label class="w-full flex flex-col text-dark">
 						Estado
 						<BaseInput v-model="form.business_state" type="text" name="state" placeholder="Estado" />

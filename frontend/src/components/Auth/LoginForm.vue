@@ -41,7 +41,7 @@ const submit = async () => {
 </script>
 
 <template>
-	<form action="" class="flex justify-start items-center flex-col gap-4 w-md">
+	<form action="" class="flex justify-start items-center flex-col gap-4 w-full lg:w-md">
 		<label class="w-full flex flex-col text-dark">
 			Correo electrónico
 			<BaseInput v-model="form.email" type="email" name="email" placeholder="Correo electrónico" />
