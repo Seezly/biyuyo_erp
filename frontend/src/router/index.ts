@@ -20,7 +20,7 @@ const router = createRouter({
 			path: '/dashboard',
 			name: 'Dashboard',
 			component: () => import('@/pages/DashboardView.vue'),
-			meta: { requiresAuth: true },
+			meta: { requiresAuth: false },
 		},
 		{
 			path: '/profile',
@@ -40,6 +40,54 @@ const router = createRouter({
 					path: 'notifications',
 					name: 'Notifications',
 					component: () => import('@/pages/Users/Profile/NotificationsView.vue'),
+				},
+				{
+					path: 'reminders',
+					name: 'Reminders',
+					component: () => import('@/pages/Users/Profile/RemindersView.vue'),
+				},
+			],
+		},
+		{
+			path: '/sales',
+			meta: { requiresAuth: true },
+			children: [
+				{
+					path: '',
+					name: 'Sales',
+					component: () => import('@/pages/Sale/Sales/ShowView.vue'),
+				},
+				{
+					path: 'pos',
+					name: 'POS',
+					component: () => import('@/pages/Sale/Sales/CreateView.vue'),
+				},
+			],
+		},
+		{
+			path: '/inventory',
+			meta: { requiresAuth: true },
+			children: [
+				{
+					path: '',
+					name: 'Inventory',
+					component: () => import('@/pages/Inventory/Inventory/ShowView.vue'),
+				},
+			],
+		},
+		{
+			path: '/reports',
+			meta: { requiresAuth: true },
+			children: [
+				{
+					path: '',
+					name: 'Reports',
+					component: () => import('@/pages/Reports/ReportsView.vue'),
+				},
+				{
+					path: ':reportType',
+					name: 'CustomReport',
+					component: () => import('@/pages/Reports/CustomReportView.vue'),
 				},
 			],
 		},
