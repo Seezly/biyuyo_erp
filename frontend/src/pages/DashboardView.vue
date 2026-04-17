@@ -7,7 +7,7 @@ const store = useAuthStore()
 </script>
 
 <template>
-	<section class="w-full min-h-screen flex flex-col gap-8 justify-start m-8 md:m-0 items-start">
+	<section class="w-full flex flex-col gap-8 justify-start mx-8 items-start self-start">
 		<article class="w-full">
 			<p class="text-2xl font-semibold mb-8">
 				Bienvenido,

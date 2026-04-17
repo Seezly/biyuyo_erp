@@ -15,7 +15,7 @@ function handleLogin(data: User) {
 </script>
 
 <template>
-	<section class="w-full flex flex-col items-center justify-center">
+	<section class="w-full mx-8 flex flex-col items-center justify-center">
 		<div class="mb-8">
 			<h1 class="text-3xl text-center font-bold text-primary mb-4">Iniciar sesión</h1>
 			<p class="text-dark text-center">Rellena tus datos para iniciar sesión</p>

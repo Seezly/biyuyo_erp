@@ -5,7 +5,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 </script>
 
 <template>
-	<section class="w-full min-h-screen flex flex-col gap-8 mx-8 justify-start items-start self-start">
+	<section class="w-full flex flex-col gap-8 mx-8 justify-start items-start self-start">
 		<div>
 			<h1 class="text-primary text-2xl font-bold">Mi perfil</h1>
 			<p>Maneja tu información personal y preferencias</p>
