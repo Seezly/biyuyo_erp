@@ -22,7 +22,7 @@ watch(
 </script>
 
 <template>
-	<div class="w-md mb-8">
+	<div class="w-full">
 		<h2 class="sr-only">Pasos</h2>
 
 		<div
