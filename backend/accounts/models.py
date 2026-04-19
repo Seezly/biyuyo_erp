@@ -73,7 +73,6 @@ class CustomUserManager(BaseUserManager):
         first_name,
         last_name,
         email,
-        business_id,
         identification_number,
         phone,
         password,
@@ -82,8 +81,9 @@ class CustomUserManager(BaseUserManager):
         """Custom superuser creation method
 
         Args:
-            email (email): user email address
-            business_id (integer): business ID to which the user belongs
+            first_name (string): user's first name
+            last_name (string): user's last name
+            email (string): user email address
             identification_number (string): User unique identification number
             phone (string): User phone number
             password (string): User password
@@ -105,15 +105,21 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        # Convert business_id to a Business instance if needed
-        if not isinstance(
-            business_id, models.Model
-        ):  # or check against Business directly
-            Business = apps.get_model("businesses", "Business")
-            try:
-                business_id = Business.objects.get(pk=business_id)
-            except (Business.DoesNotExist, ValueError):
-                raise ValueError(f"Business with id {business_id} does not exist")
+        # Get or create a default business for superusers
+        Business = apps.get_model("businesses", "Business")
+        try:
+            business_id = Business.objects.get(pk=1)
+        except (Business.DoesNotExist, ValueError):
+            business_id = Business.objects.create(
+                name="Biyuyo",
+                description="Biyuyo Business for staff users",
+                rif="J000000000",
+                address="N/A",
+                state="N/A",
+                municipality="N/A",
+                phone="04000000000",
+                email=email,
+            )
 
         return self.create_user(
             first_name,
@@ -148,7 +154,6 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = [
         "first_name",
         "last_name",
-        "business_id",
         "identification_number",
         "phone",
     ]

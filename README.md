@@ -90,11 +90,19 @@ We're almost there! Now, we are going to make migrations. But first, please be s
 
 Of course, you will have to create a new database with the information you've written in the environment variables before going any further.
 
-##### Make migrations:
+#### Make migrations:
 
 `python manage.py migrate`
 
-##### Start the backend!:
+### Before start
+
+Before starting the project, please create a superuser and verify all is in order to continue!
+
+### Create superuser:
+
+`python manage.py createsuperuser`
+
+#### Start the backend!:
 
 `python manage.py runserver`
 
