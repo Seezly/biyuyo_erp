@@ -17,14 +17,42 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework import routers
+
+from accounts.views.viewsets import UserViewSet, GroupViewSet
+from accounts.views.auth import RegisterView, LoginView, LogoutView, MeView
+from accounts.views.tokens import RefreshView
+from billing.views import PlanViewSet, SubscriptionViewSet, InvoiceViewSet
+from businesses.views import BusinessViewSet
+from customers.views import CustomerViewSet
+from inventory.views import CategoryViewSet, ProductViewSet, InventoryMovementViewSet
+from sales.views import SaleViewSet, SaleItemViewSet, PaymentViewSet
+from suppliers.views import SupplierViewSet, PurchaseViewSet, PurchaseItemViewSet
+
+router = routers.DefaultRouter()
+router.register(r"users", UserViewSet, basename="user")
+router.register(r"groups", GroupViewSet, basename="group")
+router.register(r"plans", PlanViewSet)
+router.register(r"subscriptions", SubscriptionViewSet)
+router.register(r"invoices", InvoiceViewSet)
+router.register(r"businesses", BusinessViewSet, basename="business")
+router.register(r"customers", CustomerViewSet)
+router.register(r"categories", CategoryViewSet)
+router.register(r"products", ProductViewSet)
+router.register(r"inventory-movements", InventoryMovementViewSet)
+router.register(r"sales", SaleViewSet)
+router.register(r"sale-items", SaleItemViewSet)
+router.register(r"payments", PaymentViewSet)
+router.register(r"suppliers", SupplierViewSet)
+router.register(r"purchases", PurchaseViewSet)
+router.register(r"purchase-items", PurchaseItemViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include("accounts.urls")),
-    path("api/", include("billing.urls")),
-    path("api/", include("businesses.urls")),
-    path("api/", include("customers.urls")),
-    path("api/", include("inventory.urls")),
-    path("api/", include("sales.urls")),
-    path("api/", include("suppliers.urls")),
+    path("api/", include(router.urls)),
+    path("api/register/", RegisterView.as_view(), name="register"),
+    path("api/login/", LoginView.as_view(), name="login"),
+    path("api/logout/", LogoutView.as_view(), name="logout"),
+    path("api/refresh/", RefreshView.as_view(), name="token_refresh_cookie"),
+    path("api/me/", MeView.as_view(), name="me"),
 ]

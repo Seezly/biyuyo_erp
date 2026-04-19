@@ -10,6 +10,9 @@ class SaleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Sale
         fields = "__all__"
+        extra_kwargs = {
+            "user_id": {"view_name": "user-detail"},
+        }
 
 
 class SaleItemSerializer(serializers.HyperlinkedModelSerializer):

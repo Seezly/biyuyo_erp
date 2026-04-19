@@ -12,7 +12,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     Serializer for the User model.
     """
 
-    role = serializers.SerializerMethodField()
+    # role = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -29,6 +29,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "created_at",
             "updated_at",
         ]
+        extra_kwargs = {
+            'url': {'view_name': 'user-detail'}
+        }
 
     def get_role(self, obj):
         group = obj.groups.first()
