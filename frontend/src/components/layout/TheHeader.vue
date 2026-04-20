@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import BaseNav from '@/components/ui/BaseNav.vue'
 import NavItem from '@/components/ui/NavItem.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import LogoutButton from '../Auth/LogoutButton.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -25,12 +26,23 @@ const auth = useAuthStore()
 				<RouterLink to="/plans">Planes</RouterLink>
 				<RouterLink to="/contact">Contáctanos</RouterLink>
 			</NavItem>
+			<NavItem v-else class="hidden md:flex">
+				<RouterLink to="/dashboard">Inicio</RouterLink>
+				<RouterLink to="/customers">Clientes</RouterLink>
+				<RouterLink to="/inventory">Inventario</RouterLink>
+				<RouterLink to="/sales">Ventas</RouterLink>
+				<RouterLink to="/sales/pos">POS</RouterLink>
+				<RouterLink to="/suppliers">Proveedores</RouterLink>
+				<RouterLink to="/reports">Reportes</RouterLink>
+			</NavItem>
 			<NavItem class="ml-auto">
 				<div v-if="!auth.isAuthenticated" class="hidden md:flex justify-center items-center gap-4">
 					<BaseButton to="/login" text="Iniciar sesión" width="auto" />
 					<BaseButton to="/register" text="Registrarse" variant="outlined" width="auto" />
 				</div>
 				<i v-else class="fa-regular fa-user text-2xl"></i>
+				<BaseButton to="/profile" text="Perfil" variant="outlined" width="auto" />
+				<LogoutButton />
 			</NavItem>
 		</BaseNav>
 	</header>

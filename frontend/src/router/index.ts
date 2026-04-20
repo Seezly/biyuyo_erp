@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
+	linkActiveClass: 'text-primary font-bold',
+	linkExactActiveClass: 'border border-primary rounded-full py-2 px-4 text-primary font-bold',
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [
 		{
@@ -72,6 +74,47 @@ const router = createRouter({
 					path: '',
 					name: 'Inventory',
 					component: () => import('@/pages/Inventory/Inventory/ShowView.vue'),
+				},
+				{
+					path: 'all',
+					name: 'ListInventory',
+					component: () => import('@/pages/Inventory/Products/ListView.vue'),
+				},
+				{
+					path: 'products',
+					name: 'Products',
+					children: [
+						{
+							path: 'add',
+							name: 'AddProduct',
+							component: () => import('@/pages/Inventory/Products/CreateView.vue'),
+						},
+						{
+							path: 'edit/:productId',
+							name: 'EditProduct',
+							component: () => import('@/pages/Inventory/Products/EditView.vue'),
+						},
+					],
+				},
+				{
+					path: 'categories',
+					children: [
+						{
+							path: '',
+							name: 'Categories',
+							component: () => import('@/pages/Inventory/Categories/ListView.vue'),
+						},
+						{
+							path: 'add',
+							name: 'AddCategory',
+							component: () => import('@/pages/Inventory/Categories/CreateView.vue'),
+						},
+						{
+							path: 'edit/:categoryId',
+							name: 'EditCategory',
+							component: () => import('@/pages/Inventory/Categories/EditView.vue'),
+						},
+					],
 				},
 			],
 		},

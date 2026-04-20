@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
-import LogoutButton from '@/components/Auth/LogoutButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 
 const store = useAuthStore()
@@ -60,7 +59,6 @@ const store = useAuthStore()
 					4
 				</BaseCard>
 			</div>
-			<LogoutButton />
 		</article>
 		<article class="grid grid-cols-2 lg:grid-cols-4 w-full gap-8">
 			<BaseCard variant="outlined">
