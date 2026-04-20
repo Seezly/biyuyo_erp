@@ -55,10 +55,11 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 			>
 				<div class="flex flex-col gap-4">
 					<h2 class="text-xl text-primary font-bold">Seguridad de la cuenta</h2>
-					<BaseButton text="Cambiar contraseña" />
-					<BaseButton text="Autenticación 2FA" />
+					<BaseButton to="/profile/change-password" text="Cambiar contraseña" />
+					<BaseButton to="/profile/2fa" text="Autenticación 2FA" />
 					<hr />
-					<BaseButton to="/logout" text="Cerrar sesión" />
+					<BaseButton to="/profile/notifications" text="Notificaciones" />
+					<BaseButton to="/profile/reminders" text="Recordatorios" />
 				</div>
 			</BaseCard>
 			<BaseCard class="col-span-full w-full row-span-full lg:col-span-4 lg:row-span-4">
