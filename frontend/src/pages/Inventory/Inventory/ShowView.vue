@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 </script>
 
@@ -11,9 +10,17 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 			<p>Consulta y gestiona el inventario en tiempo real</p>
 		</div>
 		<div class="grid grid-cols-12 grid-rows-1 gap-4 w-full">
-			<BaseButton text="Añadir producto" class="col-span-12 lg:col-span-3" />
-			<BaseInput placeholder="Buscar producto por nombre o SKU" class="col-span-12 lg:col-span-5" />
-			<div class="flex lg:justify-end items-center gap-2 col-span-12 lg:col-span-4">
+			<BaseButton
+				to="/inventory/products/add"
+				text="Añadir producto"
+				class="col-span-12 lg:col-span-3"
+			/>
+			<BaseButton
+				to="/inventory/categories/add"
+				text="Añadir categoría"
+				class="col-span-12 lg:col-span-3"
+			/>
+			<div class="flex lg:justify-end justify-between items-center gap-2 col-span-12 lg:col-span-6">
 				<label
 					for="1"
 					class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-[#fff] relative transition"
@@ -85,6 +92,10 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 					</div>
 				</div>
 			</BaseCard>
+		</div>
+		<div class="flex justify-between items-center w-full gap-8">
+			<BaseButton to="/inventory/all" text="Ver todos los productos" />
+			<BaseButton to="/inventory/categories" text="Ver todas las categorías" variant="outlined" />
 		</div>
 		<div class="w-full">
 			<BaseCard>
