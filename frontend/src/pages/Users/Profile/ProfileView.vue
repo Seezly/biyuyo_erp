@@ -2,6 +2,7 @@
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 </script>
 
 <template>
@@ -81,78 +82,12 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 					<form action="" class="flex justify-start items-start flex-col gap-4 w-full">
 						<h2 class="text-xl text-primary font-bold">Métodos de pago aceptados</h2>
 						<div class="flex gap-4 w-full">
-							<label
-								for="1"
-								class="size-24 text-xs bg-secondary w-full has-checked:bg-primary has-checked:text-white has-checked:hover:bg-primary/90 rounded flex flex-col justify-center items-center text-center hover:bg-secondary/90 text-dark relative transition"
-							>
-								Punto de venta (POS)
-								<input
-									type="checkbox"
-									class="absolute opacity-0 cursor-pointer h-full w-full"
-									name="1"
-									id=""
-								/>
-							</label>
-							<label
-								for="2"
-								class="size-24 text-xs bg-secondary w-full has-checked:bg-primary has-checked:text-white has-checked:hover:bg-primary/90 rounded flex flex-col justify-center items-center text-center hover:bg-secondary/90 text-dark relative transition"
-							>
-								Binance
-								<input
-									type="checkbox"
-									class="absolute opacity-0 cursor-pointer h-full w-full"
-									name="2"
-									id=""
-								/>
-							</label>
-							<label
-								for="3"
-								class="size-24 text-xs bg-secondary w-full has-checked:bg-primary has-checked:text-white has-checked:hover:bg-primary/90 rounded flex flex-col justify-center items-center text-center hover:bg-secondary/90 text-dark relative transition"
-							>
-								Zelle
-								<input
-									type="checkbox"
-									class="absolute opacity-0 cursor-pointer h-full w-full"
-									name="3"
-									id=""
-								/>
-							</label>
-							<label
-								for="4"
-								class="size-24 text-xs bg-secondary w-full has-checked:bg-primary has-checked:text-white has-checked:hover:bg-primary/90 rounded flex flex-col justify-center items-center text-center hover:bg-secondary/90 text-dark relative transition"
-							>
-								Pago móvil
-								<input
-									type="checkbox"
-									class="absolute opacity-0 cursor-pointer h-full w-full"
-									name="4"
-									id=""
-								/>
-							</label>
-							<label
-								for="5"
-								class="size-24 text-xs bg-secondary w-full has-checked:bg-primary has-checked:text-white has-checked:hover:bg-primary/90 rounded flex flex-col justify-center items-center text-center hover:bg-secondary/90 text-dark relative transition"
-							>
-								Transferencia bancaria
-								<input
-									type="checkbox"
-									class="absolute opacity-0 cursor-pointer h-full w-full"
-									name="5"
-									id=""
-								/>
-							</label>
-							<label
-								for="6"
-								class="size-24 text-xs bg-secondary w-full has-checked:bg-primary has-checked:text-white has-checked:hover:bg-primary/90 rounded flex flex-col justify-center items-center text-center hover:bg-secondary/90 text-dark relative transition"
-							>
-								Efectivo
-								<input
-									type="checkbox"
-									class="absolute opacity-0 cursor-pointer h-full w-full"
-									name="6"
-									id=""
-								/>
-							</label>
+							<BaseCheckbox text="Punto de Venta (POS)" type="button" />
+							<BaseCheckbox text="Binance" type="button" />
+							<BaseCheckbox text="Zelle" type="button" />
+							<BaseCheckbox text="Pago móvil" type="button" />
+							<BaseCheckbox text="Transferencia bancaria" type="button" />
+							<BaseCheckbox text="Efectivo" type="button" />
 						</div>
 					</form>
 				</div>

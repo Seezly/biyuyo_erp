@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseCard from '@/components/ui/BaseCard.vue'
+import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 </script>
 
 <template>
@@ -17,27 +18,27 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 			</div>
 			<div class="flex flex-col lg:flex-row gap-8 w-full">
 				<BaseCard variant="outlined" class="flex-1 hover:shadow-lg transition-shadow">
-					<div class="flex relative">
-						<div class="w-11/12">
+					<div class="flex justify-between items-center relative">
+						<div>
 							<h2 class="text-lg font-semibold text-dark">Notificaciones por correo electrónico</h2>
 							<p class="text-sm text-dark">
 								Recibe actualizaciones y alertas importantes en tu correo electrónico.
 							</p>
 						</div>
-						<label class="flex items-center gap-4">
-							<input type="checkbox" class="absolute top-1/2 right-4 transform -translate-y-1/2" />
-						</label>
+						<div>
+							<BaseCheckbox text="" />
+						</div>
 					</div>
 				</BaseCard>
 				<BaseCard variant="outlined" class="flex-1 hover:shadow-lg transition-shadow">
-					<div class="flex relative">
-						<div class="w-11/12">
+					<div class="flex justify-between items-center relative">
+						<div>
 							<h2 class="text-lg font-semibold text-dark">Notificaciones Push</h2>
 							<p class="text-sm text-dark">Recibe actualizaciones y alertas importantes en tu teléfono.</p>
 						</div>
-						<label class="flex items-center gap-4">
-							<input type="checkbox" class="absolute top-1/2 right-4 transform -translate-y-1/2" />
-						</label>
+						<div>
+							<BaseCheckbox text="" />
+						</div>
 					</div>
 				</BaseCard>
 			</div>
@@ -49,27 +50,27 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 			</div>
 			<div class="flex flex-col lg:flex-row gap-8 w-full">
 				<BaseCard variant="outlined" class="flex-1 hover:shadow-lg transition-shadow">
-					<div class="flex relative">
-						<div class="w-11/12">
+					<div class="flex justify-between items-center relative">
+						<div>
 							<h2 class="text-lg font-semibold text-dark">Alertas de inventario bajo</h2>
 							<p class="text-sm text-dark">
 								Recibir alertas cuando el inventario esté por debajo del nivel mínimo.
 							</p>
 						</div>
-						<label class="flex items-center gap-4">
-							<input type="checkbox" class="absolute top-1/2 right-4 transform -translate-y-1/2" />
-						</label>
+						<div>
+							<BaseCheckbox text="" />
+						</div>
 					</div>
 				</BaseCard>
 				<BaseCard variant="outlined" class="flex-1 hover:shadow-lg transition-shadow">
-					<div class="flex relative">
-						<div class="w-11/12">
+					<div class="flex justify-between items-center relative">
+						<div>
 							<h2 class="text-lg font-semibold text-dark">Alertas de producto agotado</h2>
 							<p class="text-sm text-dark">Recibir alertas cuando un producto esté agotado.</p>
 						</div>
-						<label class="flex items-center gap-4">
-							<input type="checkbox" class="absolute top-1/2 right-4 transform -translate-y-1/2" />
-						</label>
+						<div>
+							<BaseCheckbox text="" />
+						</div>
 					</div>
 				</BaseCard>
 			</div>
