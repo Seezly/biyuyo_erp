@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 
 const form = ref({
 	name: '',
@@ -21,18 +22,36 @@ const form = ref({
 				Nombre de la categoría
 				<BaseInput v-model="form.name" type="text" name="name" placeholder="Nombre de la categoría" />
 			</label>
-			<label class="w-full flex flex-col text-dark">
-				¿Es una subcategoría?
-				<input type="checkbox" name="" id="" />
-				<!-- <BaseInput v-model="form.name" type="text" name="name" placeholder="Nombre del producto" /> -->
-			</label>
-			<label class="w-full flex flex-col text-dark">
-				Seleccione la categoría a la que pertenece
-				<select name="category" id="" class="py-2 px-4 rounded-xl border border-secondary text-primary">
-					<option value="0">Categoría 1</option>
-				</select>
-			</label>
+			<BaseCheckbox v-model="form.is_subcategory" name="isSubcategory" text="¿Es una subcategoría?" />
+			<Transition name="fade">
+				<div v-if="form.is_subcategory" class="w-full max-h-64 flex flex-col gap-4">
+					<label class="w-full flex flex-col text-dark">
+						Seleccione la categoría a la que pertenece
+						<select
+							name="category"
+							id=""
+							class="py-2 px-4 rounded-xl border border-secondary text-primary"
+						>
+							<option value="0">Categoría 1</option>
+						</select>
+					</label>
+				</div>
+			</Transition>
 			<BaseButton text="Agregar categoría" />
 		</form>
 	</section>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+	transition: all 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	max-height: 0;
+	opacity: 0;
+	overflow: hidden;
+}
+</style>

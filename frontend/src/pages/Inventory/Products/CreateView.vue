@@ -27,7 +27,7 @@ const form = ref<ProductForm>({
 		<form action="" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
 			<label class="w-full flex flex-col text-dark">
 				SKU
-				<BaseInput v-model="form.sku" type="text" name="name" placeholder="SKU" />
+				<BaseInput v-model="form.sku" type="text" name="sku" placeholder="SKU" />
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				Nombre del producto
@@ -44,7 +44,7 @@ const form = ref<ProductForm>({
 				<BaseInput
 					v-model="form.description"
 					type="text"
-					name="name"
+					name="description"
 					placeholder="Una descripción breve del producto"
 				/>
 			</label>
@@ -54,7 +54,7 @@ const form = ref<ProductForm>({
 					<BaseInput
 						v-model="form.cost_price"
 						type="text"
-						name="name"
+						name="cost_price"
 						placeholder="Cuánto te costó el producto"
 					/>
 				</label>
@@ -63,7 +63,7 @@ const form = ref<ProductForm>({
 					<BaseInput
 						v-model="form.sell_price"
 						type="text"
-						name="name"
+						name="sell_price"
 						placeholder="Precio al que venderás el producto"
 					/>
 				</label>
@@ -71,14 +71,19 @@ const form = ref<ProductForm>({
 			<div class="grid grid-cols-2 grid-rows-1 gap-4 mb-8">
 				<label class="w-full flex flex-col text-dark">
 					Stock
-					<BaseInput v-model="form.stock" type="text" name="name" placeholder="Cantidad en inventario" />
+					<BaseInput
+						v-model="form.stock"
+						type="text"
+						name="stock"
+						placeholder="Cantidad en inventario"
+					/>
 				</label>
 				<label class="w-full flex flex-col text-dark">
 					Stock mínimo
 					<BaseInput
 						v-model="form.min_stock"
 						type="text"
-						name="name"
+						name="min_stock"
 						placeholder="Cantidad mínima en inventario del producto"
 					/>
 				</label>
