@@ -240,12 +240,17 @@ router.beforeEach(async (to, from, next) => {
 
 	const requiresAuth = to.matched.some((r) => r.meta.requiresAuth)
 	const guestOnly = to.matched.some((r) => r.meta.guestOnly)
+	const adminOnly = to.matched.some((r) => r.meta.adminOnly)
 
 	if (requiresAuth && !auth.isAuthenticated) {
 		return next('/login')
 	}
 
 	if (guestOnly && auth.isAuthenticated) {
+		return next('/dashboard')
+	}
+
+	if (adminOnly && auth.user?.role === 'superadmin') {
 		return next('/dashboard')
 	}
 
