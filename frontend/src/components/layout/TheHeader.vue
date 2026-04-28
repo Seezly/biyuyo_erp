@@ -26,7 +26,7 @@ const auth = useAuthStore()
 				<RouterLink to="/plans">Planes</RouterLink>
 				<RouterLink to="/contact">Contáctanos</RouterLink>
 			</NavItem>
-			<NavItem v-else class="hidden md:flex">
+			<NavItem v-if="auth.isAuthenticated" class="hidden md:flex">
 				<RouterLink to="/dashboard">Inicio</RouterLink>
 				<RouterLink to="/customers">Clientes</RouterLink>
 				<RouterLink to="/inventory">Inventario</RouterLink>
@@ -40,9 +40,11 @@ const auth = useAuthStore()
 					<BaseButton to="/login" text="Iniciar sesión" width="auto" />
 					<BaseButton to="/register" text="Registrarse" variant="outlined" width="auto" />
 				</div>
-				<i v-else class="fa-regular fa-user text-2xl"></i>
-				<BaseButton to="/profile" text="Perfil" variant="outlined" width="auto" />
-				<LogoutButton />
+				<div v-if="auth.isAuthenticated" class="hidden md:flex justify-center items-center gap-4">
+					<i class="fa-regular fa-user text-2xl"></i>
+					<BaseButton to="/profile" text="Perfil" variant="outlined" width="auto" />
+					<LogoutButton />
+				</div>
 			</NavItem>
 		</BaseNav>
 	</header>

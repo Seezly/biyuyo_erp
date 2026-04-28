@@ -1,13 +1,13 @@
 <script setup lang="ts">
 const props = defineProps<{
-	type?: 'text' | 'email' | 'password'
+	type?: 'text' | 'email' | 'password' | 'number' | 'search' | 'tel' | 'month' | 'date'
 	placeholder?: string
 	name?: string
 	modelValue?: string | number
 }>()
 
 const emit = defineEmits<{
-	(e: 'update:modelValue', value: string): void
+	(e: 'update:modelValue', value: string | number): void
 }>()
 
 const onInput = (e: Event) => {
