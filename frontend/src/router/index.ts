@@ -22,7 +22,7 @@ const router = createRouter({
 			path: '/dashboard',
 			name: 'Dashboard',
 			component: () => import('@/pages/DashboardView.vue'),
-			meta: { requiresAuth: false },
+			meta: { requiresAuth: true },
 		},
 		{
 			path: '/profile',
@@ -51,6 +51,27 @@ const router = createRouter({
 			],
 		},
 		{
+			path: '/users',
+			meta: { requiresAuth: true },
+			children: [
+				{
+					path: '',
+					name: 'Users',
+					component: () => import('@/pages/Users/Users/ListView.vue'),
+				},
+				{
+					path: 'add',
+					name: 'AddUser',
+					component: () => import('@/pages/Users/Users/CreateView.vue'),
+				},
+				{
+					path: 'edit/:userId',
+					name: 'EditUser',
+					component: () => import('@/pages/Users/Users/EditView.vue'),
+				},
+			],
+		},
+		{
 			path: '/sales',
 			meta: { requiresAuth: true },
 			children: [
@@ -63,6 +84,11 @@ const router = createRouter({
 					path: 'pos',
 					name: 'POS',
 					component: () => import('@/pages/Sale/Sales/CreateView.vue'),
+				},
+				{
+					path: 'all',
+					name: 'ListSales',
+					component: () => import('@/pages/Sale/Sales/ListView.vue'),
 				},
 			],
 		},
@@ -115,6 +141,68 @@ const router = createRouter({
 							component: () => import('@/pages/Inventory/Categories/EditView.vue'),
 						},
 					],
+				},
+			],
+		},
+		{
+			path: '/suppliers',
+			meta: { requiresAuth: true },
+			children: [
+				{
+					path: '',
+					name: 'Suppliers',
+					component: () => import('@/pages/Suppliers/Suppliers/ListView.vue'),
+				},
+				{
+					path: 'add',
+					name: 'AddSupplier',
+					component: () => import('@/pages/Suppliers/Suppliers/CreateView.vue'),
+				},
+				{
+					path: 'edit/:supplierId',
+					name: 'EditSupplier',
+					component: () => import('@/pages/Suppliers/Suppliers/EditView.vue'),
+				},
+				{
+					path: 'purchases',
+					children: [
+						{
+							path: '',
+							name: 'Purchases',
+							component: () => import('@/pages/Suppliers/Purchases/ListView.vue'),
+						},
+						{
+							path: 'add',
+							name: 'AddPurchase',
+							component: () => import('@/pages/Suppliers/Purchases/CreateView.vue'),
+						},
+						{
+							path: 'edit/:purchaseId',
+							name: 'EditPurchase',
+							component: () => import('@/pages/Suppliers/Purchases/EditView.vue'),
+						},
+					],
+				},
+			],
+		},
+		{
+			path: '/customers',
+			meta: { requiresAuth: true },
+			children: [
+				{
+					path: '',
+					name: 'Customers',
+					component: () => import('@/pages/Customers/ListView.vue'),
+				},
+				{
+					path: 'add',
+					name: 'AddCustomer',
+					component: () => import('@/pages/Customers/CreateView.vue'),
+				},
+				{
+					path: 'edit/:customerId',
+					name: 'EditCustomer',
+					component: () => import('@/pages/Customers/EditView.vue'),
 				},
 			],
 		},
