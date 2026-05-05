@@ -11,7 +11,7 @@ const inventoryStore = useInventoryStore()
 
 const form = ref<ProductForm>({
 	name: '',
-	category: 0,
+	category_id: 0,
 	description: '',
 	cost_price: 0,
 	sell_price: 0,
@@ -70,7 +70,7 @@ const handleSubmit = async () => {
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				Categoría
-				<select v-model="form.category" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+				<select v-model="form.category_id" class="py-2 px-4 rounded-xl border border-secondary text-primary">
 					<option :value="0">Seleccionar categoría</option>
 					<option v-for="cat in inventoryStore.categories" :key="cat.id" :value="cat.id">
 						{{ cat.name }}

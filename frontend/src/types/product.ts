@@ -1,8 +1,8 @@
 export interface Product {
 	id: number
 	name: string
-	category: number
-	business: number
+	category_id: number
+	business_id: number
 	description: string
 	cost_price: number
 	sell_price: number
@@ -12,8 +12,9 @@ export interface Product {
 }
 
 export interface ProductForm {
+	id?: number
 	name: string
-	category: number
+	category_id: number
 	description: string
 	cost_price: number
 	sell_price: number

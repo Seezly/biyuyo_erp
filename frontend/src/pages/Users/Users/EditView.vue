@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import router from '@/router'
-
+import { useRouter, useRoute } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import { apiFetch } from '@/utils/helpers'
@@ -11,18 +10,22 @@ interface RegisterForm {
 	last_name: string
 	email: string
 	identification_number: string
-	rol: string
+	role: string
 	phone: string
 	password: string
 	confirm_password: string
 }
+
+const router = useRouter()
+const route = useRoute()
+const userId = route.params.id
 
 const form = ref<RegisterForm>({
 	first_name: '',
 	last_name: '',
 	email: '',
 	identification_number: '',
-	rol: '',
+	role: '',
 	phone: '',
 	password: '',
 	confirm_password: '',
@@ -30,22 +33,18 @@ const form = ref<RegisterForm>({
 
 const submit = async () => {
 	try {
-		const response = await apiFetch('/api/register/', {
-			method: 'POST',
+		const response = await apiFetch(`/api/users/${userId}/`, {
+			method: 'PATCH',
 			body: JSON.stringify(form.value),
 		})
 
 		if (!response.ok) {
 			const errorData = await response.json()
-			console.error('Register failed:', errorData)
+			console.error('Update user failed:', errorData)
 			return
 		}
 
-		const data = await response.json()
-
-		emit('submit', data)
-
-		router.push({ path: '/login' })
+		router.push('/users')
 	} catch (error) {
 		console.error('Network error:', error)
 	}

@@ -11,7 +11,7 @@ interface RegisterForm {
 	last_name: string
 	email: string
 	identification_number: string
-	rol: string
+	role: string
 	phone: string
 	password: string
 	confirm_password: string
@@ -22,7 +22,7 @@ const form = ref<RegisterForm>({
 	last_name: '',
 	email: '',
 	identification_number: '',
-	rol: '',
+	role: '',
 	phone: '',
 	password: '',
 	confirm_password: '',
@@ -30,22 +30,19 @@ const form = ref<RegisterForm>({
 
 const submit = async () => {
 	try {
-		const response = await apiFetch('/api/register/', {
+		const response = await apiFetch('/api/users/', {
 			method: 'POST',
 			body: JSON.stringify(form.value),
 		})
 
 		if (!response.ok) {
 			const errorData = await response.json()
-			console.error('Register failed:', errorData)
+			console.error('Create user failed:', errorData)
 			return
 		}
 
 		const data = await response.json()
-
-		emit('submit', data)
-
-		router.push({ path: '/login' })
+		router.push('/users')
 	} catch (error) {
 		console.error('Network error:', error)
 	}

@@ -15,7 +15,7 @@ const productId = Number(route.params.id)
 
 const form = ref<ProductForm>({
 	name: '',
-	category: 0,
+	category_id: 0,
 	description: '',
 	cost_price: 0,
 	sell_price: 0,
@@ -37,7 +37,7 @@ onMounted(async () => {
 			const product = await response.json()
 			form.value = {
 				name: product.name,
-				category: product.category,
+				category_id: product.category_id,
 				description: product.description || '',
 				cost_price: product.cost_price,
 				sell_price: product.sell_price,
@@ -107,7 +107,7 @@ const handleSubmit = async () => {
 				</label>
 				<label class="w-full flex flex-col text-dark">
 					Categoría
-					<select v-model="form.category" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+					<select v-model="form.category_id" class="py-2 px-4 rounded-xl border border-secondary text-primary">
 						<option :value="0">Seleccionar categoría</option>
 						<option v-for="cat in inventoryStore.categories" :key="cat.id" :value="cat.id">
 							{{ cat.name }}

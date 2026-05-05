@@ -1,55 +1,41 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import router from '@/router'
-
+import { useRouter } from 'vue-router'
+import { useSuppliersStore } from '@/stores/suppliers'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
-import { apiFetch } from '@/utils/helpers'
 
-interface SupplierForm {
-	name: string
-	rif: string
-	email: string
-	phone: string
-	supply: string
-	is_recurrent: boolean
-	amount: string | undefined
-	date: string | undefined
-}
-const emit = defineEmits(['submit', 'incrementStep'])
+const router = useRouter()
+const suppliersStore = useSuppliersStore()
 
-const form = ref<SupplierForm>({
+const form = ref({
 	name: '',
-	email: '',
 	rif: '',
+	email: '',
+	address: '',
 	phone: '',
-	is_recurrent: false,
-	amount: '',
-	supply: '',
-	date: '',
 })
 
-const submit = async () => {
-	try {
-		const response = await apiFetch('/api/register/', {
-			method: 'POST',
-			body: JSON.stringify(form.value),
-		})
+const loading = ref(false)
+const error = ref('')
 
-		if (!response.ok) {
-			const errorData = await response.json()
-			console.error('Register failed:', errorData)
-			return
-		}
+const handleSubmit = async () => {
+	if (!form.value.name || !form.value.rif) {
+		error.value = 'El nombre y RIF son obligatorios'
+		return
+	}
 
-		const data = await response.json()
+	loading.value = true
+	error.value = ''
 
-		emit('submit', data)
+	const result = await suppliersStore.createSupplier(form.value)
 
-		router.push({ path: '/login' })
-	} catch (error) {
-		console.error('Network error:', error)
+	loading.value = false
+
+	if (result) {
+		router.push('/suppliers')
+	} else {
+		error.value = suppliersStore.error || 'Error al crear el proveedor'
 	}
 }
 </script>
@@ -60,41 +46,33 @@ const submit = async () => {
 			<h1 class="text-primary text-2xl font-bold">Añadir proveedor</h1>
 			<p>Completa los datos del nuevo proveedor</p>
 		</div>
-		<form action="" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+
+		<div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+			{{ error }}
+		</div>
+
+		<form @submit.prevent="handleSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
 			<label class="w-full flex flex-col text-dark">
-				Nombre del proveedor
-				<BaseInput v-model="form.name" type="text" name="name" placeholder="Nombre del proveedor" />
+				Nombre del proveedor *
+				<BaseInput v-model="form.name" type="text" name="name" placeholder="Nombre del proveedor" required />
 			</label>
 			<label class="w-full flex flex-col text-dark">
-				Nombre del producto
-				<BaseInput v-model="form.supply" type="text" name="supply" placeholder="Nombre del producto" />
+				RIF *
+				<BaseInput v-model="form.rif" type="text" name="rif" placeholder="J-12345678-9" required />
 			</label>
 			<label class="w-full flex flex-col text-dark">
-				RIF del proveedor
-				<BaseInput v-model="form.rif" type="text" name="rif" placeholder="RIF del proveedor" />
+				Email
+				<BaseInput v-model="form.email" type="email" name="email" placeholder="Email del proveedor" />
 			</label>
 			<label class="w-full flex flex-col text-dark">
-				Email del proveedor
-				<BaseInput v-model="form.email" type="text" name="email" placeholder="Email del proveedor" />
+				Dirección
+				<BaseInput v-model="form.address" type="text" name="address" placeholder="Dirección del proveedor" />
 			</label>
 			<label class="w-full flex flex-col text-dark">
-				Teléfono del proveedor
+				Teléfono
 				<BaseInput v-model="form.phone" type="text" name="phone" placeholder="Teléfono del proveedor" />
 			</label>
-			<BaseCheckbox text="¿Es un pago recurrente?" v-model="form.is_recurrent" />
-			<Transition name="fade">
-				<div v-if="form.is_recurrent" class="w-full max-h-64 flex flex-col gap-4">
-					<label class="w-full flex flex-col text-dark">
-						Monto del pago recurrente
-						<BaseInput v-model="form.amount" type="number" name="amount" placeholder="Monto del pago" />
-					</label>
-					<label class="w-full flex flex-col text-dark">
-						Fecha del pago recurrente
-						<BaseInput type="date" v-model="form.date" name="" id="" />
-					</label>
-				</div>
-			</Transition>
-			<BaseButton text="Agregar proveedor" />
+			<BaseButton :text="loading ? 'Creando...' : 'Agregar proveedor'" :disabled="loading" />
 		</form>
 	</section>
 </template>

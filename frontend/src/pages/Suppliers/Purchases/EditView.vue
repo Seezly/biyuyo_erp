@@ -1,48 +1,67 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import router from '@/router'
-
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useSuppliersStore } from '@/stores/suppliers'
+import { apiFetch } from '@/utils/helpers'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import { apiFetch } from '@/utils/helpers'
 
-interface PurchaseForm {
-	name: string
-	product: string
-	amount: string
-	quantity: string
-	date: string
-}
-const emit = defineEmits(['submit', 'incrementStep'])
+const router = useRouter()
+const route = useRoute()
+const suppliersStore = useSuppliersStore()
 
-const form = ref<PurchaseForm>({
-	name: '',
-	product: '',
-	amount: '',
-	quantity: '',
-	date: '',
+const purchaseId = Number(route.params.id)
+
+const form = ref({
+	supplier: 0,
+	total: 0,
 })
 
-const submit = async () => {
+const loading = ref(true)
+const saving = ref(false)
+const error = ref('')
+
+onMounted(async () => {
+	await suppliersStore.fetchSuppliers()
+
 	try {
-		const response = await apiFetch('/api/register/', {
-			method: 'POST',
+		const response = await apiFetch(`/api/purchases/${purchaseId}/`)
+		if (response.ok) {
+			const purchase = await response.json()
+			form.value = {
+				supplier: purchase.supplier,
+				total: purchase.total,
+			}
+		} else {
+			error.value = 'Compra no encontrada'
+		}
+	} catch (e: any) {
+		error.value = 'Error al cargar la compra'
+	} finally {
+		loading.value = false
+	}
+})
+
+const handleSubmit = async () => {
+	saving.value = true
+	error.value = ''
+
+	try {
+		const response = await apiFetch(`/api/purchases/${purchaseId}/`, {
+			method: 'PATCH',
 			body: JSON.stringify(form.value),
 		})
 
-		if (!response.ok) {
+		if (response.ok) {
+			router.push('/suppliers/purchases')
+		} else {
 			const errorData = await response.json()
-			console.error('Register failed:', errorData)
-			return
+			error.value = JSON.stringify(errorData)
 		}
-
-		const data = await response.json()
-
-		emit('submit', data)
-
-		router.push({ path: '/login' })
-	} catch (error) {
-		console.error('Network error:', error)
+	} catch (e: any) {
+		error.value = e.message
+	} finally {
+		saving.value = false
 	}
 }
 </script>
@@ -50,47 +69,39 @@ const submit = async () => {
 <template>
 	<section class="w-full flex flex-col gap-8 mx-8 justify-start items-start self-start">
 		<div>
-			<h1 class="text-primary text-2xl font-bold">Editar compra o gasto</h1>
-			<p>Actualiza la información de tu compra o gasto</p>
+			<h1 class="text-primary text-2xl font-bold">Editar compra</h1>
+			<p>Actualiza la información de la compra</p>
 		</div>
-		<form action="" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
-			<label class="w-full flex flex-col text-dark">
-				¿Dónde o a quién se le pagó?
-				<BaseInput
-					v-model="form.name"
-					type="text"
-					name="name"
-					placeholder="Nombre del negocio o persona"
-				/>
-			</label>
-			<label class="w-full flex flex-col text-dark">
-				¿Qué se pagó?
-				<BaseInput
-					v-model="form.product"
-					type="text"
-					name="product"
-					placeholder="Producto, servicio o deuda"
-				/>
-			</label>
-			<label class="w-full flex flex-col text-dark">
-				Monto pagado
-				<BaseInput v-model="form.amount" type="number" name="amount" placeholder="Monto pagado" />
-			</label>
-			<label class="w-full flex flex-col text-dark">
-				Cantidad o unidades
-				<BaseInput
-					v-model="form.quantity"
-					type="number"
-					name="quantity"
-					placeholder="Cantidad o unidades"
-					min="1"
-				/>
-			</label>
-			<label class="w-full flex flex-col text-dark">
-				Fecha del pago
-				<BaseInput type="date" v-model="form.date" name="" id="" />
-			</label>
-			<BaseButton text="Editar pago" />
-		</form>
+
+		<div v-if="loading" class="w-full text-center py-8">
+			<p>Cargando compra...</p>
+		</div>
+
+		<div v-else-if="error && !form.supplier" class="w-full text-center py-8">
+			<p class="text-red-500">{{ error }}</p>
+		</div>
+
+		<div v-else>
+			<div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+				{{ error }}
+			</div>
+
+			<form @submit.prevent="handleSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+				<label class="w-full flex flex-col text-dark">
+					Proveedor *
+					<select v-model="form.supplier" class="py-2 px-4 rounded-xl border border-secondary text-primary" required>
+						<option :value="0">Seleccionar proveedor</option>
+						<option v-for="supplier in suppliersStore.suppliers" :key="supplier.id" :value="supplier.id">
+							{{ supplier.name }}
+						</option>
+					</select>
+				</label>
+				<label class="w-full flex flex-col text-dark">
+					Total
+					<BaseInput v-model="form.total" type="number" step="0.01" name="total" placeholder="Monto total" />
+				</label>
+				<BaseButton :text="saving ? 'Guardando...' : 'Guardar compra'" :disabled="saving" />
+			</form>
+		</div>
 	</section>
 </template>
