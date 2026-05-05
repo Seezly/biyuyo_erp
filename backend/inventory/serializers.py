@@ -2,7 +2,7 @@ from inventory.models import Category, Product, InventoryMovement
 from rest_framework import serializers
 
 
-class CategorySerializer(serializers.HyperlinkedModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     """
     Serializer for the Category model.
     """
@@ -10,9 +10,10 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
         fields = "__all__"
+        read_only_fields = ["business_id"]
 
 
-class ProductSerializer(serializers.HyperlinkedModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
     """
     Serializer for the Product model.
     """
@@ -22,7 +23,7 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer):
         fields = "__all__"
 
 
-class InventoryMovementSerializer(serializers.HyperlinkedModelSerializer):
+class InventoryMovementSerializer(serializers.ModelSerializer):
     """
     Serializer for the InventoryMovement model.
     """

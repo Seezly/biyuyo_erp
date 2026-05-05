@@ -7,7 +7,7 @@ from businesses.models import Business
 from accounts.services.user_service import create_user_with_role
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """
     Serializer for the User model.
     """
@@ -29,16 +29,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "created_at",
             "updated_at",
         ]
-        extra_kwargs = {
-            'url': {'view_name': 'user-detail'}
-        }
+        extra_kwargs = {"url": {"view_name": "user-detail"}}
 
     def get_role(self, obj):
         group = obj.groups.first()
         return group.name if group else None
 
 
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
+class GroupSerializer(serializers.ModelSerializer):
     """
     Serializer for the Group model.
     """
@@ -48,7 +46,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ["url", "name"]
 
 
-class RegisterSerializer(serializers.HyperlinkedModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer):
     """
     Serializer for business owner registration, along with the necessary fields
     for creating a new user.

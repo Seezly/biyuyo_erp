@@ -2,7 +2,7 @@ from billing.models import Plan, Subscription, Invoice
 from rest_framework import serializers
 
 
-class PlanSerializer(serializers.HyperlinkedModelSerializer):
+class PlanSerializer(serializers.ModelSerializer):
     """
     Serializer for the Plan model.
     """
@@ -20,7 +20,7 @@ class PlanSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class SubscriptionSerializer(serializers.HyperlinkedModelSerializer):
+class SubscriptionSerializer(serializers.ModelSerializer):
     """
     Serializer for the Subscription model.
     """
@@ -37,7 +37,7 @@ class SubscriptionSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class InvoiceSerializer(serializers.HyperlinkedModelSerializer):
+class InvoiceSerializer(serializers.ModelSerializer):
     """
     Serializer for the Invoice model.
     """

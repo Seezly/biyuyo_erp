@@ -2,7 +2,7 @@ from customers.models import Customer
 from rest_framework import serializers
 
 
-class CustomerSerializer(serializers.HyperlinkedModelSerializer):
+class CustomerSerializer(serializers.ModelSerializer):
     """
     Serializer for the Customer model.
     """

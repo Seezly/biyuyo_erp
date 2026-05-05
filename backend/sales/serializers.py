@@ -2,7 +2,7 @@ from sales.models import Sale, SaleItem, Payment
 from rest_framework import serializers
 
 
-class SaleSerializer(serializers.HyperlinkedModelSerializer):
+class SaleSerializer(serializers.ModelSerializer):
     """
     Serializer for the Sale model.
     """
@@ -10,12 +10,9 @@ class SaleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Sale
         fields = "__all__"
-        extra_kwargs = {
-            "user_id": {"view_name": "user-detail"},
-        }
 
 
-class SaleItemSerializer(serializers.HyperlinkedModelSerializer):
+class SaleItemSerializer(serializers.ModelSerializer):
     """
     Serializer for the SaleItem model.
     """
@@ -25,7 +22,7 @@ class SaleItemSerializer(serializers.HyperlinkedModelSerializer):
         fields = "__all__"
 
 
-class PaymentSerializer(serializers.HyperlinkedModelSerializer):
+class PaymentSerializer(serializers.ModelSerializer):
     """
     Serializer for the Payment model.
     """
