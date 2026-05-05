@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status
@@ -20,7 +21,54 @@ class SaleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Sale.objects.filter(business_id=user.business_id)
+        return Sale.objects.filter(business_id=user.business_id).prefetch_related('saleitem_set', 'payment_set')
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        sale_data = SaleSerializer(instance).data
+        sale_data['items'] = SaleItemSerializer(instance.saleitem_set.all(), many=True).data
+        sale_data['payments'] = PaymentSerializer(instance.payment_set.all(), many=True).data
+        return Response(sale_data)
+
+    @action(detail=True, methods=['get'])
+    def receipt(self, request, pk=None):
+        """Get sale details formatted for receipt"""
+        sale = self.get_object()
+        items = sale.saleitem_set.all()
+        payments = sale.payment_set.all()
+
+        from django.template.loader import render_to_string
+        from django.http import HttpResponse
+
+        return Response({
+            'sale': {
+                'id': sale.id,
+                'created_at': sale.created_at,
+                'subtotal': float(sale.subtotal),
+                'tax': float(sale.tax),
+                'total': float(sale.total),
+                'status': sale.status,
+                'customer': sale.customer_id_id if sale.customer_id else None,
+                'cashier': sale.user_id.first_name if sale.user_id else None,
+            },
+            'items': [
+                {
+                    'product': item.product_id.name,
+                    'quantity': item.quantity,
+                    'unit_price': float(item.unit_price),
+                    'total_price': float(item.total_price),
+                }
+                for item in items
+            ],
+            'payments': [
+                {
+                    'method': payment.method,
+                    'amount': float(payment.amount),
+                    'reference': payment.reference,
+                }
+                for payment in payments
+            ],
+        })
 
     def create(self, request, *args, **kwargs):
         data = request.data

@@ -144,6 +144,107 @@ const startNewSale = () => {
 	paymentMethod.value = 'cash'
 	searchQuery.value = ''
 }
+
+const printReceipt = () => {
+	const receiptContent = `
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<title>Recibo de Venta #${saleId.value}</title>
+			<style>
+				body { font-family: Arial, sans-serif; padding: 20px; max-width: 300px; margin: 0 auto; }
+				h1 { text-align: center; font-size: 18px; }
+				.info { margin: 10px 0; font-size: 12px; }
+				table { width: 100%; border-collapse: collapse; font-size: 12px; }
+				th, td { padding: 5px; text-align: left; border-bottom: 1px solid #ddd; }
+				th:last-child, td:last-child { text-align: right; }
+				.total { font-size: 16px; font-weight: bold; margin-top: 10px; }
+				.footer { text-align: center; margin-top: 20px; font-size: 10px; color: #666; }
+				@media print { body { padding: 0; } }
+			</style>
+		</head>
+		<body>
+			<h1>BIYUYO ERP</h1>
+			<div class="info">
+				<p><strong>Recibo:</strong> #${saleId.value}</p>
+				<p><strong>Fecha:</strong> ${new Date().toLocaleString()}</p>
+			</div>
+			<table>
+				<thead>
+					<tr>
+						<th>Producto</th>
+						<th>Cant</th>
+						<th>Precio</th>
+						<th>Total</th>
+					</tr>
+				</thead>
+				<tbody>
+					${cart.value.map(item => `
+						<tr>
+							<td>${item.product_name}</td>
+							<td>${item.quantity}</td>
+							<td>$${item.unit_price.toFixed(2)}</td>
+							<td>$${item.total.toFixed(2)}</td>
+						</tr>
+					`).join('')}
+				</tbody>
+			</table>
+			<div class="total">
+				<p>Subtotal: $${cartSubtotal.value.toFixed(2)}</p>
+				<p>IVA (16%): $${cartIva.value.toFixed(2)}</p>
+				<p>TOTAL: $${cartTotalWithIva.value.toFixed(2)}</p>
+			</div>
+			<div class="footer">
+				<p>Gracias por su compra!</p>
+				<p>1 USD = 500 Bs</p>
+			</div>
+		</body>
+		</html>
+	`
+
+	const printWindow = window.open('', '_blank')
+	if (printWindow) {
+		printWindow.document.write(receiptContent)
+		printWindow.document.close()
+		printWindow.print()
+	}
+}
+
+const downloadReceipt = () => {
+	const receiptText = `
+BIYUYO ERP - RECIBO DE VENTA
+============================
+Recibo #: ${saleId.value}
+Fecha: ${new Date().toLocaleString()}
+
+PRODUCTOS:
+${cart.value.map(item => `- ${item.product_name} (x${item.quantity}) - $${item.total.toFixed(2)}`).join('\n')}
+
+----------------------------
+Subtotal:     $${cartSubtotal.value.toFixed(2)}
+IVA (16%):    $${cartIva.value.toFixed(2)}
+TOTAL:        $${cartTotalWithIva.value.toFixed(2)}
+============================
+Método de pago: ${paymentMethod.value}
+
+Gracias por su compra!
+Tasa de cambio: 1 USD = 500 Bs
+	`.trim()
+
+	const blob = new Blob([receiptText], { type: 'text/plain' })
+	const url = URL.createObjectURL(blob)
+	const a = document.createElement('a')
+	a.href = url
+	a.download = `recibo-venta-${saleId.value}.txt`
+	a.click()
+	URL.revokeObjectURL(url)
+
+	toastStore.success('Recibo descargado')
+}
+
+const sendReceipt = () => {
+	toastStore.info('Funcionalidad de enviar email en desarrollo')
+}
 </script>
 
 <template>
@@ -386,9 +487,9 @@ const startNewSale = () => {
 					<BaseCard variant="outlined" class="col-span-full order-3 lg:col-span-3 lg:row-span-2">
 						<div class="flex flex-col justify-center items-center gap-4">
 							<h2 class="text-lg font-semibold">Opciones</h2>
-							<BaseButton text="Imprimir recibo" variant="outlined" />
-							<BaseButton text="Guardar recibo" variant="outlined" />
-							<BaseButton text="Enviar recibo" variant="outlined" />
+							<BaseButton text="Imprimir recibo" variant="outlined" @click="printReceipt" />
+							<BaseButton text="Descargar recibo" variant="outlined" @click="downloadReceipt" />
+							<BaseButton text="Enviar recibo" variant="outlined" @click="sendReceipt" />
 							<hr class="w-full" />
 							<BaseButton text="Nueva venta" @click="startNewSale" />
 						</div>
