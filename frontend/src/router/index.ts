@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
 	linkActiveClass: 'text-primary font-bold',
-	linkExactActiveClass: 'border border-primary rounded-full py-2 px-4 text-primary font-bold',
+	linkExactActiveClass: 'border border-primary text-primary font-bold rounded-full',
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [
 		{
@@ -94,7 +94,7 @@ const router = createRouter({
 		},
 		{
 			path: '/inventory',
-			meta: { requiresAuth: true },
+			meta: { requiresAuth: false },
 			children: [
 				{
 					path: '',
