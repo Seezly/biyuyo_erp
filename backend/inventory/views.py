@@ -1,6 +1,9 @@
+from django.db import models
 from inventory.models import Category, Product, InventoryMovement
 from rest_framework import permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from inventory.serializers import (
     CategorySerializer,
@@ -52,6 +55,23 @@ class ProductViewSet(viewsets.ModelViewSet):
         if obj.business_id != self.request.user.business_id:
             raise PermissionDenied("No tienes acceso a este producto.")
         return obj
+
+    @action(detail=False, methods=['get'])
+    def low_stock(self, request):
+        """
+        Get products with stock below minimum threshold.
+        """
+        user = request.user
+        products = Product.objects.filter(
+            business_id=user.business_id,
+            stock__isnull=False,
+            min_stock__isnull=False
+        ).extra(
+            where=['stock <= min_stock']
+        )
+
+        serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data)
 
 
 class InventoryMovementViewSet(viewsets.ModelViewSet):

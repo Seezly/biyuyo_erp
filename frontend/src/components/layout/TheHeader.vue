@@ -5,6 +5,7 @@ import BaseNav from '@/components/ui/BaseNav.vue'
 import NavItem from '@/components/ui/NavItem.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import LogoutButton from '../Auth/LogoutButton.vue'
+import StockAlerts from '@/components/ui/StockAlerts.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -41,6 +42,7 @@ const auth = useAuthStore()
 					<BaseButton to="/register" text="Registrarse" variant="ghost" width="auto" />
 				</div>
 				<div v-if="auth.isAuthenticated" class="hidden md:flex justify-center items-center gap-4">
+					<StockAlerts />
 					<i class="fa-regular fa-user text-2xl"></i>
 					<BaseButton to="/profile" text="Perfil" variant="outlined" width="auto" />
 					<LogoutButton />
