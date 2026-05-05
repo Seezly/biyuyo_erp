@@ -5,7 +5,7 @@ from django.db import models
 class Category(models.Model):
     business_id = models.ForeignKey("businesses.Business", on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    # parent_id = models.ForeignKey("inventory.Category", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
