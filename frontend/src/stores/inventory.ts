@@ -202,7 +202,7 @@ export const useInventoryStore = defineStore('inventory', {
 	},
 
 	getters: {
-		lowStockProducts: (state) => state.products.filter(p => p.stock <= p.min_stock),
+		lowStockProducts: (state) => state.products.filter(p => p.stock > 0 && p.stock <= p.min_stock),
 		outOfStockProducts: (state) => state.products.filter(p => p.stock === 0),
 	},
 })

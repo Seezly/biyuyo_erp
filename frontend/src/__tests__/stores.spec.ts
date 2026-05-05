@@ -68,7 +68,7 @@ describe('Toast Store', () => {
 
 	it('should auto-remove toast after duration', async () => {
 		const store = useToastStore()
-		store.show('Quick message', 100)
+		store.show('success', 'Quick message', 100)
 		
 		expect(store.toasts.length).toBe(1)
 		
