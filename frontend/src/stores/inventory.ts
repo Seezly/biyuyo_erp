@@ -1,0 +1,208 @@
+import { defineStore } from 'pinia'
+import { apiFetch } from '@/utils/helpers'
+import type { Product, ProductForm } from '@/types/product'
+
+interface Category {
+	id: number
+	name: string
+	parent_id: number | null
+	business: number
+}
+
+interface InventoryMovement {
+	id: number
+	business: number
+	product: number
+	type: 'in' | 'out' | 'adjustment'
+	quantity: number
+	reason: string
+	created_at: string
+}
+
+export const useInventoryStore = defineStore('inventory', {
+	state: () => ({
+		products: [] as Product[],
+		categories: [] as Category[],
+		movements: [] as InventoryMovement[],
+		loading: false,
+		error: null as string | null,
+	}),
+
+	actions: {
+		async fetchProducts() {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch('/api/products/')
+				if (!response.ok) throw new Error('Failed to fetch products')
+				this.products = await response.json()
+			} catch (e: any) {
+				this.error = e.message
+			} finally {
+				this.loading = false
+			}
+		},
+
+		async createProduct(data: ProductForm) {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch('/api/products/', {
+					method: 'POST',
+					body: JSON.stringify(data),
+				})
+				if (!response.ok) throw new Error('Failed to create product')
+				const product = await response.json()
+				this.products.push(product)
+			} catch (e: any) {
+				this.error = e.message
+			} finally {
+				this.loading = false
+			}
+		},
+
+		async updateProduct(id: number, data: Partial<ProductForm>) {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch(`/api/products/${id}/`, {
+					method: 'PATCH',
+					body: JSON.stringify(data),
+				})
+				if (!response.ok) throw new Error('Failed to update product')
+				const updated = await response.json()
+				const index = this.products.findIndex(p => p.id === id)
+				if (index !== -1) this.products[index] = updated
+			} catch (e: any) {
+				this.error = e.message
+			} finally {
+				this.loading = false
+			}
+		},
+
+		async deleteProduct(id: number) {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch(`/api/products/${id}/`, {
+					method: 'DELETE',
+				})
+				if (!response.ok) throw new Error('Failed to delete product')
+				this.products = this.products.filter(p => p.id !== id)
+			} catch (e: any) {
+				this.error = e.message
+			} finally {
+				this.loading = false
+			}
+		},
+
+		async fetchCategories() {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch('/api/categories/')
+				if (!response.ok) throw new Error('Failed to fetch categories')
+				this.categories = await response.json()
+			} catch (e: any) {
+				this.error = e.message
+			} finally {
+				this.loading = false
+			}
+		},
+
+		async createCategory(data: { name: string; parent_id?: number }) {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch('/api/categories/', {
+					method: 'POST',
+					body: JSON.stringify(data),
+				})
+				if (!response.ok) throw new Error('Failed to create category')
+				const category = await response.json()
+				this.categories.push(category)
+			} catch (e: any) {
+				this.error = e.message
+			} finally {
+				this.loading = false
+			}
+		},
+
+		async updateCategory(id: number, data: { name: string; parent_id?: number }) {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch(`/api/categories/${id}/`, {
+					method: 'PATCH',
+					body: JSON.stringify(data),
+				})
+				if (!response.ok) throw new Error('Failed to update category')
+				const updated = await response.json()
+				const index = this.categories.findIndex(c => c.id === id)
+				if (index !== -1) this.categories[index] = updated
+			} catch (e: any) {
+				this.error = e.message
+			} finally {
+				this.loading = false
+			}
+		},
+
+		async deleteCategory(id: number) {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch(`/api/categories/${id}/`, {
+					method: 'DELETE',
+				})
+				if (!response.ok) throw new Error('Failed to delete category')
+				this.categories = this.categories.filter(c => c.id !== id)
+			} catch (e: any) {
+				this.error = e.message
+			} finally {
+				this.loading = false
+			}
+		},
+
+		async fetchMovements() {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch('/api/inventory-movements/')
+				if (!response.ok) throw new Error('Failed to fetch movements')
+				this.movements = await response.json()
+			} catch (e: any) {
+				this.error = e.message
+			} finally {
+				this.loading = false
+			}
+		},
+
+		async createMovement(data: {
+			product: number
+			type: 'in' | 'out' | 'adjustment'
+			quantity: number
+			reason: string
+		}) {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch('/api/inventory-movements/', {
+					method: 'POST',
+					body: JSON.stringify(data),
+				})
+				if (!response.ok) throw new Error('Failed to create movement')
+				const movement = await response.json()
+				this.movements.push(movement)
+			} catch (e: any) {
+				this.error = e.message
+			} finally {
+				this.loading = false
+			}
+		},
+	},
+
+	getters: {
+		lowStockProducts: (state) => state.products.filter(p => p.stock <= p.min_stock),
+		outOfStockProducts: (state) => state.products.filter(p => p.stock === 0),
+	},
+})
