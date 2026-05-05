@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useInventoryStore } from '@/stores/inventory'
+import { useToastStore } from '@/stores/toast'
 import { apiFetch } from '@/utils/helpers'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -10,6 +11,7 @@ import { type ProductForm } from '@/types/product'
 const router = useRouter()
 const route = useRoute()
 const inventoryStore = useInventoryStore()
+const toastStore = useToastStore()
 
 const productId = Number(route.params.id)
 
@@ -69,9 +71,11 @@ const handleSubmit = async () => {
 	saving.value = false
 
 	if (!inventoryStore.error) {
+		toastStore.success('Producto actualizado correctamente')
 		router.push('/inventory/products')
 	} else {
 		error.value = inventoryStore.error || 'Error al actualizar el producto'
+		toastStore.error('Error al actualizar el producto')
 	}
 }
 </script>

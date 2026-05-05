@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useInventoryStore } from '@/stores/inventory'
+import { useToastStore } from '@/stores/toast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseAlert from '@/components/ui/BaseAlert.vue'
 
 const inventoryStore = useInventoryStore()
+const toastStore = useToastStore()
 
 const search = ref('')
 const filter = ref<'all' | 'low' | 'out'>('all')
+const showDeleteAlert = ref(false)
+const productToDelete = ref<number | null>(null)
 
 onMounted(() => {
 	inventoryStore.fetchProducts()
@@ -33,10 +38,28 @@ const filteredProducts = computed(() => {
 	return products
 })
 
-const handleDelete = async (id: number) => {
-	if (confirm('¿Estás seguro de eliminar este producto?')) {
-		await inventoryStore.deleteProduct(id)
+const confirmDelete = (id: number) => {
+	productToDelete.value = id
+	showDeleteAlert.value = true
+}
+
+const handleDelete = async () => {
+	if (productToDelete.value) {
+		const result = await inventoryStore.deleteProduct(productToDelete.value)
+		showDeleteAlert.value = false
+		productToDelete.value = null
+
+		if (inventoryStore.error) {
+			toastStore.error('Error al eliminar el producto')
+		} else {
+			toastStore.success('Producto eliminado correctamente')
+		}
 	}
+}
+
+const cancelDelete = () => {
+	showDeleteAlert.value = false
+	productToDelete.value = null
 }
 
 const getStockStatus = (product: any) => {
@@ -112,11 +135,24 @@ const getStockClass = (product: any) => {
 						</div>
 						<div class="flex w-full gap-2">
 							<BaseButton :to="'/inventory/products/edit/' + product.id" text="Editar" variant="secondary" />
-							<BaseButton text="Eliminar" @click="handleDelete(product.id)" />
+							<BaseButton text="Eliminar" @click="confirmDelete(product.id)" />
 						</div>
 					</div>
 				</div>
 			</BaseCard>
 		</div>
 	</section>
+
+	<BaseAlert
+		:visible="showDeleteAlert"
+		title="Confirmar eliminación"
+		subtitle="Esta acción no se puede deshacer"
+		description="¿Estás seguro de que deseas eliminar este producto? Se eliminará permanentemente del inventario."
+		variant="delete"
+		:cta="'Eliminar'"
+		:cancel="true"
+		@update="showDeleteAlert = false"
+		@close="cancelDelete"
+		@next="handleDelete"
+	/>
 </template>

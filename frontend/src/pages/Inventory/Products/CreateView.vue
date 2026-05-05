@@ -2,12 +2,14 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useInventoryStore } from '@/stores/inventory'
+import { useToastStore } from '@/stores/toast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { type ProductForm } from '@/types/product'
 
 const router = useRouter()
 const inventoryStore = useInventoryStore()
+const toastStore = useToastStore()
 
 const form = ref<ProductForm>({
 	name: '',
@@ -41,9 +43,11 @@ const handleSubmit = async () => {
 	loading.value = false
 
 	if (result) {
+		toastStore.success('Producto creado correctamente')
 		router.push('/inventory/products')
 	} else {
 		error.value = inventoryStore.error || 'Error al crear el producto'
+		toastStore.error('Error al crear el producto')
 	}
 }
 </script>
