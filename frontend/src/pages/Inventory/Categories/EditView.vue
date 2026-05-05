@@ -1,13 +1,45 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
+import { useRoute } from 'vue-router'
+
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 
+import { apiFetch } from '@/utils/helpers'
+
+const route = useRoute()
+
+const category = ref(null)
+
 const form = ref({
-	name: '',
-	is_subcategory: false,
-	parent_category: null,
+	name: category.value?.name ?? '',
+	is_subcategory: category.value?.parent_name ? true : false,
+	parent_category: category.value?.parent_name ?? null,
+})
+
+const getCategory = async () => {
+	try {
+		const response = await apiFetch(`/api/categories/route.params.categoryId/`, {
+			method: 'GET',
+		})
+
+		if (!response.ok) {
+			const errorData = await response.json()
+			console.error('Category fetching failed:', errorData)
+			return
+		}
+
+		const data = await response.json()
+
+		category.value = data
+	} catch (error) {
+		console.error('Network error:', error)
+	}
+}
+
+onBeforeMount(() => {
+	getCategory()
 })
 </script>
 
@@ -20,9 +52,20 @@ const form = ref({
 		<form action="" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
 			<label class="w-full flex flex-col text-dark">
 				Nombre de la categoría
-				<BaseInput v-model="form.name" type="text" name="name" placeholder="Nombre de la categoría" />
+				<BaseInput
+					v-model="form.name"
+					type="text"
+					name="name"
+					placeholder="Nombre de la categoría"
+					:value="category.name"
+				/>
 			</label>
-			<BaseCheckbox v-model="form.is_subcategory" name="isSubcategory" text="¿Es una subcategoría?" />
+			<BaseCheckbox
+				v-model="form.is_subcategory"
+				name="isSubcategory"
+				text="¿Es una subcategoría?"
+				:checked="category.is_subcategory"
+			/>
 			<Transition name="fade">
 				<div v-if="form.is_subcategory" class="w-full max-h-64 flex flex-col gap-4">
 					<label class="w-full flex flex-col text-dark">
@@ -31,6 +74,7 @@ const form = ref({
 							name="category"
 							id=""
 							class="py-2 px-4 rounded-xl border border-secondary text-primary"
+							:value="category.parent_id"
 						>
 							<option value="0">Categoría 1</option>
 						</select>

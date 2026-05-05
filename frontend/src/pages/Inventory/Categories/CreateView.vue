@@ -1,13 +1,62 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
+import router from '@/router'
+
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
+
+import { apiFetch } from '@/utils/helpers'
 
 const form = ref({
 	name: '',
 	is_subcategory: false,
 	parent_category: null,
+})
+
+const categories = ref(null)
+
+const getCategories = async () => {
+	try {
+		const response = await apiFetch('/api/categories/', {
+			method: 'GET',
+		})
+
+		if (!response.ok) {
+			const errorData = await response.json()
+			console.error('Category fetching failed:', errorData)
+			return
+		}
+
+		const data = await response.json()
+
+		categories.value = data
+	} catch (error) {
+		console.error('Network error:', error)
+	}
+}
+
+const submit = async () => {
+	try {
+		const response = await apiFetch('/api/categories/', {
+			method: 'POST',
+			body: JSON.stringify(form.value),
+		})
+
+		if (!response.ok) {
+			const errorData = await response.json()
+			console.error('Category creation failed:', errorData)
+			return
+		}
+
+		window.location.reload()
+	} catch (error) {
+		console.error('Network error:', error)
+	}
+}
+
+onBeforeMount(() => {
+	getCategories()
 })
 </script>
 
@@ -32,12 +81,15 @@ const form = ref({
 							id=""
 							class="py-2 px-4 rounded-xl border border-secondary text-primary"
 						>
-							<option value="0">Categoría 1</option>
+							<option :value="null">Seleccione una categoría</option>
+							<template v-for="category in categories" :key="category.id">
+								<option :value="category.id">{{ category.name }}</option>
+							</template>
 						</select>
 					</label>
 				</div>
 			</Transition>
-			<BaseButton text="Agregar categoría" />
+			<BaseButton text="Agregar categoría" @click="submit" />
 		</form>
 	</section>
 </template>

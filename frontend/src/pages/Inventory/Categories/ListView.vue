@@ -1,7 +1,71 @@
 <script setup lang="ts">
+import { onBeforeMount, ref, watch } from 'vue'
+
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseAlert from '@/components/ui/BaseAlert.vue'
+
+import { apiFetch } from '@/utils/helpers'
+
+const categories = ref([])
+const filteredCategories = ref([])
+const search = ref('')
+
+watch(search, () => {
+	const currentCategories = categories.value
+	if (search.value.length > 0) {
+		filteredCategories.value = currentCategories.filter((category: any) =>
+			category.name.includes(search.value),
+		)
+	} else {
+		filteredCategories.value = currentCategories
+	}
+})
+
+const getCategories = async () => {
+	try {
+		const response = await apiFetch('/api/categories/', {
+			method: 'GET',
+		})
+
+		if (!response.ok) {
+			const errorData = await response.json()
+			console.error('Category fetching failed:', errorData)
+			return
+		}
+
+		const data = await response.json()
+
+		categories.value = data
+		filteredCategories.value = data
+	} catch (error) {
+		console.error('Network error:', error)
+	}
+}
+
+const handleDelete = async (id: string | number) => {
+	try {
+		const response = await apiFetch(`/api/categories/${id}/`, {
+			method: 'DELETE',
+		})
+
+		if (!response.ok) {
+			const errorData = await response.json()
+			console.error('Category deletion failed:', errorData)
+			return
+		}
+
+		categories.value = categories.value.filter((category: any) => category.id !== id)
+		filteredCategories.value = filteredCategories.value.filter((category: any) => category.id !== id)
+	} catch (error) {
+		console.error('Network error:', error)
+	}
+}
+
+onBeforeMount(() => {
+	getCategories()
+})
 </script>
 
 <template>
@@ -16,7 +80,12 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 				text="Añadir categoría"
 				class="col-span-12 lg:col-span-3"
 			/>
-			<BaseInput placeholder="Buscar categoría por nombre" class="col-span-12 lg:col-span-5" />
+			<BaseInput
+				type="search"
+				placeholder="Buscar categoría por nombre"
+				class="col-span-12 lg:col-span-5"
+				v-model="search"
+			/>
 			<div class="flex lg:justify-end justify-between items-center gap-2 col-span-12 lg:col-span-4">
 				<label
 					for="1"
@@ -58,16 +127,35 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 			</div>
 		</div>
 		<div class="grid grid-cols-12 gap-4 w-full">
-			<BaseCard variant="outlined" class="col-span-full lg:col-span-3 row-span-1">
-				<div class="flex flex-col gap-4 justify-start items-start">
-					<div class="flex justify-between w-full items-center">
-						<div class="flex flex-col gap-2">
-							<h2 class="font-bold text-lg text-primary">Categoría 1</h2>
-							<span class="text-xs">Categoría padre</span>
+			<template v-for="category in filteredCategories" :key="category.id">
+				<BaseCard variant="outlined" class="col-span-full lg:col-span-3 row-span-1">
+					<div class="flex flex-col gap-4 justify-start items-start">
+						<div class="flex justify-between w-full items-center">
+							<div class="flex flex-col gap-2">
+								<h2 class="font-bold text-lg text-primary">{{ category.name }}</h2>
+								<span class="text-xs" v-if="category.parent_id">{{ category.parent_id }}</span>
+							</div>
+							<div>
+								<BaseButton
+									variant="outlined"
+									text="Editar"
+									icon="fa-solid fa-pencil"
+									width="auto"
+									:to="'/inventory/categories/edit/' + category.id"
+								/>
+								<BaseButton text="Eliminar" width="auto" @click="handleDelete(category.id)" />
+							</div>
 						</div>
 					</div>
-				</div>
-			</BaseCard>
+				</BaseCard>
+			</template>
 		</div>
 	</section>
+	<BaseAlert
+		title="Hola"
+		subtitle="Hola de nuevo"
+		:visible="true"
+		variant="info"
+		description="lol q mal"
+	/>
 </template>
