@@ -1,7 +1,55 @@
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useInventoryStore } from '@/stores/inventory'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+
+const inventoryStore = useInventoryStore()
+
+const search = ref('')
+const filter = ref<'all' | 'low' | 'out'>('all')
+
+onMounted(() => {
+	inventoryStore.fetchProducts()
+})
+
+const filteredProducts = computed(() => {
+	let products = inventoryStore.products
+
+	if (search.value) {
+		const query = search.value.toLowerCase()
+		products = products.filter(
+			p => p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query)
+		)
+	}
+
+	if (filter.value === 'low') {
+		products = products.filter(p => p.stock > 0 && p.stock <= p.min_stock)
+	} else if (filter.value === 'out') {
+		products = products.filter(p => p.stock === 0)
+	}
+
+	return products
+})
+
+const handleDelete = async (id: number) => {
+	if (confirm('¿Estás seguro de eliminar este producto?')) {
+		await inventoryStore.deleteProduct(id)
+	}
+}
+
+const getStockStatus = (product: any) => {
+	if (product.stock === 0) return 'Sin stock'
+	if (product.stock <= product.min_stock) return 'Bajo stock'
+	return 'Normal'
+}
+
+const getStockClass = (product: any) => {
+	if (product.stock === 0) return 'bg-red-500'
+	if (product.stock <= product.min_stock) return 'bg-yellow-500'
+	return 'bg-green-500'
+}
 </script>
 
 <template>
@@ -11,80 +59,60 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 			<p>Administra los productos en tu inventario</p>
 		</div>
 		<div class="grid grid-cols-12 grid-rows-1 gap-4 w-full">
-			<BaseButton
-				to="/inventory/products/add"
-				text="Añadir producto"
-				class="col-span-12 lg:col-span-3"
-			/>
-			<BaseInput placeholder="Buscar producto por nombre o SKU" class="col-span-12 lg:col-span-5" />
+			<BaseButton to="/inventory/products/add" text="Añadir producto" class="col-span-12 lg:col-span-3" />
+			<BaseInput v-model="search" placeholder="Buscar producto por nombre o SKU" class="col-span-12 lg:col-span-5" />
 			<div class="flex lg:justify-end justify-between items-center gap-2 col-span-12 lg:col-span-4">
-				<label
-					for="1"
-					class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-[#fff] relative transition"
-				>
+				<label class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-[#fff] relative transition cursor-pointer">
 					Todos
-					<input
-						type="checkbox"
-						class="absolute opacity-0 cursor-pointer h-full w-full"
-						name="1"
-						id=""
-						checked
-					/>
+					<input type="radio" v-model="filter" value="all" class="absolute opacity-0 cursor-pointer h-full w-full" />
 				</label>
-				<label
-					for="2"
-					class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-[#fff] relative transition"
-				>
-					Bajo stock (n)
-					<input
-						type="checkbox"
-						class="absolute opacity-0 cursor-pointer h-full w-full"
-						name="2"
-						id=""
-					/>
+				<label class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-[#fff] relative transition cursor-pointer">
+					Bajo stock ({{ inventoryStore.lowStockProducts.length }})
+					<input type="radio" v-model="filter" value="low" class="absolute opacity-0 cursor-pointer h-full w-full" />
 				</label>
-				<label
-					for="3"
-					class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-white relative transition"
-				>
-					Sin stock (n)
-					<input
-						type="checkbox"
-						class="absolute opacity-0 cursor-pointer h-full w-full"
-						name="3"
-						id=""
-					/>
+				<label class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-white relative transition cursor-pointer">
+					Sin stock ({{ inventoryStore.outOfStockProducts.length }})
+					<input type="radio" v-model="filter" value="out" class="absolute opacity-0 cursor-pointer h-full w-full" />
 				</label>
 			</div>
 		</div>
-		<div class="grid grid-cols-12 gap-4 w-full">
-			<BaseCard variant="outlined" class="col-span-full lg:col-span-3 row-span-3">
+
+		<div v-if="inventoryStore.loading" class="w-full text-center py-8">
+			<p>Cargando productos...</p>
+		</div>
+
+		<div v-else-if="filteredProducts.length === 0" class="w-full text-center py-8">
+			<p class="text-gray-500">No hay productos disponibles</p>
+		</div>
+
+		<div v-else class="grid grid-cols-12 gap-4 w-full">
+			<BaseCard v-for="product in filteredProducts" :key="product.id" variant="outlined" class="col-span-full lg:col-span-3 row-span-3">
 				<div class="flex flex-col gap-4 justify-start items-start">
 					<div class="flex justify-between w-full items-center">
 						<div class="flex justify-center items-center size-10 rounded-full bg-secondary">
 							<i class="fa-solid fa-barcode text-lg"></i>
 						</div>
 						<div class="flex flex-col gap-2">
-							<span class="rounded-full py-2 px-4 bg-secondary font-bold text-sm uppercase"
-								>low stock</span
-							>
-							<p class="text-sm text-right">SKU: 12345</p>
+							<span :class="['rounded-full py-2 px-4 font-bold text-sm uppercase text-white', getStockClass(product)]">
+								{{ getStockStatus(product) }}
+							</span>
+							<p class="text-sm text-right">SKU: {{ product.sku }}</p>
 						</div>
 					</div>
 					<div class="flex flex-col gap-2">
-						<h2 class="font-bold text-2xl">Organic product in the business</h2>
-						<p class="text-sm">Some variant for the product</p>
-						<p class="text-xl font-bold text-primary">$100</p>
+						<h2 class="font-bold text-2xl">{{ product.name }}</h2>
+						<p class="text-sm">{{ product.description || 'Sin descripción' }}</p>
+						<p class="text-xl font-bold text-primary">${{ product.sell_price }}</p>
 					</div>
-					<hr />
+					<hr class="w-full" />
 					<div class="flex flex-row lg:flex-col w-full justify-between items-center gap-2">
 						<div class="w-full">
 							<p class="text-sm">Cantidad disponible</p>
-							<p class="text-lg font-bold text-primary">10</p>
+							<p class="text-lg font-bold text-primary">{{ product.stock }}</p>
 						</div>
 						<div class="flex w-full gap-2">
-							<BaseButton text="-" variant="secondary" />
-							<BaseButton text="+" />
+							<BaseButton :to="'/inventory/products/edit/' + product.id" text="Editar" variant="secondary" />
+							<BaseButton text="Eliminar" @click="handleDelete(product.id)" />
 						</div>
 					</div>
 				</div>
