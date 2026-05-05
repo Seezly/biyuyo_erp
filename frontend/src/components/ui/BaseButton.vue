@@ -4,8 +4,9 @@ import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 
 const props = defineProps<{
-	text: string
-	variant?: 'primary' | 'secondary' | 'outlined' | 'inverted'
+	text?: string
+	icon?: string
+	variant?: 'primary' | 'secondary' | 'outlined' | 'inverted' | 'ghost'
 	type?: 'button' | 'submit' | 'reset'
 	width?: 'full' | 'auto'
 	to?: string
@@ -14,6 +15,8 @@ const props = defineProps<{
 const colors = {
 	primary: 'bg-primary text-white hover:bg-secondary transition duration-200',
 	secondary: 'bg-secondary text-white hover:bg-primary transition duration-200',
+	ghost:
+		'text-primary hover:text-white hover:border hover:border-secondary hover:bg-secondary transition duration-200',
 	outlined:
 		'border border-secondary text-primary hover:bg-secondary hover:text-white transition duration-200',
 	inverted: 'bg-dark text-white hover:bg-white hover:text-dark transition duration-200',
@@ -37,9 +40,11 @@ const types = props.type || 'button'
 	<RouterLink v-if="to" :to="to" :class="widths[props.width || 'full']">
 		<button :type="types" :class="buttonClasses">
 			{{ $props.text }}
+			<i :class="$props.icon"></i>
 		</button>
 	</RouterLink>
 	<button v-else :type="types" :class="buttonClasses">
 		{{ $props.text }}
+		<i :class="$props.icon"></i>
 	</button>
 </template>

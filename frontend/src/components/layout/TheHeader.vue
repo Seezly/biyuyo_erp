@@ -20,25 +20,25 @@ const auth = useAuthStore()
 				<h1>Biyuyo</h1>
 			</NavItem>
 			<NavItem v-if="!auth.isAuthenticated" class="hidden md:flex">
-				<RouterLink to="/">Inicio</RouterLink>
-				<RouterLink to="/about">Nosotros</RouterLink>
-				<RouterLink to="/benefits">Beneficios</RouterLink>
-				<RouterLink to="/plans">Planes</RouterLink>
-				<RouterLink to="/contact">Contáctanos</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/">Inicio</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/about">Nosotros</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/benefits">Beneficios</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/plans">Planes</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/contact">Contáctanos</RouterLink>
 			</NavItem>
 			<NavItem v-if="auth.isAuthenticated" class="hidden md:flex">
-				<RouterLink to="/dashboard">Inicio</RouterLink>
-				<RouterLink to="/customers">Clientes</RouterLink>
-				<RouterLink to="/inventory">Inventario</RouterLink>
-				<RouterLink to="/sales">Ventas</RouterLink>
-				<RouterLink to="/sales/pos">POS</RouterLink>
-				<RouterLink to="/suppliers">Proveedores</RouterLink>
-				<RouterLink to="/reports">Reportes</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/dashboard">Inicio</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/customers">Clientes</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/inventory">Inventario</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/sales">Ventas</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/sales/pos">POS</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/suppliers">Proveedores</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/reports">Reportes</RouterLink>
 			</NavItem>
 			<NavItem class="ml-auto">
 				<div v-if="!auth.isAuthenticated" class="hidden md:flex justify-center items-center gap-4">
 					<BaseButton to="/login" text="Iniciar sesión" width="auto" />
-					<BaseButton to="/register" text="Registrarse" variant="outlined" width="auto" />
+					<BaseButton to="/register" text="Registrarse" variant="ghost" width="auto" />
 				</div>
 				<div v-if="auth.isAuthenticated" class="hidden md:flex justify-center items-center gap-4">
 					<i class="fa-regular fa-user text-2xl"></i>
