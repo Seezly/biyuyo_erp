@@ -26,16 +26,45 @@ export const useInventoryStore = defineStore('inventory', {
 		movements: [] as InventoryMovement[],
 		loading: false,
 		error: null as string | null,
+		// Pagination state
+		pagination: {
+			count: 0,
+			next: null as string | null,
+			previous: null as string | null,
+		},
 	}),
 
 	actions: {
-		async fetchProducts() {
+		async fetchProducts(params: {
+			search?: string
+			category_id?: string
+			stock?: string
+			ordering?: string
+			page?: string
+		} = {}) {
 			this.loading = true
 			this.error = null
 			try {
-				const response = await apiFetch('/api/products/')
+				// Build query string from params
+				const queryParams = new URLSearchParams()
+				if (params.search) queryParams.set('search', params.search)
+				if (params.category_id) queryParams.set('category_id', params.category_id)
+				if (params.stock) queryParams.set('stock', params.stock)
+				if (params.ordering) queryParams.set('ordering', params.ordering)
+				if (params.page) queryParams.set('page', params.page)
+
+				const queryString = queryParams.toString()
+				const url = `/api/products/${queryString ? '?' + queryString : ''}`
+				const response = await apiFetch(url)
+
 				if (!response.ok) throw new Error('Failed to fetch products')
-				this.products = await response.json()
+				const data = await response.json()
+				this.products = data.results || data
+				this.pagination = {
+					count: data.count || data.length,
+					next: data.next,
+					previous: data.previous,
+				}
 			} catch (e: any) {
 				this.error = e.message
 			} finally {

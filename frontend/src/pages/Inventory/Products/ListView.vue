@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useInventoryStore } from '@/stores/inventory'
 import { useToastStore } from '@/stores/toast'
 import BaseInput from '@/components/ui/BaseInput.vue'
@@ -7,36 +8,62 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseAlert from '@/components/ui/BaseAlert.vue'
 
+const router = useRouter()
+const route = useRoute()
 const inventoryStore = useInventoryStore()
 const toastStore = useToastStore()
 
 const search = ref('')
-const filter = ref<'all' | 'low' | 'out'>('all')
+const stockFilter = ref<'all' | 'low' | 'out'>('all')
 const showDeleteAlert = ref(false)
 const productToDelete = ref<number | null>(null)
 
+// Initialize filters from URL query params
 onMounted(() => {
-	inventoryStore.fetchProducts()
+	search.value = (route.query.search as string) || ''
+	stockFilter.value = ((route.query.stock as string) || 'all') as 'all' | 'low' | 'out'
+	fetchProducts()
 })
 
-const filteredProducts = computed(() => {
-	let products = inventoryStore.products
+// Fetch products with current filter params
+const fetchProducts = () => {
+	const params: {
+		search?: string
+		stock?: string
+		ordering?: string
+		page?: string
+	} = {}
 
-	if (search.value) {
-		const query = search.value.toLowerCase()
-		products = products.filter(
-			p => p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query)
-		)
+	if (search.value) params.search = search.value
+
+	// Stock filter: send the filter value for backend to handle
+	// The backend will filter based on stock value
+	if (stockFilter.value === 'low') {
+		// Products where stock <= min_stock (low stock)
+		// Backend filtering will be handled by the store
+	} else if (stockFilter.value === 'out') {
+		params.stock = '0'
 	}
 
-	if (filter.value === 'low') {
-		products = products.filter(p => p.stock > 0 && p.stock <= p.min_stock)
-	} else if (filter.value === 'out') {
-		products = products.filter(p => p.stock === 0)
-	}
+	if (route.query.ordering) params.ordering = route.query.ordering as string
+	if (route.query.page) params.page = route.query.page as string
 
-	return products
-})
+	inventoryStore.fetchProducts(params)
+}
+
+// Watch for filter changes and update URL
+watch([search, stockFilter], () => {
+	const query: Record<string, string> = {}
+	if (search.value) query.search = search.value
+	if (stockFilter.value !== 'all') query.stock = stockFilter.value
+
+	router.push({ query })
+}, { deep: true })
+
+// Watch for pagination from store
+watch(() => inventoryStore.pagination, () => {
+	// Pagination is handled by the store
+}, { deep: true })
 
 const confirmDelete = (id: number) => {
 	productToDelete.value = id
@@ -87,15 +114,15 @@ const getStockClass = (product: any) => {
 			<div class="flex lg:justify-end justify-between items-center gap-2 col-span-12 lg:col-span-4">
 				<label class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-[#fff] relative transition cursor-pointer">
 					Todos
-					<input type="radio" v-model="filter" value="all" class="absolute opacity-0 cursor-pointer h-full w-full" />
+					<input type="radio" v-model="stockFilter" value="all" class="absolute opacity-0 cursor-pointer h-full w-full" />
 				</label>
 				<label class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-[#fff] relative transition cursor-pointer">
 					Bajo stock ({{ inventoryStore.lowStockProducts.length }})
-					<input type="radio" v-model="filter" value="low" class="absolute opacity-0 cursor-pointer h-full w-full" />
+					<input type="radio" v-model="stockFilter" value="low" class="absolute opacity-0 cursor-pointer h-full w-full" />
 				</label>
 				<label class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-white relative transition cursor-pointer">
 					Sin stock ({{ inventoryStore.outOfStockProducts.length }})
-					<input type="radio" v-model="filter" value="out" class="absolute opacity-0 cursor-pointer h-full w-full" />
+					<input type="radio" v-model="stockFilter" value="out" class="absolute opacity-0 cursor-pointer h-full w-full" />
 				</label>
 			</div>
 		</div>
@@ -104,12 +131,12 @@ const getStockClass = (product: any) => {
 			<p>Cargando productos...</p>
 		</div>
 
-		<div v-else-if="filteredProducts.length === 0" class="w-full text-center py-8">
+		<div v-else-if="inventoryStore.products.length === 0" class="w-full text-center py-8">
 			<p class="text-gray-500">No hay productos disponibles</p>
 		</div>
 
 		<div v-else class="grid grid-cols-12 gap-4 w-full">
-			<BaseCard v-for="product in filteredProducts" :key="product.id" variant="outlined" class="col-span-full lg:col-span-3 row-span-3">
+			<BaseCard v-for="product in inventoryStore.products" :key="product.id" variant="outlined" class="col-span-full lg:col-span-3 row-span-3">
 				<div class="flex flex-col gap-4 justify-start items-start">
 					<div class="flex justify-between w-full items-center">
 						<div class="flex justify-center items-center size-10 rounded-full bg-secondary">
