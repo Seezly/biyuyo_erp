@@ -51,16 +51,42 @@ export const useSalesStore = defineStore('sales', {
 		payments: [] as Payment[],
 		loading: false,
 		error: null as string | null,
+		// Pagination state
+		pagination: {
+			count: 0,
+			next: null as string | null,
+			previous: null as string | null,
+		},
 	}),
 
 	actions: {
-		async fetchSales() {
+		async fetchSales(params: {
+			search?: string
+			status?: string
+			ordering?: string
+			page?: string
+		} = {}) {
 			this.loading = true
 			this.error = null
 			try {
-				const response = await apiFetch('/api/sales/')
+				const queryParams = new URLSearchParams()
+				if (params.search) queryParams.set('search', params.search)
+				if (params.status) queryParams.set('status', params.status)
+				if (params.ordering) queryParams.set('ordering', params.ordering)
+				if (params.page) queryParams.set('page', params.page)
+
+				const queryString = queryParams.toString()
+				const url = `/api/sales/${queryString ? '?' + queryString : ''}`
+				const response = await apiFetch(url)
+
 				if (!response.ok) throw new Error('Failed to fetch sales')
-				this.sales = await response.json()
+				const data = await response.json()
+				this.sales = data.results || data
+				this.pagination = {
+					count: data.count || data.length,
+					next: data.next,
+					previous: data.previous,
+				}
 			} catch (e: any) {
 				this.error = e.message
 			} finally {
@@ -181,13 +207,19 @@ export const useSalesStore = defineStore('sales', {
 
 	getters: {
 		todaySales: (state) => {
-			const today = new Date().toISOString().split('T')[0]
-			return state.sales.filter(s => s.created_at.startsWith(today))
+			const today = new Date().toISOString().split('T')[0] as string
+			return state.sales.filter(s => {
+				const createdAt = s.created_at as string | undefined
+				return createdAt ? createdAt.startsWith(today) : false
+			})
 		},
 		todayTotal: (state) => {
-			const today = new Date().toISOString().split('T')[0]
+			const today = new Date().toISOString().split('T')[0] as string
 			return state.sales
-				.filter(s => s.created_at.startsWith(today))
+				.filter(s => {
+					const createdAt = s.created_at as string | undefined
+					return createdAt ? createdAt.startsWith(today) : false
+				})
 				.reduce((sum, s) => sum + Number(s.total), 0)
 		},
 	},

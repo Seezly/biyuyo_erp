@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch, onMounted, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useSalesStore } from '@/stores/sales'
 import { useCustomersStore } from '@/stores/customers'
 import { useToastStore } from '@/stores/toast'
@@ -10,19 +10,51 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseAlert from '@/components/ui/BaseAlert.vue'
 
 const router = useRouter()
+const route = useRoute()
 const salesStore = useSalesStore()
 const customersStore = useCustomersStore()
 const toastStore = useToastStore()
 
 const search = ref('')
-const filterDate = ref('')
+const statusFilter = ref('')
 const showDeleteAlert = ref(false)
 const saleToDelete = ref<number | null>(null)
 
+// Initialize filters from URL query params
 onMounted(async () => {
-	await salesStore.fetchSales()
-	await customersStore.fetchCustomers()
+	search.value = (route.query.search as string) || ''
+	statusFilter.value = (route.query.status as string) || ''
+	await Promise.all([
+		fetchSales(),
+		customersStore.fetchCustomers()
+	])
 })
+
+// Fetch sales with current filter params
+const fetchSales = () => {
+	const params: {
+		search?: string
+		status?: string
+		ordering?: string
+		page?: string
+	} = {}
+
+	if (search.value) params.search = search.value
+	if (statusFilter.value) params.status = statusFilter.value
+	if (route.query.ordering) params.ordering = route.query.ordering as string
+	if (route.query.page) params.page = route.query.page as string
+
+	salesStore.fetchSales(params)
+}
+
+// Watch for filter changes and update URL
+watch([search, statusFilter], () => {
+	const query: Record<string, string> = {}
+	if (search.value) query.search = search.value
+	if (statusFilter.value) query.status = statusFilter.value
+
+	router.push({ query })
+}, { deep: true })
 
 const formatDate = (dateString: string) => {
 	const date = new Date(dateString)
@@ -40,32 +72,17 @@ const getCustomerName = (customerId: number) => {
 	return customer?.name || `Cliente #${customerId}`
 }
 
-const filteredSales = computed(() => {
-	let sales = salesStore.sales
-
-	if (search.value) {
-		const query = search.value.toLowerCase()
-		sales = sales.filter(s => {
-			const customerName = getCustomerName(s.customer).toLowerCase()
-			return customerName.includes(query) || s.id.toString().includes(query)
-		})
-	}
-
-	if (filterDate.value) {
-		sales = sales.filter(s => s.created_at.startsWith(filterDate.value))
-	}
-
-	return sales
-})
-
 const totalSales = computed(() => {
 	return salesStore.sales.reduce((sum, s) => sum + Number(s.total), 0)
 })
 
 const todaySales = computed(() => {
-	const today = new Date().toISOString().split('T')[0]
+	const today = new Date().toISOString().split('T')[0] as string
 	return salesStore.sales
-		.filter(s => s.created_at.startsWith(today))
+		.filter(s => {
+			const createdAt = s.created_at as string | undefined
+			return createdAt ? createdAt.startsWith(today) : false
+		})
 		.reduce((sum, s) => sum + Number(s.total), 0)
 })
 
@@ -129,7 +146,7 @@ const cancelDelete = () => {
 				<BaseInput v-model="search" type="search" placeholder="Buscar por cliente o ID" class="w-full" />
 			</div>
 			<div class="col-span-12 lg:col-span-3 lg:row-span-1">
-				<BaseInput v-model="filterDate" type="date" class="w-full" />
+				<BaseInput v-model="statusFilter" type="search" placeholder="Filtrar por status" class="w-full" />
 			</div>
 
 			<div class="col-span-12 lg:col-span-12 lg:row-span-5">
@@ -140,13 +157,13 @@ const cancelDelete = () => {
 						<p>Cargando ventas...</p>
 					</div>
 
-					<div v-else-if="filteredSales.length === 0" class="text-center py-8">
+					<div v-else-if="salesStore.sales.length === 0" class="text-center py-8">
 						<p class="text-gray-500">No hay ventas disponibles</p>
 					</div>
 
 					<div v-else class="flex flex-col gap-4 w-full">
 						<div
-							v-for="sale in filteredSales"
+							v-for="sale in salesStore.sales"
 							:key="sale.id"
 							class="flex flex-col lg:flex-row lg:items-center w-full border-b border-secondary/10 pb-4 gap-4"
 						>
