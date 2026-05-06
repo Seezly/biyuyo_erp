@@ -94,7 +94,7 @@ class SaleViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def perform_create(self, serializer):
-        request = self.context.get('request')
+        request = self.request
         items_data = request.data.get('items', []) if request else []
 
         sale = serializer.save(

@@ -10,6 +10,7 @@ class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = "__all__"
+        read_only_fields = ["business_id", "user_id"]
 
 
 class SaleItemSerializer(serializers.ModelSerializer):
