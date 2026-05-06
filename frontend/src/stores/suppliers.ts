@@ -54,16 +54,40 @@ export const useSuppliersStore = defineStore('suppliers', {
 		currentPurchase: null as Purchase | null,
 		loading: false,
 		error: null as string | null,
+		// Pagination state
+		pagination: {
+			count: 0,
+			next: null as string | null,
+			previous: null as string | null,
+		},
 	}),
 
 	actions: {
-		async fetchSuppliers() {
+		async fetchSuppliers(params: {
+			search?: string
+			ordering?: string
+			page?: string
+		} = {}) {
 			this.loading = true
 			this.error = null
 			try {
-				const response = await apiFetch('/api/suppliers/')
+				const queryParams = new URLSearchParams()
+				if (params.search) queryParams.set('search', params.search)
+				if (params.ordering) queryParams.set('ordering', params.ordering)
+				if (params.page) queryParams.set('page', params.page)
+
+				const queryString = queryParams.toString()
+				const url = `/api/suppliers/${queryString ? '?' + queryString : ''}`
+				const response = await apiFetch(url)
+
 				if (!response.ok) throw new Error('Failed to fetch suppliers')
-				this.suppliers = await response.json()
+				const data = await response.json()
+				this.suppliers = data.results || data
+				this.pagination = {
+					count: data.count || data.length,
+					next: data.next,
+					previous: data.previous,
+				}
 			} catch (e: any) {
 				this.error = e.message
 			} finally {
@@ -146,13 +170,28 @@ export const useSuppliersStore = defineStore('suppliers', {
 			}
 		},
 
-		async fetchPurchases() {
+		async fetchPurchases(params: {
+			search?: string
+			status?: string
+			ordering?: string
+			page?: string
+		} = {}) {
 			this.loading = true
 			this.error = null
 			try {
-				const response = await apiFetch('/api/purchases/')
+				const queryParams = new URLSearchParams()
+				if (params.search) queryParams.set('search', params.search)
+				if (params.status) queryParams.set('status', params.status)
+				if (params.ordering) queryParams.set('ordering', params.ordering)
+				if (params.page) queryParams.set('page', params.page)
+
+				const queryString = queryParams.toString()
+				const url = `/api/purchases/${queryString ? '?' + queryString : ''}`
+				const response = await apiFetch(url)
+
 				if (!response.ok) throw new Error('Failed to fetch purchases')
-				this.purchases = await response.json()
+				const data = await response.json()
+				this.purchases = data.results || data
 			} catch (e: any) {
 				this.error = e.message
 			} finally {

@@ -1,108 +1,124 @@
 <script setup lang="ts">
-import BaseCard from '@/components/ui/BaseCard.vue'
+import { ref, watch, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useSuppliersStore } from '@/stores/suppliers'
+import { useToastStore } from '@/stores/toast'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+
+const router = useRouter()
+const route = useRoute()
+const suppliersStore = useSuppliersStore()
+const toastStore = useToastStore()
+
+const search = ref('')
+const statusFilter = ref('')
+
+onMounted(() => {
+	search.value = (route.query.search as string) || ''
+	statusFilter.value = (route.query.status as string) || ''
+	fetchPurchases()
+})
+
+const fetchPurchases = () => {
+	const params: {
+		search?: string
+		status?: string
+		ordering?: string
+		page?: string
+	} = {}
+
+	if (search.value) params.search = search.value
+	if (statusFilter.value) params.status = statusFilter.value
+	if (route.query.ordering) params.ordering = route.query.ordering as string
+	if (route.query.page) params.page = route.query.page as string
+
+	suppliersStore.fetchPurchases(params)
+}
+
+watch([search, statusFilter], () => {
+	const query: Record<string, string> = {}
+	if (search.value) query.search = search.value
+	if (statusFilter.value) query.status = statusFilter.value
+	router.push({ query })
+}, { deep: true })
+
+const formatDate = (dateString: string) => {
+	if (!dateString) return '-'
+	const date = new Date(dateString)
+	return date.toLocaleDateString('es-VE', {
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	})
+}
+
+const getStatusClass = (status: string) => {
+	switch (status) {
+		case 'completed': return 'bg-green-500'
+		case 'pending': return 'bg-yellow-500'
+		case 'cancelled': return 'bg-red-500'
+		default: return 'bg-gray-500'
+	}
+}
 </script>
 
 <template>
 	<section class="w-full flex flex-col gap-8 mx-8 justify-start items-start self-start">
 		<div>
-			<h1 class="text-primary text-2xl font-bold">Compras y gastos</h1>
-			<p>Administra las compras de tu negocios y los gastos del día a día</p>
+			<h1 class="text-primary text-2xl font-bold">Compras</h1>
+			<p>Administra las compras de tu negocio</p>
 		</div>
-		<div class="w-full grid grid-cols-12 lg:grid-rows-6 gap-8">
-			<div class="col-span-12 lg:col-span-3 lg:row-span-1">
-				<BaseButton text="Añadir compra o gasto" to="/suppliers/purchases/add" />
+
+		<div class="grid grid-cols-12 grid-rows-1 gap-4 w-full">
+			<BaseButton to="/suppliers/purchases/add" text="Nueva compra" class="col-span-12 lg:col-span-3" />
+			<BaseInput v-model="search" placeholder="Buscar compra..." class="col-span-12 lg:col-span-5" />
+			<div class="flex lg:justify-end justify-between items-center gap-2 col-span-12 lg:col-span-4">
+				<label class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-[#fff] relative transition cursor-pointer">
+					Todos
+					<input type="radio" v-model="statusFilter" value="" class="absolute opacity-0 cursor-pointer h-full w-full" />
+				</label>
+				<label class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-[#fff] relative transition cursor-pointer">
+					Completadas
+					<input type="radio" v-model="statusFilter" value="completed" class="absolute opacity-0 cursor-pointer h-full w-full" />
+				</label>
+				<label class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-white relative transition cursor-pointer">
+					Pendientes
+					<input type="radio" v-model="statusFilter" value="pending" class="absolute opacity-0 cursor-pointer h-full w-full" />
+				</label>
 			</div>
-			<div class="col-span-12 lg:col-span-6 lg:row-span-1">
-				<BaseInput type="search" placeholder="Buscar por nombre" class="w-full" />
-			</div>
-			<div class="col-span-12 lg:col-span-3 lg:row-span-1">
-				<BaseInput type="date" name="" id="" class="w-full" />
-			</div>
-			<div class="col-span-12 lg:col-span-12 lg:row-span-5">
-				<BaseCard variant="outlined">
-					<h2 class="text-primary font-semibold text-xl mb-8">Últimas transacciones</h2>
-					<div class="flex flex-col gap-4 w-full">
-						<div
-							class="flex flex-col lg:flex-row lg:items-center w-full border-b border-secondary/10 pb-4 gap-8"
-						>
-							<div class="size-12 rounded-full hidden bg-primary lg:flex justify-center items-center">
-								<i class="fa-solid fa-boxes-packing text-xl text-white"></i>
-							</div>
-							<div>
-								<div class="flex gap-4 justify-between items-center">
-									<h3 class="text-primary text-lg font-medium">Lugar de compra</h3>
-									<p class="text-xs">23/04/2026</p>
-								</div>
-								<p>Producto, servicio o deuda</p>
-							</div>
-							<p class="text-primary text-2xl font-bold">-$20,00</p>
-							<div class="flex gap-4 justify-center items-center lg:ml-auto">
-								<BaseButton text="Editar" variant="outlined" class="w-full lg:w-auto" />
-								<BaseButton text="Eliminar" class="w-full lg:w-auto" />
-							</div>
+		</div>
+
+		<div v-if="suppliersStore.loading" class="w-full text-center py-8">
+			<p>Cargando compras...</p>
+		</div>
+
+		<div v-else-if="suppliersStore.purchases.length === 0" class="w-full text-center py-8">
+			<p class="text-gray-500">No hay compras disponibles</p>
+		</div>
+
+		<div v-else class="grid grid-cols-12 gap-4 w-full">
+			<BaseCard v-for="purchase in suppliersStore.purchases" :key="purchase.id" variant="outlined" class="col-span-full lg:col-span-4">
+				<div class="flex flex-col gap-4 justify-start items-start">
+					<div class="flex justify-between w-full items-center">
+						<div class="flex justify-center items-center size-10 rounded-full bg-secondary">
+							<i class="fa-solid fa-shopping-cart text-lg"></i>
 						</div>
+						<span :class="['rounded-full py-2 px-4 font-bold text-sm uppercase text-white', getStatusClass(purchase.status)]">
+							{{ purchase.status }}
+						</span>
 					</div>
-				</BaseCard>
-			</div>
-		</div>
-		<div class="flex w-full flex-col lg:flex-row justify-center items-center gap-8">
-			<BaseCard variant="outlined" class="flex-1">
-				<h2 class="text-primary font-semibold text-xl mb-8">Gastos</h2>
-				<div class="flex gap-4 justify-between items-center">
-					<div>
-						<h3 class="font-medium text-4xl text-primary">+$10.000,00</h3>
+					<div class="flex flex-col gap-2">
+						<h2 class="font-bold text-xl">Compra #{{ purchase.id }}</h2>
+						<p class="text-xl font-bold text-primary">${{ purchase.total }}</p>
+						<p class="text-sm text-gray-500">{{ formatDate(purchase.created_at) }}</p>
 					</div>
-					<div class="flex justify-center items-center gap-2 text-red-600">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="size-8"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
-							></path>
-						</svg>
-
-						<p class="flex gap-2 text-xs">
-							<span class="font-medium"> 67.81% </span>
-							<span class="text-gray-500"> VS el mes anterior </span>
-						</p>
-					</div>
-				</div>
-			</BaseCard>
-			<BaseCard variant="outlined" class="flex-1">
-				<h2 class="text-primary font-semibold text-xl mb-8"># de transacciones</h2>
-				<div class="flex gap-4 justify-between items-center">
-					<div>
-						<h3 class="font-medium text-4xl text-primary">+420</h3>
-					</div>
-					<div class="flex justify-center items-center gap-2 text-green-600">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="size-8"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-							></path>
-						</svg>
-
-						<p class="flex gap-2 text-xs">
-							<span class="font-medium"> 67.81% </span>
-							<span class="text-gray-500"> VS el mes anterior </span>
-						</p>
+					<div class="flex gap-2 w-full">
+						<BaseButton :to="'/suppliers/purchases/edit/' + purchase.id" text="Editar" variant="secondary" />
+						<BaseButton :to="'/suppliers/purchases/' + purchase.id" text="Ver" />
 					</div>
 				</div>
 			</BaseCard>
