@@ -37,7 +37,7 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
     def get_object(self):
         obj = super().get_object()
         if obj.business_id != self.request.user.business_id:
-            raise PermissionDenied("No tienes acceso a esta suscripción.")
+            raise PermissionDenied("You do not have access to this subscription.")
         return obj
 
 
@@ -55,5 +55,5 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     def get_object(self):
         obj = super().get_object()
         if obj.subscription_id.business_id != self.request.user.business_id:
-            raise PermissionDenied("No tienes acceso a esta factura.")
+            raise PermissionDenied("You do not have access to this invoice.")
         return obj

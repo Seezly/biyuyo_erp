@@ -5,6 +5,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from core.mixins import FilteringMixin
 from inventory.serializers import (
     CategorySerializer,
     ProductSerializer,
@@ -12,17 +13,23 @@ from inventory.serializers import (
 )
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows categories to be viewed or edited.
+    Supports search, filtering, and ordering.
     """
 
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    search_fields = ['name']
+    filter_fields = []
+    ordering_fields = ['name', 'created_at']
+    default_ordering = ['-created_at']
 
     def get_queryset(self):
-        user = self.request.user
-
-        return Category.objects.filter(business_id=user.business_id)
+        queryset = super().get_queryset()
+        queryset = queryset.filter(business_id=self.request.user.business_id)
+        return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
         serializer.save(business_id=self.request.user.business_id)
@@ -36,16 +43,23 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return obj
 
 
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductViewSet(FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows products to be viewed or edited.
+    Supports search by name/sku, filtering by category, and ordering.
     """
 
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    search_fields = ['name', 'sku', 'description']
+    filter_fields = ['category_id', 'stock']
+    ordering_fields = ['created_at', 'name', 'stock', 'sell_price', 'cost_price']
+    default_ordering = ['-created_at']
 
     def get_queryset(self):
-        user = self.request.user
-        return Product.objects.filter(business_id=user.business_id)
+        queryset = super().get_queryset()
+        queryset = queryset.filter(business_id=self.request.user.business_id)
+        return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
         serializer.save(business_id=self.request.user.business_id)
@@ -53,7 +67,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_object(self):
         obj = super().get_object()
         if obj.business_id != self.request.user.business_id:
-            raise PermissionDenied("No tienes acceso a este producto.")
+            raise PermissionDenied("You do not have access to this product.")
         return obj
 
     @action(detail=False, methods=['get'])
@@ -74,16 +88,23 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class InventoryMovementViewSet(viewsets.ModelViewSet):
+class InventoryMovementViewSet(FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows inventory movements to be viewed or edited.
+    Supports filtering by type and ordering.
     """
 
+    queryset = InventoryMovement.objects.all()
     serializer_class = InventoryMovementSerializer
+    search_fields = ['reference']
+    filter_fields = ['type', 'product_id']
+    ordering_fields = ['created_at', 'type', 'quantity']
+    default_ordering = ['-created_at']
 
     def get_queryset(self):
-        user = self.request.user
-        return InventoryMovement.objects.filter(business_id=user.business_id)
+        queryset = super().get_queryset()
+        queryset = queryset.filter(business_id=self.request.user.business_id)
+        return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
         serializer.save(business_id=self.request.user.business_id)
@@ -91,5 +112,5 @@ class InventoryMovementViewSet(viewsets.ModelViewSet):
     def get_object(self):
         obj = super().get_object()
         if obj.business_id != self.request.user.business_id:
-            raise PermissionDenied("No tienes acceso a este movimiento.")
+            raise PermissionDenied("You do not have access to this movement.")
         return obj

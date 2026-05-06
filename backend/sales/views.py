@@ -6,22 +6,30 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status
 
+from core.mixins import FilteringMixin
 from sales.models import Sale, SaleItem, Payment
 from sales.serializers import SaleSerializer, SaleItemSerializer, PaymentSerializer
 from inventory.models import Product
 
 
-class SaleViewSet(viewsets.ModelViewSet):
+class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows sales to be viewed or edited.
     Includes stock validation and automatic stock deduction.
+    Supports search by sale ID or customer name, filtering by status, and ordering.
     """
 
+    queryset = Sale.objects.all()
     serializer_class = SaleSerializer
+    search_fields = ['id', 'customer_id__name']
+    filter_fields = ['status']
+    ordering_fields = ['created_at', 'total', 'subtotal']
+    default_ordering = ['-created_at']
 
     def get_queryset(self):
-        user = self.request.user
-        return Sale.objects.filter(business_id=user.business_id).prefetch_related('saleitem_set', 'payment_set')
+        queryset = super().get_queryset()
+        queryset = queryset.filter(business_id=self.request.user.business_id).prefetch_related('saleitem_set', 'payment_set')
+        return self.filter_queryset_with_params(queryset)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -83,9 +91,9 @@ class SaleViewSet(viewsets.ModelViewSet):
                 try:
                     product = Product.objects.get(id=product_id, business_id=request.user.business_id)
                     if product.stock is not None and product.stock < quantity:
-                        errors.append(f"Stock insuficiente para '{product.name}'. Disponible: {product.stock}, solicitado: {quantity}")
+                        errors.append(f"Insufficient stock for '{product.name}'. Available: {product.stock}, requested: {quantity}")
                 except Product.DoesNotExist:
-                    errors.append(f"Producto con ID {product_id} no encontrado")
+                    errors.append(f"Product with ID {product_id} not found")
 
         if errors:
             return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -127,41 +135,54 @@ class SaleViewSet(viewsets.ModelViewSet):
     def get_object(self):
         obj = super().get_object()
         if obj.business_id != self.request.user.business_id:
-            raise PermissionDenied("No tienes acceso a esta venta.")
+            raise PermissionDenied("You do not have access to this sale.")
         return obj
 
 
-class SaleItemViewSet(viewsets.ModelViewSet):
+class SaleItemViewSet(FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows sale items to be viewed or edited.
     """
 
+    queryset = SaleItem.objects.all()
     serializer_class = SaleItemSerializer
+    search_fields = ['product_id__name']
+    filter_fields = ['sale_id', 'product_id']
+    ordering_fields = ['created_at', 'quantity']
+    default_ordering = ['-created_at']
 
     def get_queryset(self):
-        user = self.request.user
-        return SaleItem.objects.filter(sale_id__business_id=user.business_id)
+        queryset = super().get_queryset()
+        queryset = queryset.filter(sale_id__business_id=self.request.user.business_id)
+        return self.filter_queryset_with_params(queryset)
 
     def get_object(self):
         obj = super().get_object()
         if obj.sale_id.business_id != self.request.user.business_id:
-            raise PermissionDenied("No tienes acceso a este item.")
+            raise PermissionDenied("You do not have access to this item.")
         return obj
 
 
-class PaymentViewSet(viewsets.ModelViewSet):
+class PaymentViewSet(FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows payments to be viewed or edited.
+    Supports search by reference, filtering by method/status, and ordering.
     """
 
+    queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+    search_fields = ['reference']
+    filter_fields = ['method', 'status']
+    ordering_fields = ['created_at', 'amount']
+    default_ordering = ['-created_at']
 
     def get_queryset(self):
-        user = self.request.user
-        return Payment.objects.filter(sale_id__business_id=user.business_id)
+        queryset = super().get_queryset()
+        queryset = queryset.filter(sale_id__business_id=self.request.user.business_id)
+        return self.filter_queryset_with_params(queryset)
 
     def get_object(self):
         obj = super().get_object()
         if obj.sale_id.business_id != self.request.user.business_id:
-            raise PermissionDenied("No tienes acceso a este pago.")
+            raise PermissionDenied("You do not have access to this payment.")
         return obj
