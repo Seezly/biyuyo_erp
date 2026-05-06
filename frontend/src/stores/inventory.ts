@@ -125,13 +125,26 @@ export const useInventoryStore = defineStore('inventory', {
 			}
 		},
 
-		async fetchCategories() {
+		async fetchCategories(params: {
+			search?: string
+			ordering?: string
+			page?: string
+		} = {}) {
 			this.loading = true
 			this.error = null
 			try {
-				const response = await apiFetch('/api/categories/')
+				const queryParams = new URLSearchParams()
+				if (params.search) queryParams.set('search', params.search)
+				if (params.ordering) queryParams.set('ordering', params.ordering)
+				if (params.page) queryParams.set('page', params.page)
+
+				const queryString = queryParams.toString()
+				const url = `/api/categories/${queryString ? '?' + queryString : ''}`
+				const response = await apiFetch(url)
+
 				if (!response.ok) throw new Error('Failed to fetch categories')
-				this.categories = await response.json()
+				const data = await response.json()
+				this.categories = data.results || data
 			} catch (e: any) {
 				this.error = e.message
 			} finally {
