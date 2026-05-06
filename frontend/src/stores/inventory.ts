@@ -7,6 +7,8 @@ interface Category {
 	name: string
 	parent_id: number | null
 	business: number
+	created_at: string
+	updated_at: string
 }
 
 interface InventoryMovement {

@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
 const props = defineProps<{
 	text?: string
 	icon?: string
-	variant?: 'primary' | 'secondary' | 'outlined' | 'inverted' | 'ghost'
+	variant?: 'primary' | 'secondary' | 'outlined' | 'inverted' | 'ghost' | 'danger'
 	type?: 'button' | 'submit' | 'reset'
 	width?: 'full' | 'auto'
 	to?: string
@@ -20,6 +20,7 @@ const colors = {
 	outlined:
 		'border border-secondary text-primary hover:bg-secondary hover:text-white transition duration-200',
 	inverted: 'bg-dark text-white hover:bg-white hover:text-dark transition duration-200',
+	danger: 'bg-red-500 text-white hover:bg-red-600 transition duration-200',
 }
 
 const widths = {

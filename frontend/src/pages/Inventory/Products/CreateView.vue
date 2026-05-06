@@ -38,16 +38,16 @@ const handleSubmit = async () => {
 	loading.value = true
 	error.value = ''
 
-	const result = await inventoryStore.createProduct(form.value)
+	await inventoryStore.createProduct(form.value)
 
 	loading.value = false
 
-	if (result) {
+	if (inventoryStore.error) {
+		error.value = inventoryStore.error
+		toastStore.error('Error al crear el producto')
+	} else {
 		toastStore.success('Producto creado correctamente')
 		router.push('/inventory/products')
-	} else {
-		error.value = inventoryStore.error || 'Error al crear el producto'
-		toastStore.error('Error al crear el producto')
 	}
 }
 </script>
