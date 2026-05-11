@@ -2,6 +2,7 @@ from billing.models import Plan, Subscription, Invoice
 from rest_framework import permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
 
+from core.mixins import FilteringMixin
 from billing.serializers import (
     PlanSerializer,
     SubscriptionSerializer,
@@ -9,7 +10,7 @@ from billing.serializers import (
 )
 
 
-class PlanViewSet(viewsets.ModelViewSet):
+class PlanViewSet(FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows plans to be viewed or edited.
     Global for all businesses, admin only.
@@ -18,18 +19,30 @@ class PlanViewSet(viewsets.ModelViewSet):
     queryset = Plan.objects.all().order_by("name")
     serializer_class = PlanSerializer
     permission_classes = [permissions.IsAdminUser]
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'price']
+    default_ordering = ['name']
+
+    def get_queryset(self):
+        return super().get_queryset()
 
 
-class SubscriptionViewSet(viewsets.ModelViewSet):
+class SubscriptionViewSet(FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows subscriptions to be viewed or edited.
     """
 
+    queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
+    search_fields = ['business_id__name', 'plan__name']
+    filter_fields = ['status']
+    ordering_fields = ['start_date', 'end_date', 'created_at']
+    default_ordering = ['-start_date']
 
     def get_queryset(self):
-        user = self.request.user
-        return Subscription.objects.filter(business_id=user.business_id).order_by("-start_date")
+        queryset = super().get_queryset()
+        queryset = queryset.filter(business_id=self.request.user.business_id)
+        return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
         serializer.save(business_id=self.request.user.business_id)
@@ -41,16 +54,22 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
         return obj
 
 
-class InvoiceViewSet(viewsets.ModelViewSet):
+class InvoiceViewSet(FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows invoices to be viewed or edited.
     """
 
+    queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
+    search_fields = ['subscription_id__business_id__name']
+    filter_fields = ['status']
+    ordering_fields = ['created_at', 'due_date', 'total']
+    default_ordering = ['-created_at']
 
     def get_queryset(self):
-        user = self.request.user
-        return Invoice.objects.filter(subscription_id__business_id=user.business_id).order_by("-created_at")
+        queryset = super().get_queryset()
+        queryset = queryset.filter(subscription_id__business_id=self.request.user.business_id)
+        return self.filter_queryset_with_params(queryset)
 
     def get_object(self):
         obj = super().get_object()

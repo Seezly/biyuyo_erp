@@ -18,6 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 from accounts.views.viewsets import UserViewSet, GroupViewSet
 from accounts.views.auth import RegisterView, LoginView, LogoutView, MeView
@@ -28,6 +29,7 @@ from customers.views import CustomerViewSet
 from inventory.views import CategoryViewSet, ProductViewSet, InventoryMovementViewSet
 from sales.views import SaleViewSet, SaleItemViewSet, PaymentViewSet
 from suppliers.views import SupplierViewSet, PurchaseViewSet, PurchaseItemViewSet
+from reports.views import ReportViewSet
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
@@ -48,6 +50,7 @@ router.register(r"payments", PaymentViewSet, basename="payments")
 router.register(r"suppliers", SupplierViewSet, basename="suppliers")
 router.register(r"purchases", PurchaseViewSet, basename="purchases")
 router.register(r"purchase-items", PurchaseItemViewSet, basename="purchase-items")
+router.register(r"reports", ReportViewSet, basename="reports")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -57,4 +60,8 @@ urlpatterns = [
     path("api/logout/", LogoutView.as_view(), name="logout"),
     path("api/refresh/", RefreshView.as_view(), name="token_refresh_cookie"),
     path("api/me/", MeView.as_view(), name="me"),
+    # API Documentation
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]

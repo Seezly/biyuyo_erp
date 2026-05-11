@@ -1,43 +1,68 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useSuppliersStore } from '@/stores/suppliers'
+import { useForm, useField } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as z from 'zod'
+
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
-const suppliersStore = useSuppliersStore()
+const toastStore = useToastStore()
+const loading = ref(false)
 
-const form = ref({
-	name: '',
-	rif: '',
-	email: '',
-	address: '',
-	phone: '',
+const validationSchema = toTypedSchema(
+	z.object({
+		name: z.string().min(1, 'El nombre es requerido'),
+		rif: z.string().min(1, 'El RIF es requerido').regex(/^[JGVEjgve]-\d{8}-\d$/, 'RIF inválido (ej: J-12345678-9)'),
+		email: z.string().email('Email inválido').or(z.literal('')),
+		address: z.string().optional(),
+		phone: z.string().optional(),
+	})
+)
+
+const { handleSubmit, errors } = useForm({
+	validationSchema,
+	initialValues: {
+		name: '',
+		rif: '',
+		email: '',
+		address: '',
+		phone: '',
+	},
 })
 
-const loading = ref(false)
-const error = ref('')
+const { value: name } = useField<string>('name')
+const { value: rif } = useField<string>('rif')
+const { value: email } = useField<string>('email')
+const { value: address } = useField<string>('address')
+const { value: phone } = useField<string>('phone')
 
-const handleSubmit = async () => {
-	if (!form.value.name || !form.value.rif) {
-		error.value = 'El nombre y RIF son obligatorios'
-		return
-	}
-
+const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
-	error.value = ''
+	try {
+		const response = await fetch('/api/suppliers/', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(values),
+		})
 
-	const result = await suppliersStore.createSupplier(form.value)
+		if (!response.ok) {
+			const errorData = await response.json()
+			toastStore.error(errorData.detail || 'Error al crear proveedor')
+			return
+		}
 
-	loading.value = false
-
-	if (result) {
+		toastStore.success('Proveedor creado correctamente')
 		router.push('/suppliers')
-	} else {
-		error.value = suppliersStore.error || 'Error al crear el proveedor'
+	} catch (error) {
+		toastStore.error('Error de conexión')
+	} finally {
+		loading.value = false
 	}
-}
+})
 </script>
 
 <template>
@@ -47,46 +72,31 @@ const handleSubmit = async () => {
 			<p>Completa los datos del nuevo proveedor</p>
 		</div>
 
-		<div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-			{{ error }}
-		</div>
-
-		<form @submit.prevent="handleSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+		<form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
 			<label class="w-full flex flex-col text-dark">
 				Nombre del proveedor *
-				<BaseInput v-model="form.name" type="text" name="name" placeholder="Nombre del proveedor" required />
+				<BaseInput v-model="name" type="text" name="name" placeholder="Nombre del proveedor" />
+				<span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				RIF *
-				<BaseInput v-model="form.rif" type="text" name="rif" placeholder="J-12345678-9" required />
+				<BaseInput v-model="rif" type="text" name="rif" placeholder="J-12345678-9" />
+				<span v-if="errors.rif" class="text-red-500 text-sm">{{ errors.rif }}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				Email
-				<BaseInput v-model="form.email" type="email" name="email" placeholder="Email del proveedor" />
+				<BaseInput v-model="email" type="email" name="email" placeholder="Email del proveedor" />
+				<span v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				Dirección
-				<BaseInput v-model="form.address" type="text" name="address" placeholder="Dirección del proveedor" />
+				<BaseInput v-model="address" type="text" name="address" placeholder="Dirección del proveedor" />
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				Teléfono
-				<BaseInput v-model="form.phone" type="text" name="phone" placeholder="Teléfono del proveedor" />
+				<BaseInput v-model="phone" type="tel" name="phone" placeholder="Teléfono del proveedor" />
 			</label>
-			<BaseButton :text="loading ? 'Creando...' : 'Agregar proveedor'" :disabled="loading" />
+			<BaseButton :text="loading ? 'Creando...' : 'Agregar proveedor'" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-	transition: all 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-	max-height: 0;
-	opacity: 0;
-	overflow: hidden;
-}
-</style>

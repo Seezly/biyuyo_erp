@@ -1,6 +1,14 @@
 export interface User {
 	id: number
-	role: string
-	business_id: number
+	email: string
 	first_name: string
+	last_name: string
+	business_id: number
+	identification_number: string
+	phone: string
+	role: string
+	is_active: boolean
+	is_staff: boolean
+	created_at: string
+	updated_at: string
 }

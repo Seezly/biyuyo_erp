@@ -1,41 +1,68 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useCustomersStore } from '@/stores/customers'
+import { useForm, useField } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as z from 'zod'
+
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
-const customersStore = useCustomersStore()
+const toastStore = useToastStore()
+const loading = ref(false)
 
-const form = ref({
-	name: '',
-	phone: '',
-	identification_number: '',
+const validationSchema = toTypedSchema(
+	z.object({
+		name: z.string().min(1, 'El nombre es requerido'),
+		phone: z
+			.string()
+			.regex(/^0?\d{10,11}$/, 'Teléfono inválido (ej: 04241234567)')
+			.or(z.literal('')),
+		identification_number: z
+			.string()
+			.regex(/^[VEJGvejg]\d{5,9}$/, 'Cédula inválida (ej: V12345678)')
+			.or(z.literal('')),
+	})
+)
+
+const { handleSubmit, errors } = useForm({
+	validationSchema,
+	initialValues: {
+		name: '',
+		phone: '',
+		identification_number: '',
+	},
 })
 
-const loading = ref(false)
-const error = ref('')
+const { value: name } = useField<string>('name')
+const { value: phone } = useField<string>('phone')
+const { value: identification_number } = useField<string>('identification_number')
 
-const handleSubmit = async () => {
-	if (!form.value.name) {
-		error.value = 'El nombre es obligatorio'
-		return
-	}
-
+const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
-	error.value = ''
+	try {
+		const response = await fetch('/api/customers/', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(values),
+		})
 
-	const result = await customersStore.createCustomer(form.value)
+		if (!response.ok) {
+			const errorData = await response.json()
+			toastStore.error(errorData.detail || 'Error al crear cliente')
+			return
+		}
 
-	loading.value = false
-
-	if (result) {
+		toastStore.success('Cliente creado correctamente')
 		router.push('/customers')
-	} else {
-		error.value = customersStore.error || 'Error al crear el cliente'
+	} catch (error) {
+		toastStore.error('Error de conexión')
+	} finally {
+		loading.value = false
 	}
-}
+})
 </script>
 
 <template>
@@ -45,29 +72,23 @@ const handleSubmit = async () => {
 			<p>Añade un nuevo cliente al registro de tu negocio</p>
 		</div>
 
-		<div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-			{{ error }}
-		</div>
-
-		<form @submit.prevent="handleSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+		<form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
 			<label class="w-full flex flex-col text-dark">
 				Nombre del cliente *
-				<BaseInput v-model="form.name" type="text" name="name" placeholder="Nombre del cliente" required />
+				<BaseInput v-model="name" type="text" name="name" placeholder="Nombre del cliente" />
+				<span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				Número de teléfono
-				<BaseInput v-model="form.phone" type="text" name="phone" placeholder="04241234567" />
+				<BaseInput v-model="phone" type="tel" name="phone" placeholder="04241234567" />
+				<span v-if="errors.phone" class="text-red-500 text-sm">{{ errors.phone }}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				Cédula de Identidad
-				<BaseInput
-					v-model="form.identification_number"
-					name="identification_number"
-					placeholder="V12345678"
-					maxlength="9"
-				/>
+				<BaseInput v-model="identification_number" name="identification_number" placeholder="V12345678" />
+				<span v-if="errors.identification_number" class="text-red-500 text-sm">{{ errors.identification_number }}</span>
 			</label>
-			<BaseButton :text="loading ? 'Creando...' : 'Agregar cliente'" :disabled="loading" />
+			<BaseButton :text="loading ? 'Creando...' : 'Agregar cliente'" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>

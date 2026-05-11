@@ -1,62 +1,100 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue'
-import router from '@/router'
+import { ref, onBeforeMount } from 'vue'
+import { useRouter } from 'vue-router'
+import { useForm, useField } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as z from 'zod'
 
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
+import { useToastStore } from '@/stores/toast'
 
-import { apiFetch } from '@/utils/helpers'
+const router = useRouter()
+const toastStore = useToastStore()
+const loading = ref(false)
 
-const form = ref({
-	name: '',
-	is_subcategory: false,
-	parent_category: null,
-})
+interface Category {
+	id: number
+	name: string
+}
 
-const categories = ref(null)
+const categories = ref<Category[]>([])
 
 const getCategories = async () => {
 	try {
-		const response = await apiFetch('/api/categories/', {
-			method: 'GET',
-		})
-
-		if (!response.ok) {
-			const errorData = await response.json()
-			console.error('Category fetching failed:', errorData)
-			return
+		const response = await fetch('/api/categories/')
+		if (response.ok) {
+			const data = await response.json()
+			categories.value = data.results || data
 		}
-
-		const data = await response.json()
-
-		categories.value = data
 	} catch (error) {
-		console.error('Network error:', error)
-	}
-}
-
-const submit = async () => {
-	try {
-		const response = await apiFetch('/api/categories/', {
-			method: 'POST',
-			body: JSON.stringify(form.value),
-		})
-
-		if (!response.ok) {
-			const errorData = await response.json()
-			console.error('Category creation failed:', errorData)
-			return
-		}
-
-		window.location.reload()
-	} catch (error) {
-		console.error('Network error:', error)
+		console.error('Error fetching categories:', error)
 	}
 }
 
 onBeforeMount(() => {
 	getCategories()
+})
+
+const validationSchema = toTypedSchema(
+	z.object({
+		name: z.string().min(1, 'El nombre es requerido'),
+		is_subcategory: z.boolean(),
+		parent_category: z.number().nullable().optional(),
+	}).refine(
+		(data) => !data.is_subcategory || (data.is_subcategory && data.parent_category !== null),
+		{
+			message: 'Seleccione una categoría padre',
+			path: ['parent_category'],
+		}
+	)
+)
+
+const { handleSubmit, errors } = useForm({
+	validationSchema,
+	initialValues: {
+		name: '',
+		is_subcategory: false,
+		parent_category: null as number | null,
+	},
+})
+
+const { value: name } = useField<string>('name')
+const { value: is_subcategory } = useField<boolean>('is_subcategory')
+const { value: parent_category } = useField<number | null>('parent_category')
+
+const onSubmit = handleSubmit(async (values) => {
+	loading.value = true
+	try {
+		const payload: Record<string, unknown> = {
+			name: values.name,
+			is_subcategory: values.is_subcategory,
+		}
+
+		if (values.is_subcategory && values.parent_category) {
+			payload.parent_category = values.parent_category
+		}
+
+		const response = await fetch('/api/categories/', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(payload),
+		})
+
+		if (!response.ok) {
+			const errorData = await response.json()
+			toastStore.error(errorData.detail || 'Error al crear categoría')
+			return
+		}
+
+		toastStore.success('Categoría creada correctamente')
+		router.push('/inventory/categories')
+	} catch (error) {
+		toastStore.error('Error de conexión')
+	} finally {
+		loading.value = false
+	}
 })
 </script>
 
@@ -66,30 +104,32 @@ onBeforeMount(() => {
 			<h1 class="text-primary text-2xl font-bold">Crear categoría</h1>
 			<p>Crea nuevas categorías para organizar tu inventario</p>
 		</div>
-		<form action="" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+		<form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
 			<label class="w-full flex flex-col text-dark">
 				Nombre de la categoría
-				<BaseInput v-model="form.name" type="text" name="name" placeholder="Nombre de la categoría" />
+				<BaseInput v-model="name" type="text" name="name" placeholder="Nombre de la categoría" />
+				<span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
 			</label>
-			<BaseCheckbox v-model="form.is_subcategory" name="isSubcategory" text="¿Es una subcategoría?" />
+			<BaseCheckbox v-model="is_subcategory" name="is_subcategory" text="¿Es una subcategoría?" />
 			<Transition name="fade">
-				<div v-if="form.is_subcategory" class="w-full max-h-64 flex flex-col gap-4">
+				<div v-if="is_subcategory" class="w-full max-h-64 flex flex-col gap-4">
 					<label class="w-full flex flex-col text-dark">
 						Seleccione la categoría a la que pertenece
 						<select
-							name="category"
-							id=""
+							v-model="parent_category"
+							name="parent_category"
 							class="py-2 px-4 rounded-xl border border-secondary text-primary"
 						>
 							<option :value="null">Seleccione una categoría</option>
-							<template v-for="category in categories" :key="category.id">
-								<option :value="category.id">{{ category.name }}</option>
-							</template>
+							<option v-for="category in categories" :key="category.id" :value="category.id">
+								{{ category.name }}
+							</option>
 						</select>
+						<span v-if="errors.parent_category" class="text-red-500 text-sm">{{ errors.parent_category }}</span>
 					</label>
 				</div>
 			</Transition>
-			<BaseButton text="Agregar categoría" @click="submit" />
+			<BaseButton :text="loading ? 'Creando...' : 'Agregar categoría'" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>

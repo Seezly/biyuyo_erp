@@ -68,8 +68,16 @@ const formatDate = (dateString: string) => {
 		</div>
 
 		<div class="grid grid-cols-12 grid-rows-1 gap-4 w-full">
-			<BaseButton to="/inventory/categories/add" text="Añadir categoría" class="col-span-12 lg:col-span-3" />
-			<BaseInput v-model="search" placeholder="Buscar categoría por nombre" class="col-span-12 lg:col-span-9" />
+			<BaseButton
+				to="/inventory/categories/add"
+				text="Añadir categoría"
+				class="col-span-12 lg:col-span-3"
+			/>
+			<BaseInput
+				v-model="search"
+				placeholder="Buscar categoría por nombre"
+				class="col-span-12 lg:col-span-9"
+			/>
 		</div>
 
 		<div v-if="inventoryStore.loading" class="w-full text-center py-8">
@@ -81,7 +89,12 @@ const formatDate = (dateString: string) => {
 		</div>
 
 		<div v-else class="grid grid-cols-12 gap-4 w-full">
-			<BaseCard v-for="category in inventoryStore.categories" :key="category.id" variant="outlined" class="col-span-full lg:col-span-3 row-span-1">
+			<BaseCard
+				v-for="category in inventoryStore.categories"
+				:key="category.id"
+				variant="outlined"
+				class="col-span-full lg:col-span-3 row-span-1"
+			>
 				<div class="flex flex-col gap-4 justify-start items-start">
 					<div class="flex justify-between w-full items-center">
 						<div class="flex flex-col gap-2">
@@ -89,8 +102,19 @@ const formatDate = (dateString: string) => {
 							<span class="text-xs text-gray-500">{{ formatDate(category.created_at) }}</span>
 						</div>
 						<div class="flex gap-2">
-							<BaseButton variant="outlined" text="Editar" icon="fa-solid fa-pencil" width="auto" :to="'/inventory/categories/edit/' + category.id" />
-							<BaseButton text="Eliminar" width="auto" @click="handleDelete(category.id)" />
+							<BaseButton
+								variant="outlined"
+								text=""
+								icon="fa-solid fa-pencil"
+								width="auto"
+								:to="'/inventory/categories/edit/' + category.id"
+							/>
+							<BaseButton
+								text=""
+								icon="fa-solid fa-trash"
+								width="auto"
+								@click="handleDelete(category.id)"
+							/>
 						</div>
 					</div>
 				</div>

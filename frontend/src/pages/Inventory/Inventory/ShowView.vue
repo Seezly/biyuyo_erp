@@ -1,8 +1,72 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { apiFetch } from '@/utils/helpers'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
-</script>
+import type { Product } from '@/types/inventory'
 
+const route = useRoute()
+const router = useRouter()
+const productId = route.params.productId as string
+
+const product = ref<Product | null>(null)
+const loading = ref(true)
+const error = ref<string | null>(null)
+
+const fetchProduct = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    const response = await apiFetch(`/api/inventory/products/${productId}/`)
+    if (!response.ok) throw new Error('Failed to fetch product')
+    const data = await response.json()
+    product.value = data
+  } catch (e: any) {
+    error.value = e.message
+    console.error('Error fetching product:', e)
+  } finally {
+    loading.value = false
+  }
+}
+
+const updateStock = async (newStock: number) => {
+  if (!product.value) return
+  try {
+    const response = await apiFetch(`/api/inventory/products/${productId}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({ stock: newStock })
+    })
+    if (!response.ok) throw new Error('Failed to update stock')
+    const data = await response.json()
+    product.value = data
+  } catch (e: any) {
+    error.value = e.message
+    console.error('Error updating stock:', e)
+  }
+}
+
+const increaseStock = () => {
+  if (product.value) {
+    updateStock(product.value.stock + 1)
+  }
+}
+
+const decreaseStock = () => {
+  if (product.value && product.value.stock > 0) {
+    updateStock(product.value.stock - 1)
+  }
+}
+
+const generateAnalysis = () => {
+  // Navigate to reports page for analysis
+  router.push({ name: 'Reports' })
+}
+
+onMounted(() => {
+  fetchProduct()
+})
+</script>
 <template>
 	<section class="w-full flex flex-col gap-8 mx-8 justify-start items-start self-start">
 		<div>
@@ -86,8 +150,8 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 							<p class="text-lg font-bold text-primary">10</p>
 						</div>
 						<div class="flex w-full gap-2">
-							<BaseButton text="-" variant="secondary" />
-							<BaseButton text="+" />
+							<BaseButton text="-" variant="secondary" @click="decreaseStock" />
+							<BaseButton text="+" @click="increaseStock" />
 						</div>
 					</div>
 				</div>

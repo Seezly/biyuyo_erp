@@ -94,7 +94,7 @@ const router = createRouter({
 		},
 		{
 			path: '/inventory',
-			meta: { requiresAuth: false },
+			meta: { requiresAuth: true },
 			children: [
 				{
 					path: '',
@@ -223,6 +223,53 @@ const router = createRouter({
 			],
 		},
 		{
+			path: '/admin',
+			meta: { requiresAuth: true, adminOnly: true },
+			children: [
+				{
+					path: '',
+					name: 'AdminDashboard',
+					component: () => import('@/pages/Admin/DashboardView.vue'),
+				},
+				{
+					path: 'statistics',
+					name: 'AdminStatistics',
+					component: () => import('@/pages/Admin/StatisticsView.vue'),
+				},
+				{
+					path: 'settings',
+					name: 'AdminSettings',
+					component: () => import('@/pages/Admin/SettingsView.vue'),
+				},
+				{
+					path: 'reports',
+					name: 'AdminReports',
+					component: () => import('@/pages/Admin/ReportsView.vue'),
+				},
+			],
+		},
+		{
+			path: '/billing',
+			meta: { requiresAuth: true, adminOnly: true },
+			children: [
+				{
+					path: 'plans',
+					name: 'Plans',
+					component: () => import('@/pages/Billing/Plans/ListView.vue'),
+				},
+				{
+					path: 'subscriptions',
+					name: 'Subscriptions',
+					component: () => import('@/pages/Billing/Subscriptions/ListView.vue'),
+				},
+				{
+					path: 'invoices',
+					name: 'Invoices',
+					component: () => import('@/pages/Billing/Invoices/InvoicesView.vue'),
+				},
+			],
+		},
+		{
 			path: '/logout',
 			name: 'Logout',
 			component: () => import('@/pages/Auth/LogoutView.vue'),
@@ -250,7 +297,7 @@ router.beforeEach(async (to, from, next) => {
 		return next('/dashboard')
 	}
 
-	if (adminOnly && auth.user?.role === 'superadmin') {
+	if (adminOnly && auth.user?.role !== 'superadmin') {
 		return next('/dashboard')
 	}
 

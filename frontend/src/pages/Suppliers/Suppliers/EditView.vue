@@ -1,70 +1,96 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useSuppliersStore } from '@/stores/suppliers'
-import { apiFetch } from '@/utils/helpers'
+import { useForm, useField } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as z from 'zod'
+
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
 const route = useRoute()
-const suppliersStore = useSuppliersStore()
-
-const supplierId = Number(route.params.id)
-
-const form = ref({
-	name: '',
-	rif: '',
-	email: '',
-	address: '',
-	phone: '',
-})
-
+const toastStore = useToastStore()
 const loading = ref(true)
 const saving = ref(false)
-const error = ref('')
 
-onMounted(async () => {
+const supplierId = route.params.supplierId
+
+const validationSchema = toTypedSchema(
+	z.object({
+		name: z.string().min(1, 'El nombre es requerido'),
+		rif: z.string().min(1, 'El RIF es requerido').regex(/^[JGVEjgve]-\d{8}-\d$/, 'RIF inválido'),
+		email: z.string().email('Email inválido').or(z.literal('')),
+		address: z.string().optional(),
+		phone: z.string().optional(),
+	})
+)
+
+const { handleSubmit, errors, setValues } = useForm({
+	validationSchema,
+	initialValues: {
+		name: '',
+		rif: '',
+		email: '',
+		address: '',
+		phone: '',
+	},
+})
+
+const { value: name } = useField<string>('name')
+const { value: rif } = useField<string>('rif')
+const { value: email } = useField<string>('email')
+const { value: address } = useField<string>('address')
+const { value: phone } = useField<string>('phone')
+
+const fetchSupplier = async () => {
 	try {
-		const response = await apiFetch(`/api/suppliers/${supplierId}/`)
+		const response = await fetch(`/api/suppliers/${supplierId}/`)
 		if (response.ok) {
-			const supplier = await response.json()
-			form.value = {
-				name: supplier.name,
-				rif: supplier.rif,
-				email: supplier.email || '',
-				address: supplier.address || '',
-				phone: supplier.phone || '',
-			}
-		} else {
-			error.value = 'Proveedor no encontrado'
+			const data = await response.json()
+			setValues({
+				name: data.name || '',
+				rif: data.rif || '',
+				email: data.email || '',
+				address: data.address || '',
+				phone: data.phone || '',
+			})
 		}
-	} catch (e: any) {
-		error.value = 'Error al cargar el proveedor'
+	} catch (error) {
+		toastStore.error('Error al cargar el proveedor')
 	} finally {
 		loading.value = false
 	}
+}
+
+onMounted(() => {
+	fetchSupplier()
 })
 
-const handleSubmit = async () => {
-	if (!form.value.name || !form.value.rif) {
-		error.value = 'El nombre y RIF son obligatorios'
-		return
-	}
-
+const onSubmit = handleSubmit(async (values) => {
 	saving.value = true
-	error.value = ''
+	try {
+		const response = await fetch(`/api/suppliers/${supplierId}/`, {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(values),
+		})
 
-	const result = await suppliersStore.updateSupplier(supplierId, form.value)
+		if (!response.ok) {
+			const errorData = await response.json()
+			toastStore.error(errorData.detail || 'Error al actualizar proveedor')
+			return
+		}
 
-	saving.value = false
-
-	if (result) {
+		toastStore.success('Proveedor actualizado correctamente')
 		router.push('/suppliers')
-	} else {
-		error.value = suppliersStore.error || 'Error al actualizar el proveedor'
+	} catch (error) {
+		toastStore.error('Error de conexión')
+	} finally {
+		saving.value = false
 	}
-}
+})
 </script>
 
 <template>
@@ -78,52 +104,33 @@ const handleSubmit = async () => {
 			<p>Cargando proveedor...</p>
 		</div>
 
-		<div v-else-if="error && !form.name" class="w-full text-center py-8">
-			<p class="text-red-500">{{ error }}</p>
-		</div>
-
 		<div v-else>
-			<div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-				{{ error }}
-			</div>
-
-			<form @submit.prevent="handleSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+			<form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
 				<label class="w-full flex flex-col text-dark">
 					Nombre del proveedor *
-					<BaseInput v-model="form.name" type="text" name="name" placeholder="Nombre del proveedor" required />
+					<BaseInput v-model="name" type="text" name="name" placeholder="Nombre del proveedor" />
+					<span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
 				</label>
 				<label class="w-full flex flex-col text-dark">
 					RIF *
-					<BaseInput v-model="form.rif" type="text" name="rif" placeholder="J-12345678-9" required />
+					<BaseInput v-model="rif" type="text" name="rif" placeholder="J-12345678-9" />
+					<span v-if="errors.rif" class="text-red-500 text-sm">{{ errors.rif }}</span>
 				</label>
 				<label class="w-full flex flex-col text-dark">
 					Email
-					<BaseInput v-model="form.email" type="email" name="email" placeholder="Email del proveedor" />
+					<BaseInput v-model="email" type="email" name="email" placeholder="Email del proveedor" />
+					<span v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</span>
 				</label>
 				<label class="w-full flex flex-col text-dark">
 					Dirección
-					<BaseInput v-model="form.address" type="text" name="address" placeholder="Dirección del proveedor" />
+					<BaseInput v-model="address" type="text" name="address" placeholder="Dirección del proveedor" />
 				</label>
 				<label class="w-full flex flex-col text-dark">
 					Teléfono
-					<BaseInput v-model="form.phone" type="text" name="phone" placeholder="Teléfono del proveedor" />
+					<BaseInput v-model="phone" type="tel" name="phone" placeholder="Teléfono del proveedor" />
 				</label>
-				<BaseButton :text="saving ? 'Guardando...' : 'Guardar proveedor'" :disabled="saving" />
+				<BaseButton :text="saving ? 'Guardando...' : 'Guardar proveedor'" :disabled="saving" type="submit" />
 			</form>
 		</div>
 	</section>
 </template>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-	transition: all 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-	max-height: 0;
-	opacity: 0;
-	overflow: hidden;
-}
-</style>

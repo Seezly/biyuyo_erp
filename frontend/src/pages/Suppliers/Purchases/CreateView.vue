@@ -1,48 +1,69 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useSuppliersStore } from '@/stores/suppliers'
+import { useForm, useField } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as z from 'zod'
+
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import { useSuppliersStore } from '@/stores/suppliers'
+import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
 const suppliersStore = useSuppliersStore()
-
-const form = ref({
-	supplier: 0,
-	total: 0,
-})
-
+const toastStore = useToastStore()
 const loading = ref(false)
-const error = ref('')
 
 onMounted(async () => {
 	await suppliersStore.fetchSuppliers()
 })
 
-const handleSubmit = async () => {
-	if (!form.value.supplier) {
-		error.value = 'Selecciona un proveedor'
-		return
-	}
-
-	loading.value = true
-	error.value = ''
-
-	const result = await suppliersStore.createPurchase({
-		supplier: form.value.supplier,
-		total: form.value.total,
-		items: [],
+const validationSchema = toTypedSchema(
+	z.object({
+		supplier: z.number().min(1, 'Selecciona un proveedor'),
+		total: z.number().min(0, 'El total debe ser positivo').optional(),
 	})
+)
 
-	loading.value = false
+const { handleSubmit, errors } = useForm({
+	validationSchema,
+	initialValues: {
+		supplier: undefined as number | undefined,
+		total: undefined as number | undefined,
+	},
+})
 
-	if (result) {
+const { value: supplier } = useField<number>('supplier')
+const { value: total } = useField<number | undefined>('total')
+
+const onSubmit = handleSubmit(async (values) => {
+	loading.value = true
+	try {
+		const response = await fetch('/api/purchases/', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				supplier: values.supplier,
+				total: values.total || 0,
+				items: [],
+			}),
+		})
+
+		if (!response.ok) {
+			const errorData = await response.json()
+			toastStore.error(errorData.detail || 'Error al crear compra')
+			return
+		}
+
+		toastStore.success('Compra creada correctamente')
 		router.push('/suppliers/purchases')
-	} else {
-		error.value = suppliersStore.error || 'Error al crear la compra'
+	} catch (error) {
+		toastStore.error('Error de conexión')
+	} finally {
+		loading.value = false
 	}
-}
+})
 </script>
 
 <template>
@@ -52,25 +73,23 @@ const handleSubmit = async () => {
 			<p>Registra una nueva compra a proveedor</p>
 		</div>
 
-		<div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-			{{ error }}
-		</div>
-
-		<form @submit.prevent="handleSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+		<form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
 			<label class="w-full flex flex-col text-dark">
 				Proveedor *
-				<select v-model="form.supplier" class="py-2 px-4 rounded-xl border border-secondary text-primary" required>
-					<option :value="0">Seleccionar proveedor</option>
-					<option v-for="supplier in suppliersStore.suppliers" :key="supplier.id" :value="supplier.id">
-						{{ supplier.name }}
+				<select v-model="supplier" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+					<option :value="undefined">Seleccionar proveedor</option>
+					<option v-for="s in suppliersStore.suppliers" :key="s.id" :value="s.id">
+						{{ s.name }}
 					</option>
 				</select>
+				<span v-if="errors.supplier" class="text-red-500 text-sm">{{ errors.supplier }}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				Total
-				<BaseInput v-model="form.total" type="number" step="0.01" name="total" placeholder="Monto total" />
+				<BaseInput v-model="total" type="number" step="0.01" name="total" placeholder="Monto total" />
+				<span v-if="errors.total" class="text-red-500 text-sm">{{ errors.total }}</span>
 			</label>
-			<BaseButton :text="loading ? 'Creando...' : 'Crear compra'" :disabled="loading" />
+			<BaseButton :text="loading ? 'Creando...' : 'Crear compra'" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>
