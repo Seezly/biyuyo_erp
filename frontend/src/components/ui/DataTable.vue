@@ -119,15 +119,17 @@
 import { ref, computed, watch } from 'vue'
 import Pagination from './Pagination.vue'
 
+interface Column {
+  key: string
+  label: string
+  sortable?: boolean
+  format?: 'currency' | 'date' | 'number' | 'boolean'
+}
+
 const props = defineProps<{
   title: string
   subtitle?: string
-  columns: Array<{
-    key: string
-    label: string
-    sortable?: boolean
-    format?: 'currency' | 'date' | 'number' | 'boolean'
-  }>
+  columns: Column[]
   showAddButton?: boolean
   addButtonRoute?: string
   fetchFunction: (params: any) => Promise<any>
@@ -147,10 +149,10 @@ const state = ref({
     total: number
   } | null,
   filters: {
-    search: ''
-    per_page: 25
-    page: 1
-    sort_key: ''
+    search: '',
+    per_page: 25,
+    page: 1,
+    sort_key: '',
     sort_direction: 'asc'
   } as any
 })
