@@ -9,8 +9,8 @@ import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 const authStore = useAuthStore()
 const userId = authStore.user?.id
 
-// Form state for reminder settings
-const reminderSettings = ref({
+// Default reminder settings
+const defaultReminderSettings = {
   whatsapp_enabled: false,
   email_enabled: false,
   sms_enabled: false,
@@ -18,10 +18,13 @@ const reminderSettings = ref({
   due_date_enabled: false,
   overdue_enabled: false,
   message_template: ''
-})
+}
+
+// Form state for reminder settings
+const reminderSettings = ref({ ...defaultReminderSettings })
 
 // Original settings for reset
-const originalSettings = ref({})
+const originalSettings = ref({ ...defaultReminderSettings })
 
 const loading = ref(false)
 const error = ref<string | null>(null)
