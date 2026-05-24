@@ -58,13 +58,20 @@ const initCharts = () => {
   if (usersChartRef.value && reportsStore.stats) {
     const ctx = usersChartRef.value.getContext('2d')
     if (ctx) {
+      // We expect reportsStore to have a usersByBusiness property in the future
+      // For now, we'll use placeholder data if the property doesn't exist or is empty
+      const usersByBusiness = reportsStore.usersByBusiness || []
       usersChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Negocio 1', 'Negocio 2', 'Negocio 3'], // Placeholder - would come from API
+          labels: usersByBusiness.length > 0 
+            ? usersByBusiness.map(b => b.name) 
+            : ['Negocio 1', 'Negocio 2', 'Negocio 3'],
           datasets: [{
             label: 'Usuarios por Negocio',
-            data: [reportsStore.stats?.totalUsers || 0, 15, 8], // Placeholder data
+            data: usersByBusiness.length > 0 
+              ? usersByBusiness.map(b => b.userCount || 0) 
+              : [reportsStore.stats?.totalUsers || 0, 15, 8],
             backgroundColor: [
               'rgba(54, 162, 235, 0.5)',
               'rgba(255, 99, 132, 0.5)',
@@ -107,13 +114,19 @@ const initCharts = () => {
   if (subscriptionsChartRef.value && reportsStore.stats) {
     const ctx = subscriptionsChartRef.value.getContext('2d')
     if (ctx) {
+      // We expect reportsStore to have a subscriptionsByPlan property in the future
+      const subscriptionsByPlan = reportsStore.subscriptionsByPlan || []
       subscriptionsChart = new Chart(ctx, {
         type: 'pie',
         data: {
-          labels: ['Básico', 'Profesional', 'Empresarial'], // Placeholder
+          labels: subscriptionsByPlan.length > 0 
+            ? subscriptionsByPlan.map(p => p.name) 
+            : ['Básico', 'Profesional', 'Empresarial'],
           datasets: [{
             label: 'Suscripciones por Plan',
-            data: [reportsStore.stats?.activeSubscriptions || 0, 10, 5], // Placeholder data
+            data: subscriptionsByPlan.length > 0 
+              ? subscriptionsByPlan.map(p => p.count || 0) 
+              : [reportsStore.stats?.activeSubscriptions || 0, 10, 5],
             backgroundColor: [
               'rgba(75, 192, 192, 0.5)',
               'rgba(153, 102, 255, 0.5)',
@@ -148,13 +161,19 @@ const initCharts = () => {
   if (revenueChartRef.value && reportsStore.sales) {
     const ctx = revenueChartRef.value.getContext('2d')
     if (ctx) {
+      // We expect reportsStore to have a monthlyRevenue property in the future
+      const monthlyRevenue = reportsStore.monthlyRevenue || []
       revenueChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'], // Placeholder months
+          labels: monthlyRevenue.length > 0 
+            ? monthlyRevenue.map(m => m.month) 
+            : ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
           datasets: [{
             label: 'Ingresos Mensuales (USD)',
-            data: [reportsStore.sales?.total_sales || 0, 1200, 1800, 1500, 2000, 2200], // Placeholder data
+            data: monthlyRevenue.length > 0 
+              ? monthlyRevenue.map(m => m.revenue || 0) 
+              : [reportsStore.sales?.total_sales || 0, 1200, 1800, 1500, 2000, 2200],
             fill: false,
             borderColor: 'rgba(75, 192, 192, 1)',
             tension: 0.1

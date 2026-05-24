@@ -17,37 +17,39 @@ describe('Toast Store', () => {
 		setActivePinia(createPinia())
 	})
 
-	it('should show a success toast', () => {
-		const store = useToastStore()
-		const id = store.success('Test message')
-		
-		expect(store.toasts.length).toBe(1)
-		expect(store.toasts[0].type).toBe('success')
-		expect(store.toasts[0].message).toBe('Test message')
-		expect(id).toBe(1)
-	})
+it('should show a success toast', () => {
+  const store = useToastStore()
+  const id = store.success('Test message')
+  
+  expect(store.toasts.length).toBe(1)
+  expect(store.toasts[0]).not.toBeUndefined()
+  expect(store.toasts[0]!.type).toBe('success')
+  expect(store.toasts[0]!.message).toBe('Test message')
+  expect(id).toBe(1)
+})
 
-	it('should show an error toast', () => {
-		const store = useToastStore()
-		store.error('Error message')
-		
-		expect(store.toasts[0].type).toBe('error')
-		expect(store.toasts[0].message).toBe('Error message')
-	})
+it('should show an error toast', () => {
+  const store = useToastStore()
+  store.error('Error message')
+  
+  expect(store.toasts[0]!.type).toBe('error')
+  expect(store.toasts[0]!.message).toBe('Error message')
+})
 
-	it('should show a warning toast', () => {
-		const store = useToastStore()
-		store.warning('Warning message')
-		
-		expect(store.toasts[0].type).toBe('warning')
-	})
+it('should show a warning toast', () => {
+  const store = useToastStore()
+  store.warning('Warning message')
+  
+  expect(store.toasts.length).toBe(1)
+  expect(store.toasts[0]!.type).toBe('warning')
+})
 
-	it('should show an info toast', () => {
-		const store = useToastStore()
-		store.info('Info message')
-		
-		expect(store.toasts[0].type).toBe('info')
-	})
+it('should show an info toast', () => {
+  const store = useToastStore()
+  store.info('Info message')
+  
+  expect(store.toasts[0]!.type).toBe('info')
+})
 
 	it('should remove a toast by id', () => {
 		const store = useToastStore()
@@ -114,29 +116,29 @@ describe('Inventory Store', () => {
 		expect(store.loading).toBe(false)
 	})
 
-	it('should filter low stock products', () => {
-		const store = useInventoryStore()
-		store.products = [
-			{ id: 1, name: 'Normal', stock: 10, min_stock: 5 },
-			{ id: 2, name: 'Low Stock', stock: 3, min_stock: 5 },
-			{ id: 3, name: 'Out of Stock', stock: 0, min_stock: 5 },
-		]
-		
-		expect(store.lowStockProducts.length).toBe(1)
-		expect(store.lowStockProducts[0].name).toBe('Low Stock')
-	})
+it('should filter low stock products', () => {
+  const store = useInventoryStore()
+  store.products = [
+    { id: 1, name: 'Normal', stock: 10, min_stock: 5, category_id: 1, business_id: 1, description: '', cost_price: 0, sell_price: 0, sku: '' },
+    { id: 2, name: 'Low Stock', stock: 3, min_stock: 5, category_id: 1, business_id: 1, description: '', cost_price: 0, sell_price: 0, sku: '' },
+    { id: 3, name: 'Out of Stock', stock: 0, min_stock: 5, category_id: 1, business_id: 1, description: '', cost_price: 0, sell_price: 0, sku: '' },
+  ]
+  
+  expect(store.lowStockProducts.length).toBe(1)
+  expect(store.lowStockProducts[0]!.name).toBe('Low Stock')
+})
 
-	it('should filter out of stock products', () => {
-		const store = useInventoryStore()
-		store.products = [
-			{ id: 1, name: 'Normal', stock: 10, min_stock: 5 },
-			{ id: 2, name: 'Low Stock', stock: 3, min_stock: 5 },
-			{ id: 3, name: 'Out of Stock', stock: 0, min_stock: 5 },
-		]
-		
-		expect(store.outOfStockProducts.length).toBe(1)
-		expect(store.outOfStockProducts[0].name).toBe('Out of Stock')
-	})
+it('should filter out of stock products', () => {
+  const store = useInventoryStore()
+  store.products = [
+    { id: 1, name: 'Normal', stock: 10, min_stock: 5, category_id: 1, business_id: 1, description: '', cost_price: 0, sell_price: 0, sku: '' },
+    { id: 2, name: 'Low Stock', stock: 3, min_stock: 5, category_id: 1, business_id: 1, description: '', cost_price: 0, sell_price: 0, sku: '' },
+    { id: 3, name: 'Out of Stock', stock: 0, min_stock: 5, category_id: 1, business_id: 1, description: '', cost_price: 0, sell_price: 0, sku: '' },
+  ]
+  
+  expect(store.outOfStockProducts.length).toBe(1)
+  expect(store.outOfStockProducts[0]!.name).toBe('Out of Stock')
+})
 
 	it('should fetch categories from API', async () => {
 		const mockCategories = [
@@ -179,27 +181,39 @@ describe('Sales Store', () => {
 		expect(store.sales).toEqual(mockSales)
 	})
 
-	it('should calculate today total', () => {
-		const store = useSalesStore()
-		const today = new Date().toISOString().split('T')[0]
-		
-		store.sales = [
-			{ id: 1, total: 100, created_at: `${today}T10:00:00Z` },
-			{ id: 2, total: 200, created_at: `${today}T11:00:00Z` },
-			{ id: 3, total: 50, created_at: '2023-01-01T10:00:00Z' },
-		]
-		
-		expect(store.todayTotal).toBe(300)
-	})
+  it('should calculate today total', () => {
+    const store = useSalesStore()
+    const today = new Date().toISOString().split('T')[0]
+    
+    store.sales = [
+      { id: 1, total: 100, created_at: `${today}T10:00:00Z`, business: 1, customer: 1, user: 1, subtotal: 100, discount: 0, tax: 0, status: 'completed', payment_status: 'pending' },
+      { id: 2, total: 200, created_at: `${today}T11:00:00Z`, business: 1, customer: 1, user: 1, subtotal: 200, discount: 0, tax: 0, status: 'completed', payment_status: 'pending' },
+      { id: 3, total: 50, created_at: '2023-01-01T10:00:00Z', business: 1, customer: 1, user: 1, subtotal: 50, discount: 0, tax: 0, status: 'completed', payment_status: 'pending' },
+    ]
+    
+    expect(store.todayTotal).toBe(300)
+  })
 
-	it('should return 0 when no sales today', () => {
-		const store = useSalesStore()
-		store.sales = [
-			{ id: 1, total: 100, created_at: '2023-01-01T10:00:00Z' },
-		]
-		
-		expect(store.todayTotal).toBe(0)
-	})
+it('should return 0 when no sales today', () => {
+  const store = useSalesStore()
+  store.sales = [
+    { 
+      id: 1, 
+      total: 100, 
+      created_at: '2023-01-01T10:00:00Z',
+      business: 1,
+      customer: 1,
+      user: 1,
+      subtotal: 100,
+      discount: 0,
+      tax: 0,
+      status: 'completed',
+      payment_status: 'pending'
+    },
+  ]
+  
+  expect(store.todayTotal).toBe(0)
+})
 
 	it('should clear current sale', () => {
 		const store = useSalesStore()
@@ -234,52 +248,53 @@ describe('Customers Store', () => {
 		expect(store.customers).toEqual(mockCustomers)
 	})
 
-	it('should search customers by name', () => {
-		const store = useCustomersStore()
-		store.customers = [
-			{ id: 1, name: 'John Doe', phone: '04121234567', identification_number: 'V12345678' },
-			{ id: 2, name: 'Jane Smith', phone: '04129876543', identification_number: 'V87654321' },
-		]
-		
-		const results = store.searchCustomers('john')
-		
-		expect(results.length).toBe(1)
-		expect(results[0].name).toBe('John Doe')
-	})
+it('should search customers by name', () => {
+  const store = useCustomersStore()
+  store.customers = [
+    { id: 1, name: 'John Doe', phone: '04121234567', identification_number: 'V12345678', business: 1, created_at: '', updated_at: '' },
+    { id: 2, name: 'Jane Smith', phone: '04129876543', identification_number: 'V87654321', business: 1, created_at: '', updated_at: '' },
+  ]
+  
+  const results = store.searchCustomers('john')
+  
+  expect(results.length).toBe(1)
+  expect(results[0]!.name).toBe('John Doe')
+})
 
-	it('should search customers by phone', () => {
-		const store = useCustomersStore()
-		store.customers = [
-			{ id: 1, name: 'John Doe', phone: '04121234567', identification_number: 'V12345678' },
-			{ id: 2, name: 'Jane Smith', phone: '04129876543', identification_number: 'V87654321' },
-		]
-		
-		const results = store.searchCustomers('0412123')
-		
-		expect(results.length).toBe(1)
-	})
+it('should search customers by phone', () => {
+  const store = useCustomersStore()
+  store.customers = [
+    { id: 1, name: 'John Doe', phone: '04121234567', identification_number: 'V12345678', business: 1, created_at: '', updated_at: '' },
+    { id: 2, name: 'Jane Smith', phone: '04129876543', identification_number: 'V87654321', business: 1, created_at: '', updated_at: '' },
+  ]
+  
+  const results = store.searchCustomers('0412123')
+  
+  expect(results.length).toBe(1)
+  expect(results[0]!.name).toBe('John Doe')
+})
 
-	it('should get customer count', () => {
-		const store = useCustomersStore()
-		store.customers = [
-			{ id: 1, name: 'Customer 1' },
-			{ id: 2, name: 'Customer 2' },
-		]
-		
-		expect(store.customerCount).toBe(2)
-	})
+it('should get customer count', () => {
+  const store = useCustomersStore()
+  store.customers = [
+    { id: 1, name: 'Customer 1', phone: '04121234567', identification_number: 'V12345678', business: 1, created_at: '', updated_at: '' },
+    { id: 2, name: 'Customer 2', phone: '04129876543', identification_number: 'V87654321', business: 1, created_at: '', updated_at: '' },
+  ]
+  
+  expect(store.customerCount).toBe(2)
+})
 
-	it('should find customer by id', () => {
-		const store = useCustomersStore()
-		store.customers = [
-			{ id: 1, name: 'Customer 1' },
-			{ id: 2, name: 'Customer 2' },
-		]
-		
-		const customer = store.customerById(2)
-		
-		expect(customer?.name).toBe('Customer 2')
-	})
+it('should find customer by id', () => {
+  const store = useCustomersStore()
+  store.customers = [
+    { id: 1, name: 'Customer 1', phone: '04121234567', identification_number: 'V12345678', business: 1, created_at: '', updated_at: '' },
+    { id: 2, name: 'Customer 2', phone: '04129876543', identification_number: 'V87654321', business: 1, created_at: '', updated_at: '' },
+  ]
+  
+  const customer = store.customerById(2)
+  
+  expect(customer?.name).toBe('Customer 2')
+})
 })
 
 describe('Suppliers Store', () => {
@@ -305,26 +320,26 @@ describe('Suppliers Store', () => {
 		expect(store.suppliers).toEqual(mockSuppliers)
 	})
 
-	it('should filter active suppliers', () => {
-		const store = useSuppliersStore()
-		store.suppliers = [
-			{ id: 1, name: 'Active', is_active: true },
-			{ id: 2, name: 'Inactive', is_active: false },
-		]
-		
-		expect(store.activeSuppliers.length).toBe(1)
-		expect(store.activeSuppliers[0].name).toBe('Active')
-	})
+it('should filter active suppliers', () => {
+  const store = useSuppliersStore()
+  store.suppliers = [
+    { id: 1, name: 'Active', business: 1, rif: '', email: '', address: '', phone: '', is_active: true, created_at: '', updated_at: '' },
+    { id: 2, name: 'Inactive', business: 1, rif: '', email: '', address: '', phone: '', is_active: false, created_at: '', updated_at: '' },
+  ]
+  
+  expect(store.activeSuppliers.length).toBe(1)
+  expect(store.activeSuppliers[0]!.name).toBe('Active')
+})
 
-	it('should find supplier by id', () => {
-		const store = useSuppliersStore()
-		store.suppliers = [
-			{ id: 1, name: 'Supplier 1' },
-			{ id: 2, name: 'Supplier 2' },
-		]
-		
-		const supplier = store.supplierById(2)
-		
-		expect(supplier?.name).toBe('Supplier 2')
-	})
+it('should find supplier by id', () => {
+  const store = useSuppliersStore()
+  store.suppliers = [
+    { id: 1, name: 'Supplier 1', business: 1, rif: '', email: '', address: '', phone: '', is_active: true, created_at: '', updated_at: '' },
+    { id: 2, name: 'Supplier 2', business: 1, rif: '', email: '', address: '', phone: '', is_active: false, created_at: '', updated_at: '' },
+  ]
+  
+  const supplier = store.supplierById(2)
+  
+  expect(supplier?.name).toBe('Supplier 2')
+})
 })
