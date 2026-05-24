@@ -209,8 +209,7 @@ const initCharts = () => {
 }
 
 onMounted(() => {
-  fetchStats()
-})
+  fetchStats())
 </script>
 
 <template>

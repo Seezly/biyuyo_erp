@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     "reports",
     "sales",
     "suppliers",
+    "audit",
+    "roles",
 ]
 
 MIDDLEWARE = [
@@ -70,6 +72,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "core.middleware.BusinessMiddleware",
+    "audit.middleware.audit_middleware.AuditMiddleware",
 ]
 
 ROOT_URLCONF = "app.urls"

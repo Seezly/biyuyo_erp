@@ -3,7 +3,6 @@ import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useSalesStore } from '@/stores/sales'
 import { useCustomersStore } from '@/stores/customers'
-import { useToastStore } from '@/stores/toast'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
@@ -13,7 +12,6 @@ const router = useRouter()
 const route = useRoute()
 const salesStore = useSalesStore()
 const customersStore = useCustomersStore()
-const toastStore = useToastStore()
 
 const search = ref('')
 const statusFilter = ref('')
@@ -96,11 +94,6 @@ const handleDelete = async () => {
 		await salesStore.deleteSale(saleToDelete.value)
 		showDeleteAlert.value = false
 		saleToDelete.value = null
-		if (salesStore.error) {
-			toastStore.error('Error al eliminar la venta')
-		} else {
-			toastStore.success('Venta eliminada correctamente')
-		}
 	}
 }
 

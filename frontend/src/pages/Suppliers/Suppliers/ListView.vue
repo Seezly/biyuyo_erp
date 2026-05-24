@@ -2,7 +2,6 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useSuppliersStore } from '@/stores/suppliers'
-import { useToastStore } from '@/stores/toast'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
@@ -10,7 +9,6 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 const router = useRouter()
 const route = useRoute()
 const suppliersStore = useSuppliersStore()
-const toastStore = useToastStore()
 
 const search = ref('')
 const showDeleteAlert = ref(false)
@@ -51,11 +49,6 @@ const handleDelete = async () => {
 		await suppliersStore.deleteSupplier(supplierToDelete.value)
 		showDeleteAlert.value = false
 		supplierToDelete.value = null
-		if (suppliersStore.error) {
-			toastStore.error('Error al eliminar el proveedor')
-		} else {
-			toastStore.success('Proveedor eliminado correctamente')
-		}
 	}
 }
 

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
 import type { Product, ProductForm } from '@/types/product'
+import { useToastStore } from '@/stores/toast'
 
 interface Category {
 	id: number
@@ -74,58 +75,84 @@ export const useInventoryStore = defineStore('inventory', {
 			}
 		},
 
-		async createProduct(data: ProductForm) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch('/api/products/', {
-					method: 'POST',
-					body: JSON.stringify(data),
-				})
-				if (!response.ok) throw new Error('Failed to create product')
-				const product = await response.json()
-				this.products.push(product)
-			} catch (e: any) {
-				this.error = e.message
-			} finally {
-				this.loading = false
-			}
-		},
+	async createProduct(data: ProductForm) {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch('/api/products/', {
+				method: 'POST',
+				body: JSON.stringify(data),
+			})
+			if (!response.ok) throw new Error('Failed to create product')
+			const product = await response.json()
+			this.products.push(product)
+			toastStore.success('Producto creado correctamente')
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al crear producto')
+		} finally {
+			this.loading = false
+		}
+	},
 
-		async updateProduct(id: number, data: Partial<ProductForm>) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch(`/api/products/${id}/`, {
-					method: 'PATCH',
-					body: JSON.stringify(data),
-				})
-				if (!response.ok) throw new Error('Failed to update product')
-				const updated = await response.json()
-				const index = this.products.findIndex(p => p.id === id)
-				if (index !== -1) this.products[index] = updated
-			} catch (e: any) {
-				this.error = e.message
-			} finally {
-				this.loading = false
-			}
-		},
+	async updateProduct(id: number, data: Partial<ProductForm>): Promise<Product | null> {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch(`/api/products/${id}/`, {
+				method: 'PATCH',
+				body: JSON.stringify(data),
+			})
+			if (!response.ok) throw new Error('Failed to update product')
+			const updated = await response.json()
+			const index = this.products.findIndex(p => p.id === id)
+			if (index !== -1) this.products[index] = updated
+			toastStore.success('Producto actualizado correctamente')
+			return updated
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al actualizar producto')
+			return null
+		} finally {
+			this.loading = false
+		}
+	},
 
-		async deleteProduct(id: number) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch(`/api/products/${id}/`, {
-					method: 'DELETE',
-				})
-				if (!response.ok) throw new Error('Failed to delete product')
-				this.products = this.products.filter(p => p.id !== id)
-			} catch (e: any) {
-				this.error = e.message
-			} finally {
-				this.loading = false
-			}
-		},
+	async deleteProduct(id: number) {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch(`/api/products/${id}/`, {
+				method: 'DELETE',
+			})
+			if (!response.ok) throw new Error('Failed to delete product')
+			this.products = this.products.filter(p => p.id !== id)
+			toastStore.success('Producto eliminado correctamente')
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al eliminar producto')
+		} finally {
+			this.loading = false
+		}
+	},
+
+	async fetchProductById(id: number) {
+		this.loading = true
+		try {
+			const response = await apiFetch(`/api/products/${id}/`)
+			if (!response.ok) throw new Error('Failed to fetch product')
+			const product = await response.json()
+			return product
+		} catch (e: any) {
+			this.error = e.message
+			return null
+		} finally {
+			this.loading = false
+		}
+	},
 
 		async fetchCategories(params: {
 			search?: string

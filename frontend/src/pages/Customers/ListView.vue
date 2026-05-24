@@ -2,7 +2,6 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
-import { useToastStore } from '@/stores/toast'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
@@ -10,7 +9,6 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 const router = useRouter()
 const route = useRoute()
 const customersStore = useCustomersStore()
-const toastStore = useToastStore()
 
 const search = ref('')
 const showDeleteAlert = ref(false)
@@ -51,11 +49,6 @@ const handleDelete = async () => {
 		await customersStore.deleteCustomer(customerToDelete.value)
 		showDeleteAlert.value = false
 		customerToDelete.value = null
-		if (customersStore.error) {
-			toastStore.error('Error al eliminar el cliente')
-		} else {
-			toastStore.success('Cliente eliminado correctamente')
-		}
 	}
 }
 

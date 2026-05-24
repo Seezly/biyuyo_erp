@@ -30,6 +30,7 @@ from inventory.views import CategoryViewSet, ProductViewSet, InventoryMovementVi
 from sales.views import SaleViewSet, SaleItemViewSet, PaymentViewSet
 from suppliers.views import SupplierViewSet, PurchaseViewSet, PurchaseItemViewSet
 from reports.views import ReportViewSet
+from roles.views import RoleViewSet
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
@@ -51,6 +52,7 @@ router.register(r"suppliers", SupplierViewSet, basename="suppliers")
 router.register(r"purchases", PurchaseViewSet, basename="purchases")
 router.register(r"purchase-items", PurchaseItemViewSet, basename="purchase-items")
 router.register(r"reports", ReportViewSet, basename="reports")
+router.register(r"roles", RoleViewSet, basename="roles")
 
 urlpatterns = [
     path("admin/", admin.site.urls),

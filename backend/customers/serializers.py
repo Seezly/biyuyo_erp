@@ -12,9 +12,9 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
-            "business_id",
             "phone",
             "identification_number",
             "created_at",
             "updated_at",
         ]
+        read_only_fields = ["id", "business_id", "created_at", "updated_at"]

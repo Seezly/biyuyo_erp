@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
+import { useToastStore } from '@/stores/toast'
 
 interface Customer {
 	id: number
@@ -64,82 +65,92 @@ export const useCustomersStore = defineStore('customers', {
 			}
 		},
 
-		async fetchCustomer(id: number) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch(`/api/customers/${id}/`)
-				if (!response.ok) throw new Error('Failed to fetch customer')
-				this.currentCustomer = await response.json()
-			} catch (e: any) {
-				this.error = e.message
-			} finally {
-				this.loading = false
-			}
-		},
+	async fetchCustomer(id: number): Promise<any> {
+		this.loading = true
+		this.error = null
+		try {
+			const response = await apiFetch(`/api/customers/${id}/`)
+			if (!response.ok) throw new Error('Failed to fetch customer')
+			return await response.json()
+		} catch (e: any) {
+			this.error = e.message
+			return null
+		} finally {
+			this.loading = false
+		}
+	},
 
-		async createCustomer(data: CustomerForm) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch('/api/customers/', {
-					method: 'POST',
-					body: JSON.stringify(data),
-				})
-				if (!response.ok) {
-					const errorData = await response.json()
-					throw new Error(JSON.stringify(errorData))
-				}
-				const customer = await response.json()
-				this.customers.unshift(customer)
-				return customer
-			} catch (e: any) {
-				this.error = e.message
-				return null
-			} finally {
-				this.loading = false
+	async createCustomer(data: CustomerForm) {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch('/api/customers/', {
+				method: 'POST',
+				body: JSON.stringify(data),
+			})
+			if (!response.ok) {
+				const errorData = await response.json()
+				throw new Error(JSON.stringify(errorData))
 			}
-		},
+			const customer = await response.json()
+			this.customers.unshift(customer)
+			toastStore.success('Cliente creado correctamente')
+			return customer
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al crear cliente')
+			return null
+		} finally {
+			this.loading = false
+		}
+	},
 
-		async updateCustomer(id: number, data: Partial<CustomerForm>) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch(`/api/customers/${id}/`, {
-					method: 'PATCH',
-					body: JSON.stringify(data),
-				})
-				if (!response.ok) {
-					const errorData = await response.json()
-					throw new Error(JSON.stringify(errorData))
-				}
-				const updated = await response.json()
-				const index = this.customers.findIndex(c => c.id === id)
-				if (index !== -1) this.customers[index] = updated
-				return updated
-			} catch (e: any) {
-				this.error = e.message
-				return null
-			} finally {
-				this.loading = false
+	async updateCustomer(id: number, data: Partial<CustomerForm>) {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch(`/api/customers/${id}/`, {
+				method: 'PATCH',
+				body: JSON.stringify(data),
+			})
+			if (!response.ok) {
+				const errorData = await response.json()
+				throw new Error(JSON.stringify(errorData))
 			}
-		},
+			const updated = await response.json()
+			const index = this.customers.findIndex(c => c.id === id)
+			if (index !== -1) this.customers[index] = updated
+			toastStore.success('Cliente actualizado correctamente')
+			return updated
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al actualizar cliente')
+			return null
+		} finally {
+			this.loading = false
+		}
+	},
 
-		async deleteCustomer(id: number) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch(`/api/customers/${id}/`, {
-					method: 'DELETE',
-				})
-				if (!response.ok) throw new Error('Failed to delete customer')
-				this.customers = this.customers.filter(c => c.id !== id)
-			} catch (e: any) {
-				this.error = e.message
-			} finally {
-				this.loading = false
-			}
-		},
+	async deleteCustomer(id: number) {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch(`/api/customers/${id}/`, {
+				method: 'DELETE',
+			})
+			if (!response.ok) throw new Error('Failed to delete customer')
+			this.customers = this.customers.filter(c => c.id !== id)
+			toastStore.success('Cliente eliminado correctamente')
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al eliminar cliente')
+		} finally {
+			this.loading = false
+		}
+	},
 
 		clearCurrentCustomer() {
 			this.currentCustomer = null

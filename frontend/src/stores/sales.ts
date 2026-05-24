@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
+import { useToastStore } from '@/stores/toast'
 
 interface SaleItem {
 	id: number
@@ -11,17 +12,18 @@ interface SaleItem {
 }
 
 interface Sale {
-	id: number
-	business: number
-	customer: number
-	user: number
-	subtotal: number
-	discount: number
-	tax: number
-	total: number
-	status: string
-	created_at: string
-	items?: SaleItem[]
+  id: number
+  business: number
+  customer: number
+  user: number
+  subtotal: number
+  discount: number
+  tax: number
+  total: number
+  status: string
+  payment_status: string
+  created_at: string
+  items?: SaleItem[]
 }
 
 interface Payment {
@@ -108,60 +110,71 @@ export const useSalesStore = defineStore('sales', {
 			}
 		},
 
-		async createSale(data: SaleForm) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch('/api/sales/', {
-					method: 'POST',
-					body: JSON.stringify(data),
-				})
-				if (!response.ok) throw new Error('Failed to create sale')
-				const sale = await response.json()
-				this.sales.unshift(sale)
-				return sale
-			} catch (e: any) {
-				this.error = e.message
-				return null
-			} finally {
-				this.loading = false
-			}
-		},
+	async createSale(data: SaleForm) {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch('/api/sales/', {
+				method: 'POST',
+				body: JSON.stringify(data),
+			})
+			if (!response.ok) throw new Error('Failed to create sale')
+			const sale = await response.json()
+			this.sales.unshift(sale)
+			toastStore.success('Venta procesada correctamente')
+			return sale
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al procesar la venta')
+			return null
+		} finally {
+			this.loading = false
+		}
+	},
 
-		async updateSale(id: number, data: Partial<SaleForm>) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch(`/api/sales/${id}/`, {
-					method: 'PATCH',
-					body: JSON.stringify(data),
-				})
-				if (!response.ok) throw new Error('Failed to update sale')
-				const updated = await response.json()
-				const index = this.sales.findIndex(s => s.id === id)
-				if (index !== -1) this.sales[index] = updated
-			} catch (e: any) {
-				this.error = e.message
-			} finally {
-				this.loading = false
-			}
-		},
+  async updateSale(id: number, data: Partial<SaleForm>): Promise<boolean> {
+    this.loading = true
+    this.error = null
+    const toastStore = useToastStore()
+    try {
+      const response = await apiFetch(`/api/sales/${id}/`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      })
+      if (!response.ok) throw new Error('Failed to update sale')
+      const updated = await response.json()
+      const index = this.sales.findIndex(s => s.id === id)
+      if (index !== -1) this.sales[index] = updated
+      toastStore.success('Venta actualizada correctamente')
+      return true
+    } catch (e: any) {
+      this.error = e.message
+      toastStore.error(e.message || 'Error al actualizar la venta')
+      return false
+    } finally {
+      this.loading = false
+    }
+  },
 
-		async deleteSale(id: number) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch(`/api/sales/${id}/`, {
-					method: 'DELETE',
-				})
-				if (!response.ok) throw new Error('Failed to delete sale')
-				this.sales = this.sales.filter(s => s.id !== id)
-			} catch (e: any) {
-				this.error = e.message
-			} finally {
-				this.loading = false
-			}
-		},
+	async deleteSale(id: number) {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch(`/api/sales/${id}/`, {
+				method: 'DELETE',
+			})
+			if (!response.ok) throw new Error('Failed to delete sale')
+			this.sales = this.sales.filter(s => s.id !== id)
+			toastStore.success('Venta eliminada correctamente')
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al eliminar la venta')
+		} finally {
+			this.loading = false
+		}
+	},
 
 		async fetchPayments(params: {
 			sale?: string

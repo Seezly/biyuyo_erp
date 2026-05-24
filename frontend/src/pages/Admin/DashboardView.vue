@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import { useReportsStore } from '@/stores/reports'
 
 interface Stats {
 	totalBusinesses: number
@@ -10,6 +11,7 @@ interface Stats {
 	activeSubscriptions: number
 }
 
+const reportsStore = useReportsStore()
 const stats = ref<Stats>({
 	totalBusinesses: 0,
 	totalUsers: 0,
@@ -19,25 +21,19 @@ const stats = ref<Stats>({
 
 const loading = ref(true)
 
-const fetchStats = async () => {
-  try {
-    const response = await fetch('/api/reports/global_stats/')
-    if (response.ok) {
-      const data = await response.json()
-      stats.value.totalBusinesses = data.totalBusinesses
-      stats.value.totalUsers = data.totalUsers
-      stats.value.totalSales = data.totalSales
-      stats.value.activeSubscriptions = data.activeSubscriptions
-    }
-  } catch (error) {
-    console.error('Error fetching stats:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => {
-	fetchStats()
+onMounted(async () => {
+	loading.value = true
+	try {
+		const data = await reportsStore.fetchGlobalStats()
+		if (data) {
+			stats.value.totalBusinesses = data.totalBusinesses
+			stats.value.totalUsers = data.totalUsers
+			stats.value.totalSales = data.totalSales
+			stats.value.activeSubscriptions = data.activeSubscriptions
+		}
+	} finally {
+		loading.value = false
+	}
 })
 </script>
 

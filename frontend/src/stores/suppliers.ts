@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
+import { useToastStore } from '@/stores/toast'
 
 interface Supplier {
 	id: number
@@ -15,11 +16,11 @@ interface Supplier {
 }
 
 interface SupplierForm {
-	name: string
-	rif: string
-	email: string
-	address: string
-	phone: string
+  name: string
+  rif: string
+  email: string
+  address?: string
+  phone?: string
 }
 
 interface Purchase {
@@ -111,65 +112,74 @@ export const useSuppliersStore = defineStore('suppliers', {
 			}
 		},
 
-		async createSupplier(data: SupplierForm) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch('/api/suppliers/', {
-					method: 'POST',
-					body: JSON.stringify(data),
-				})
-				if (!response.ok) {
-					const errorData = await response.json()
-					throw new Error(JSON.stringify(errorData))
-				}
-				const supplier = await response.json()
-				this.suppliers.unshift(supplier)
-				return supplier
-			} catch (e: any) {
-				this.error = e.message
-				return null
-			} finally {
-				this.loading = false
+	async createSupplier(data: SupplierForm) {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch('/api/suppliers/', {
+				method: 'POST',
+				body: JSON.stringify(data),
+			})
+			if (!response.ok) {
+				const errorData = await response.json()
+				throw new Error(JSON.stringify(errorData))
 			}
-		},
+			const supplier = await response.json()
+			this.suppliers.unshift(supplier)
+			toastStore.success('Proveedor creado correctamente')
+			return supplier
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al crear proveedor')
+			return null
+		} finally {
+			this.loading = false
+		}
+	},
 
-		async updateSupplier(id: number, data: Partial<SupplierForm>) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch(`/api/suppliers/${id}/`, {
-					method: 'PATCH',
-					body: JSON.stringify(data),
-				})
-				if (!response.ok) throw new Error('Failed to update supplier')
-				const updated = await response.json()
-				const index = this.suppliers.findIndex(s => s.id === id)
-				if (index !== -1) this.suppliers[index] = updated
-				return updated
-			} catch (e: any) {
-				this.error = e.message
-				return null
-			} finally {
-				this.loading = false
-			}
-		},
+	async updateSupplier(id: number, data: Partial<SupplierForm>) {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch(`/api/suppliers/${id}/`, {
+				method: 'PATCH',
+				body: JSON.stringify(data),
+			})
+			if (!response.ok) throw new Error('Failed to update supplier')
+			const updated = await response.json()
+			const index = this.suppliers.findIndex(s => s.id === id)
+			if (index !== -1) this.suppliers[index] = updated
+			toastStore.success('Proveedor actualizado correctamente')
+			return updated
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al actualizar proveedor')
+			return null
+		} finally {
+			this.loading = false
+		}
+	},
 
-		async deleteSupplier(id: number) {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch(`/api/suppliers/${id}/`, {
-					method: 'DELETE',
-				})
-				if (!response.ok) throw new Error('Failed to delete supplier')
-				this.suppliers = this.suppliers.filter(s => s.id !== id)
-			} catch (e: any) {
-				this.error = e.message
-			} finally {
-				this.loading = false
-			}
-		},
+	async deleteSupplier(id: number) {
+		this.loading = true
+		this.error = null
+		const toastStore = useToastStore()
+		try {
+			const response = await apiFetch(`/api/suppliers/${id}/`, {
+				method: 'DELETE',
+			})
+			if (!response.ok) throw new Error('Failed to delete supplier')
+			this.suppliers = this.suppliers.filter(s => s.id !== id)
+			toastStore.success('Proveedor eliminado correctamente')
+		} catch (e: any) {
+			this.error = e.message
+			toastStore.error(e.message || 'Error al eliminar proveedor')
+		} finally {
+			this.loading = false
+		}
+	},
 
 		async fetchPurchases(params: {
 			search?: string

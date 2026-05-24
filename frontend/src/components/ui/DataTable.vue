@@ -1,13 +1,13 @@
 <template>
   <div class="w-full">
     <div class="mb-4 flex justify-between items-center">
-      <div class="flex-1 min-w-0">
-        <h2 class="text-2xl font-bold text-primary">{{ title }}</h2>
-        <p class="text-sm text-gray-500">{{ subtitle }}</p>
-      </div>
+<div class="flex-1 min-w-0">
+  <h2 class="text-2xl font-bold text-primary">{{ props.title }}</h2>
+  <p class="text-sm text-gray-500">{{ props.subtitle }}</p>
+</div>
       <div class="text-right">
         <slot name="toolbar">
-          <button v-if="showAddButton" :to="addButtonRoute" class="btn-primary">
+          <button v-if="props.showAddButton" :to="props.addButtonRoute" class="btn-primary">
             <slot name="add-button-text">Añadir nuevo</slot>
           </button>
         </slot>
@@ -59,21 +59,21 @@
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th
-              v-for="(column, index) in columns"
-              :key="index"
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              :class="{ 'cursor-pointer sortable': column.sortable }"
-              @click="column.sortable ? sortBy(column.key) : null"
-            >
-              {{ column.label }}
-              <span v-if="column.sortable" class="ml-1">
-                <svg v-if="sortKey === column.key" class="w-4 h-4" :class="{ 'text-primary': sortDirection === 'asc', 'text-gray-400': sortDirection === 'desc' }" viewBox="0 0 20 20" fill="currentColor">
-                  <path v-if="sortDirection === 'asc'" d="M5 9l4-4 4 4H5z" />
-                  <path v-else="sortDirection === 'desc'" d="M5 11l4 4 4-4H5z" />
-                </svg>
-              </span>
-            </th>
+<th
+  v-for="(column, index) in props.columns"
+  :key="index"
+  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+  :class="{ 'cursor-pointer sortable': column.sortable }"
+  @click="column.sortable ? sortBy(column.key) : null"
+>
+  {{ column.label }}
+  <span v-if="column.sortable" class="ml-1">
+    <svg v-if="sortKey === column.key" class="w-4 h-4" :class="{ 'text-primary': sortDirection === 'asc', 'text-gray-400': sortDirection === 'desc' }" viewBox="0 0 20 20" fill="currentColor">
+      <path v-if="sortDirection === 'asc'" d="M5 9l4-4 4 4H5z" />
+      <path v-else="sortDirection === 'desc'" d="M5 11l4 4 4-4H5z" />
+    </svg>
+  </span>
+</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -82,21 +82,21 @@
             :key="index"
             class="bg-white hover:bg-gray-50"
           >
-            <td
-              v-for="(column, colIndex) in columns"
-              :key="colIndex"
-              class="px-6 py-4 whitespace-nowrap"
-            >
-              <slot :name="`cell-${column.key}`" :item="item">
-                <!-- Default rendering -->
-                <template v-if="column.format">
-                  <span>{{ formatValue(item[column.key], column.format) }}</span>
-                </template>
-                <template v-else>
-                  <span>{{ item[column.key] }}</span>
-                </template>
-              </slot>
-            </td>
+<td
+  v-for="(column, colIndex) in props.columns"
+  :key="colIndex"
+  class="px-6 py-4 whitespace-nowrap"
+>
+  <slot :name="`cell-${column.key}`" :item="item">
+    <!-- Default rendering -->
+    <template v-if="column.format">
+      <span>{{ formatValue(item[column.key], column.format) }}</span>
+    </template>
+    <template v-else>
+      <span>{{ item[column.key] }}</span>
+    </template>
+  </slot>
+</td>
           </tr>
         </tbody>
       </table>
@@ -133,7 +133,7 @@ const props = defineProps<{
   showAddButton?: boolean
   addButtonRoute?: string
   fetchFunction: (params: any) => Promise<any>
-}>
+}>()
 
 const emit = defineEmits(['row-click', 'row-edit', 'row-delete'])
 

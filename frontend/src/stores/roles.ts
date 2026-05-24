@@ -1,25 +1,10 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
+import { type Role, type RoleForm } from '@/types/role'
 
-interface Business {
-  id: number
-  name: string
-  description: string
-  rif: string
-  email: string
-  phone: string
-  address: string
-  state: string
-  municipality: string
-  is_active: boolean
-  start_date: string
-  created_at: string
-  updated_at: string
-}
-
-export const useBusinessesStore = defineStore('businesses', {
+export const useRolesStore = defineStore('roles', {
   state: () => ({
-    businesses: [] as Business[],
+    roles: [] as Role[],
     loading: false,
     error: null as string | null,
     pagination: {
@@ -30,10 +15,9 @@ export const useBusinessesStore = defineStore('businesses', {
   }),
 
   actions: {
-    async fetchBusinesses(params: {
+    async fetchRoles(params: {
       search?: string
       is_active?: string
-      state?: string
       ordering?: string
       page?: string
     } = {}) {
@@ -43,17 +27,16 @@ export const useBusinessesStore = defineStore('businesses', {
         const queryParams = new URLSearchParams()
         if (params.search) queryParams.set('search', params.search)
         if (params.is_active) queryParams.set('is_active', params.is_active)
-        if (params.state) queryParams.set('state', params.state)
         if (params.ordering) queryParams.set('ordering', params.ordering)
         if (params.page) queryParams.set('page', params.page)
 
         const queryString = queryParams.toString()
-        const url = `/api/businesses/${queryString ? '?' + queryString : ''}`
+        const url = `/api/roles/${queryString ? '?' + queryString : ''}`
         const response = await apiFetch(url)
 
-        if (!response.ok) throw new Error('Failed to fetch businesses')
+        if (!response.ok) throw new Error('Failed to fetch roles')
         const data = await response.json()
-        this.businesses = data.results || data
+        this.roles = data.results || data
         this.pagination = {
           count: data.count || data.length,
           next: data.next,
@@ -66,9 +49,9 @@ export const useBusinessesStore = defineStore('businesses', {
       }
     },
 
-    async getBusiness(id: number): Promise<Business | null> {
+    async getRole(id: number): Promise<Role | null> {
       try {
-        const response = await apiFetch(`/api/businesses/${id}/`)
+        const response = await apiFetch(`/api/roles/${id}/`)
         if (!response.ok) return null
         return await response.json()
       } catch (e) {
@@ -76,11 +59,11 @@ export const useBusinessesStore = defineStore('businesses', {
       }
     },
 
-    async createBusiness(data: any): Promise<Business | null> {
+    async createRole(data: RoleForm): Promise<Role | null> {
       this.loading = true
       this.error = null
       try {
-        const response = await apiFetch('/api/businesses/', {
+        const response = await apiFetch('/api/roles/', {
           method: 'POST',
           body: JSON.stringify(data),
           headers: {
@@ -88,10 +71,10 @@ export const useBusinessesStore = defineStore('businesses', {
           }
         })
 
-        if (!response.ok) throw new Error('Failed to create business')
-        const business = await response.json()
-        this.businesses.push(business)
-        return business
+        if (!response.ok) throw new Error('Failed to create role')
+        const role = await response.json()
+        this.roles.push(role)
+        return role
       } catch (e: any) {
         this.error = e.message
         return null
@@ -100,28 +83,28 @@ export const useBusinessesStore = defineStore('businesses', {
       }
     },
 
-    async updateBusiness(id: number, data: any): Promise<Business | null> {
+    async updateRole(id: number, data: Partial<RoleForm>): Promise<Role | null> {
       this.loading = true
       this.error = null
       try {
-        const response = await apiFetch(`/api/businesses/${id}/`, {
-          method: 'PUT',
+        const response = await apiFetch(`/api/roles/${id}/`, {
+          method: 'PATCH',
           body: JSON.stringify(data),
           headers: {
             'Content-Type': 'application/json'
           }
         })
 
-        if (!response.ok) throw new Error('Failed to update business')
-        const business = await response.json()
+        if (!response.ok) throw new Error('Failed to update role')
+        const role = await response.json()
         
         // Update in local state
-        const index = this.businesses.findIndex(b => b.id === id)
+        const index = this.roles.findIndex(r => r.id === id)
         if (index !== -1) {
-          this.businesses[index] = business
+          this.roles[index] = role
         }
         
-        return business
+        return role
       } catch (e: any) {
         this.error = e.message
         return null
@@ -130,18 +113,18 @@ export const useBusinessesStore = defineStore('businesses', {
       }
     },
 
-    async deleteBusiness(id: number): Promise<boolean> {
+    async deleteRole(id: number): Promise<boolean> {
       this.loading = true
       this.error = null
       try {
-        const response = await apiFetch(`/api/businesses/${id}/`, {
+        const response = await apiFetch(`/api/roles/${id}/`, {
           method: 'DELETE'
         })
 
-        if (!response.ok) throw new Error('Failed to delete business')
+        if (!response.ok) throw new Error('Failed to delete role')
         
         // Remove from local state
-        this.businesses = this.businesses.filter(b => b.id !== id)
+        this.roles = this.roles.filter(r => r.id !== id)
         return true
       } catch (e: any) {
         this.error = e.message
