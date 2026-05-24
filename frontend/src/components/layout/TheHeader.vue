@@ -13,7 +13,7 @@ const auth = useAuthStore()
 
 <template>
 	<header
-		class="w-full bg-[#fff] md:max-w-7xl mx-auto md:rounded-full sticky top-0 md:mt-8 md:top-8 shadow-sm md:shadow-md px-8 py-4 z-100"
+		class="w-full bg-white md:max-w-7xl mx-auto md:rounded-full sticky top-0 md:mt-8 md:top-8 shadow-sm md:shadow-md px-8 py-4 z-100"
 	>
 		<BaseNav>
 			<NavItem>
@@ -27,7 +27,7 @@ const auth = useAuthStore()
 				<RouterLink class="rounded-full py-2 px-4" to="/plans">Planes</RouterLink>
 				<RouterLink class="rounded-full py-2 px-4" to="/contact">Contáctanos</RouterLink>
 			</NavItem>
-			<NavItem v-if="auth.isAuthenticated" class="hidden md:flex">
+			<NavItem v-if="auth.isAuthenticated && auth.user?.role !== 'admin'" class="hidden md:flex">
 				<RouterLink class="rounded-full py-2 px-4" to="/dashboard">Inicio</RouterLink>
 				<RouterLink class="rounded-full py-2 px-4" to="/customers">Clientes</RouterLink>
 				<RouterLink class="rounded-full py-2 px-4" to="/inventory">Inventario</RouterLink>
@@ -36,6 +36,13 @@ const auth = useAuthStore()
 				<RouterLink class="rounded-full py-2 px-4" to="/suppliers">Proveedores</RouterLink>
 				<RouterLink class="rounded-full py-2 px-4" to="/reports">Reportes</RouterLink>
 			</NavItem>
+            <NavItem v-if="auth.isAuthenticated && auth.user?.role === 'admin'" class="hidden md:flex">
+                <RouterLink class="rounded-full py-2 px-4" to="/admin">Administración</RouterLink>
+                <RouterLink class="rounded-full py-2 px-4" to="/users">Usuarios</RouterLink>
+                <RouterLink class="rounded-full py-2 px-4" to="/admin/businesses">Negocios</RouterLink>
+                <RouterLink class="rounded-full py-2 px-4" to="/audit">Auditoría</RouterLink>
+                <RouterLink class="rounded-full py-2 px-4" to="/billing">Facturación</RouterLink>
+            </NavItem>
 			<NavItem class="ml-auto">
 				<div v-if="!auth.isAuthenticated" class="hidden md:flex justify-center items-center gap-4">
 					<BaseButton to="/login" text="Iniciar sesión" width="auto" />
