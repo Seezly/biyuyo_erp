@@ -15,7 +15,7 @@ const router = useRouter()
 const inventoryStore = useInventoryStore()
 const toastStore = useToastStore()
 
-const categoryId = route.params.categoryId
+const categoryId = Number(route.params.categoryId)
 const loading = ref(true)
 const saving = ref(false)
 

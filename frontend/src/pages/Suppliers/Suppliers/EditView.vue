@@ -7,21 +7,21 @@ import * as z from 'zod'
 
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import { useToastStore } from '@/stores/toast'
+import { useSuppliersStore } from '@/stores/suppliers'
 
 const router = useRouter()
 const route = useRoute()
-const toastStore = useToastStore()
+const suppliersStore = useSuppliersStore()
 const loading = ref(true)
 const saving = ref(false)
 
-const supplierId = route.params.supplierId
+const supplierId = Number(route.params.supplierId)
 
 const validationSchema = toTypedSchema(
 	z.object({
 		name: z.string().min(1, 'El nombre es requerido'),
-		rif: z.string().min(1, 'El RIF es requerido').regex(/^[JGVEjgve]-\d{8}-\d$/, 'RIF inválido'),
-		email: z.string().email('Email inválido').or(z.literal('')),
+		rif: z.string().min(1, 'El RIF es requerido').regex(/^[JGVEjgve]-\d{8}-\d$/, 'RIF inv��lido'),
+		email: z.string().email('Email inv��lido').or(z.literal('')),
 		address: z.string().optional(),
 		phone: z.string().optional(),
 	})
@@ -45,20 +45,18 @@ const { value: address } = useField<string>('address')
 const { value: phone } = useField<string>('phone')
 
 const fetchSupplier = async () => {
+	loading.value = true
 	try {
-		const response = await fetch(`/api/suppliers/${supplierId}/`)
-		if (response.ok) {
-			const data = await response.json()
+		const supplier = await suppliersStore.fetchSupplier(supplierId)
+		if (supplier) {
 			setValues({
-				name: data.name || '',
-				rif: data.rif || '',
-				email: data.email || '',
-				address: data.address || '',
-				phone: data.phone || '',
+				name: supplier.name || '',
+				rif: supplier.rif || '',
+				email: supplier.email || '',
+				address: supplier.address || '',
+				phone: supplier.phone || '',
 			})
 		}
-	} catch (error) {
-		toastStore.error('Error al cargar el proveedor')
 	} finally {
 		loading.value = false
 	}
@@ -71,22 +69,11 @@ onMounted(() => {
 const onSubmit = handleSubmit(async (values) => {
 	saving.value = true
 	try {
-		const response = await fetch(`/api/suppliers/${supplierId}/`, {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(values),
-		})
-
-		if (!response.ok) {
-			const errorData = await response.json()
-			toastStore.error(errorData.detail || 'Error al actualizar proveedor')
-			return
+		const updatedSupplier = await suppliersStore.updateSupplier(supplierId, values)
+		if (updatedSupplier) {
+			// Success toast will be handled by the store
+			router.push('/suppliers')
 		}
-
-		toastStore.success('Proveedor actualizado correctamente')
-		router.push('/suppliers')
-	} catch (error) {
-		toastStore.error('Error de conexión')
 	} finally {
 		saving.value = false
 	}

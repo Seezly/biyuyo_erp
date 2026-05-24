@@ -7,14 +7,16 @@ import * as z from 'zod'
 
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore()
 const toastStore = useToastStore()
 const loading = ref(false)
 
-const userId = route.params.userId
+const userId = Number(route.params.userId)
 
 const validationSchema = toTypedSchema(
 	z.object({
@@ -22,15 +24,15 @@ const validationSchema = toTypedSchema(
 		last_name: z.string().min(1, 'El apellido es requerido'),
 		identification_number: z
 			.string()
-			.min(1, 'La identificación es requerida')
+			.min(1, 'La identificaci��n es requerida')
 			.regex(/^[VEJGvejg]\d{5,9}$/, 'Formato: V12345678 o E123456789'),
-		email: z.string().min(1, 'El email es requerido').email('Email inválido'),
-		phone: z.string().min(1, 'El teléfono es requerido'),
+		email: z.string().min(1, 'El email es requerido').email('Email invǭlido'),
+		phone: z.string().min(1, 'El telǸfono es requerido'),
 		role: z.string().min(1, 'El rol es requerido'),
 		password: z.string().optional(),
 		confirm_password: z.string().optional(),
 	}).refine((data) => !data.password || data.password === data.confirm_password, {
-		message: 'Las contraseñas no coinciden',
+		message: 'Las contrase��as no coinciden',
 		path: ['confirm_password'],
 	})
 )
@@ -60,22 +62,21 @@ const { value: confirm_password } = useField<string>('confirm_password')
 
 const fetchUser = async () => {
 	try {
-		const response = await fetch(`/api/users/${userId}/`)
-		if (response.ok) {
-			const data = await response.json()
+		const user = await authStore.fetchUserById(userId)
+		if (user) {
 			setValues({
-				first_name: data.first_name || '',
-				last_name: data.last_name || '',
-				identification_number: data.identification_number || '',
-				email: data.email || '',
-				phone: data.phone || '',
-				role: data.groups?.[0]?.name || 'EMPLOYEE',
+				first_name: user.first_name || '',
+				last_name: user.last_name || '',
+				identification_number: user.identification_number || '',
+				email: user.email || '',
+				phone: user.phone || '',
+				role: user.role || 'EMPLOYEE',
 				password: '',
 				confirm_password: '',
 			})
 		}
 	} catch (error) {
-		console.error('Error fetching user:', error)
+		toastStore.error('Error al cargar el usuario')
 	}
 }
 
@@ -86,7 +87,7 @@ onMounted(() => {
 const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
 	try {
-		const payload: Record<string, string> = {
+		const payload: Record<string, any> = {
 			first_name: values.first_name,
 			last_name: values.last_name,
 			identification_number: values.identification_number,
@@ -99,22 +100,13 @@ const onSubmit = handleSubmit(async (values) => {
 			payload.password = values.password
 		}
 
-		const response = await fetch(`/api/users/${userId}/`, {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload),
-		})
-
-		if (!response.ok) {
-			const errorData = await response.json()
-			toastStore.error(errorData.detail || 'Error al actualizar usuario')
-			return
+		const updatedUser = await authStore.updateUser(userId, payload)
+		if (updatedUser) {
+			toastStore.success('Usuario actualizado correctamente')
+			router.push('/users')
 		}
-
-		toastStore.success('Usuario actualizado correctamente')
-		router.push('/users')
 	} catch (error) {
-		toastStore.error('Error de conexión')
+		toastStore.error('Error de conexi��n')
 	} finally {
 		loading.value = false
 	}

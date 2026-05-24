@@ -15,16 +15,15 @@ const route = useRoute()
 const inventoryStore = useInventoryStore()
 const toastStore = useToastStore()
 
-const productId = route.params.productId
+const productId = Number(route.params.productId)
 const loading = ref(true)
 const saving = ref(false)
 
 onMounted(async () => {
 	await inventoryStore.fetchCategories()
 	try {
-		const response = await fetch(`/api/products/${productId}/`)
-		if (response.ok) {
-			const product = await response.json()
+		const product = await inventoryStore.fetchProductById(productId)
+		if (product) {
 			setValues({
 				sku: product.sku || '',
 				name: product.name || '',
@@ -84,25 +83,16 @@ const onSubmit = handleSubmit(async (values) => {
 	try {
 		const payload = {
 			...values,
-			category_id: values.category_id || null,
+			category_id: values.category_id ?? undefined,
 		}
 
-		const response = await fetch(`/api/products/${productId}/`, {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload),
-		})
-
-		if (!response.ok) {
-			const errorData = await response.json()
-			toastStore.error(errorData.detail || 'Error al actualizar producto')
-			return
+		const updatedProduct = await inventoryStore.updateProduct(productId, payload)
+		if (updatedProduct) {
+			// Success toast will be handled by the store
+			router.push('/inventory/products')
 		}
-
-		toastStore.success('Producto actualizado correctamente')
-		router.push('/inventory/products')
 	} catch (error) {
-		toastStore.error('Error de conexión')
+		toastStore.error('Error de conexi��n')
 	} finally {
 		saving.value = false
 	}
