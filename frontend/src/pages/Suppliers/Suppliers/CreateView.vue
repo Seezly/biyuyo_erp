@@ -7,17 +7,17 @@ import * as z from 'zod'
 
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import { useToastStore } from '@/stores/toast'
+import { useSuppliersStore } from '@/stores/suppliers'
 
 const router = useRouter()
-const toastStore = useToastStore()
+const suppliersStore = useSuppliersStore()
 const loading = ref(false)
 
 const validationSchema = toTypedSchema(
 	z.object({
 		name: z.string().min(1, 'El nombre es requerido'),
-		rif: z.string().min(1, 'El RIF es requerido').regex(/^[JGVEjgve]-\d{8}-\d$/, 'RIF inválido (ej: J-12345678-9)'),
-		email: z.string().email('Email inválido').or(z.literal('')),
+		rif: z.string().min(1, 'El RIF es requerido').regex(/^[JGVEjgve]-\d{8}-\d$/, 'RIF invǭlido (ej: J-12345678-9)'),
+		email: z.string().email('Email invǭlido').or(z.literal('')),
 		address: z.string().optional(),
 		phone: z.string().optional(),
 	})
@@ -43,22 +43,14 @@ const { value: phone } = useField<string>('phone')
 const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
 	try {
-		const response = await fetch('/api/suppliers/', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(values),
-		})
-
-		if (!response.ok) {
-			const errorData = await response.json()
-			toastStore.error(errorData.detail || 'Error al crear proveedor')
-			return
+		const supplier = await suppliersStore.createSupplier(values)
+		if (supplier) {
+			// Success toast will be handled by the store
+			router.push('/suppliers')
 		}
-
-		toastStore.success('Proveedor creado correctamente')
-		router.push('/suppliers')
+		// Error will be handled by the store
 	} catch (error) {
-		toastStore.error('Error de conexión')
+		// Error will be handled by the store
 	} finally {
 		loading.value = false
 	}

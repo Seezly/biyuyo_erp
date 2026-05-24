@@ -15,7 +15,7 @@ const route = useRoute()
 const suppliersStore = useSuppliersStore()
 const toastStore = useToastStore()
 
-const purchaseId = route.params.purchaseId
+const purchaseId = Number(route.params.purchaseId)
 const loading = ref(true)
 const saving = ref(false)
 

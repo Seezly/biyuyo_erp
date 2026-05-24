@@ -7,9 +7,11 @@ import * as z from 'zod'
 
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import { useCustomersStore } from '@/stores/customers'
 import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
+const customersStore = useCustomersStore()
 const toastStore = useToastStore()
 const loading = ref(false)
 
@@ -18,13 +20,13 @@ const validationSchema = toTypedSchema(
 		name: z.string().min(1, 'El nombre es requerido'),
 		phone: z
 			.string()
-			.regex(/^0?\d{10,11}$/, 'Teléfono inválido (ej: 04241234567)')
+			.regex(/^0?\d{10,11}$/, 'TelǸfono invǭlido (ej: 04241234567)')
 			.or(z.literal('')),
 		identification_number: z
 			.string()
-			.regex(/^[VEJGvejg]\d{5,9}$/, 'Cédula inválida (ej: V12345678)')
+			.regex(/^[VEJGvejg]\d{5,9}$/, 'CǸdula invǭlida (ej: V12345678)')
 			.or(z.literal('')),
-	})
+	}),
 )
 
 const { handleSubmit, errors } = useForm({
@@ -43,22 +45,14 @@ const { value: identification_number } = useField<string>('identification_number
 const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
 	try {
-		const response = await fetch('/api/customers/', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(values),
-		})
-
-		if (!response.ok) {
-			const errorData = await response.json()
-			toastStore.error(errorData.detail || 'Error al crear cliente')
-			return
+		const customer = await customersStore.createCustomer(values)
+		if (customer) {
+			// Success toast will be handled by the store
+			router.push('/customers')
 		}
-
-		toastStore.success('Cliente creado correctamente')
-		router.push('/customers')
+		// Error will be handled by the store
 	} catch (error) {
-		toastStore.error('Error de conexión')
+		toastStore.error('Error de conexi��n')
 	} finally {
 		loading.value = false
 	}
@@ -72,7 +66,10 @@ const onSubmit = handleSubmit(async (values) => {
 			<p>Añade un nuevo cliente al registro de tu negocio</p>
 		</div>
 
-		<form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+		<form
+			@submit="onSubmit"
+			class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md"
+		>
 			<label class="w-full flex flex-col text-dark">
 				Nombre del cliente *
 				<BaseInput v-model="name" type="text" name="name" placeholder="Nombre del cliente" />
@@ -85,10 +82,20 @@ const onSubmit = handleSubmit(async (values) => {
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				Cédula de Identidad
-				<BaseInput v-model="identification_number" name="identification_number" placeholder="V12345678" />
-				<span v-if="errors.identification_number" class="text-red-500 text-sm">{{ errors.identification_number }}</span>
+				<BaseInput
+					v-model="identification_number"
+					name="identification_number"
+					placeholder="V12345678"
+				/>
+				<span v-if="errors.identification_number" class="text-red-500 text-sm">{{
+					errors.identification_number
+				}}</span>
 			</label>
-			<BaseButton :text="loading ? 'Creando...' : 'Agregar cliente'" :disabled="loading" type="submit" />
+			<BaseButton
+				:text="loading ? 'Creando...' : 'Agregar cliente'"
+				:disabled="loading"
+				type="submit"
+			/>
 		</form>
 	</section>
 </template>

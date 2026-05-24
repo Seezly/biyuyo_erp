@@ -7,14 +7,16 @@ import * as z from 'zod'
 
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import { useCustomersStore } from '@/stores/customers'
 import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
 const route = useRoute()
+const customersStore = useCustomersStore()
 const toastStore = useToastStore()
 const loading = ref(false)
 
-const customerId = route.params.customerId
+const customerId = Number(route.params.customerId)
 
 const validationSchema = toTypedSchema(
 	z.object({
@@ -27,7 +29,7 @@ const validationSchema = toTypedSchema(
 			.string()
 			.regex(/^[VEJGvejg]\d{5,9}$/, 'Cédula inválida (ej: V12345678)')
 			.or(z.literal('')),
-	})
+	}),
 )
 
 const { handleSubmit, errors, setValues } = useForm({
@@ -45,17 +47,16 @@ const { value: identification_number } = useField<string>('identification_number
 
 const fetchCustomer = async () => {
 	try {
-		const response = await fetch(`/api/customers/${customerId}/`)
-		if (response.ok) {
-			const data = await response.json()
+		const customer = await customersStore.fetchCustomer(customerId)
+		if (customer) {
 			setValues({
-				name: data.name || '',
-				phone: data.phone || '',
-				identification_number: data.identification_number || '',
+				name: customer.name || '',
+				phone: customer.phone || '',
+				identification_number: customer.identification_number || '',
 			})
 		}
 	} catch (error) {
-		console.error('Error fetching customer:', error)
+		toastStore.error('Error al cargar el cliente')
 	}
 }
 
@@ -66,20 +67,11 @@ onMounted(() => {
 const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
 	try {
-		const response = await fetch(`/api/customers/${customerId}/`, {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(values),
-		})
-
-		if (!response.ok) {
-			const errorData = await response.json()
-			toastStore.error(errorData.detail || 'Error al actualizar cliente')
-			return
+		const updatedCustomer = await customersStore.updateCustomer(customerId, values)
+		if (updatedCustomer) {
+			// Success toast will be handled by the store
+			router.push('/customers')
 		}
-
-		toastStore.success('Cliente actualizado correctamente')
-		router.push('/customers')
 	} catch (error) {
 		toastStore.error('Error de conexión')
 	} finally {

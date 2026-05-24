@@ -129,12 +129,11 @@ const processPayment = async () => {
 
 	if (result && result.id) {
 		saleId.value = result.id
-		toastStore.success('Venta procesada correctamente')
+		// Success toast will be handled by the store
 		currentStep.value = 3
 		await inventoryStore.fetchProducts()
-	} else {
-		toastStore.error(salesStore.error || 'Error al procesar la venta')
 	}
+	// Error will be handled by the store
 }
 
 const startNewSale = () => {

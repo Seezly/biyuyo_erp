@@ -7,9 +7,11 @@ import * as z from 'zod'
 
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const toastStore = useToastStore()
 const loading = ref(false)
 
@@ -19,15 +21,15 @@ const validationSchema = toTypedSchema(
 		last_name: z.string().min(1, 'El apellido es requerido'),
 		identification_number: z
 			.string()
-			.min(1, 'La identificación es requerida')
+			.min(1, 'La identificaci��n es requerida')
 			.regex(/^[VEJGvejg]\d{5,9}$/, 'Formato: V12345678 o E123456789'),
-		email: z.string().min(1, 'El email es requerido').email('Email inválido'),
-		phone: z.string().min(1, 'El teléfono es requerido'),
+		email: z.string().min(1, 'El email es requerido').email('Email invǭlido'),
+		phone: z.string().min(1, 'El telǸfono es requerido'),
 		role: z.string().min(1, 'El rol es requerido'),
-		password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-		confirm_password: z.string().min(1, 'Debe confirmar la contraseña'),
+		password: z.string().min(6, 'La contrase��a debe tener al menos 6 caracteres'),
+		confirm_password: z.string().min(1, 'Debe confirmar la contrase��a'),
 	}).refine((data) => data.password === data.confirm_password, {
-		message: 'Las contraseñas no coinciden',
+		message: 'Las contrase��as no coinciden',
 		path: ['confirm_password'],
 	})
 )
@@ -58,22 +60,15 @@ const { value: confirm_password } = useField<string>('confirm_password')
 const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
 	try {
-		const response = await fetch('/api/users/', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(values),
-		})
-
-		if (!response.ok) {
-			const errorData = await response.json()
-			toastStore.error(errorData.detail || 'Error al crear usuario')
-			return
+		const user = await authStore.createUser(values)
+		if (user) {
+			toastStore.success('Usuario creado correctamente')
+			router.push('/users')
+		} else {
+			// Error will be handled by the store
 		}
-
-		toastStore.success('Usuario creado correctamente')
-		router.push('/users')
 	} catch (error) {
-		toastStore.error('Error de conexión')
+		toastStore.error('Error de conexi��n')
 	} finally {
 		loading.value = false
 	}
