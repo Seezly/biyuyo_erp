@@ -2,15 +2,14 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useToastStore } from '@/stores/toast'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
-const toastStore = useToastStore()
 
 const search = ref('')
 const showDeleteAlert = ref(false)
@@ -48,14 +47,9 @@ const confirmDelete = (id: number) => {
 
 const handleDelete = async () => {
 	if (userToDelete.value) {
-		const success = await authStore.deleteUser(userToDelete.value)
+		await authStore.deleteUser(userToDelete.value)
 		showDeleteAlert.value = false
 		userToDelete.value = null
-		if (success) {
-			toastStore.success('Usuario eliminado correctamente')
-		} else {
-			toastStore.error('Error al eliminar el usuario')
-		}
 	}
 }
 
@@ -91,8 +85,14 @@ const formatDate = (dateString: string) => {
 			<p>Cargando usuarios...</p>
 		</div>
 
-		<div v-else-if="authStore.users.length === 0" class="w-full text-center py-8">
-			<p class="text-gray-500">No hay usuarios disponibles</p>
+		<div v-else-if="authStore.users.length === 0" class="w-full">
+			<EmptyState
+				icon="fa-solid fa-users"
+				title="No hay usuarios"
+				description="Aún no se han registrado usuarios en el sistema. ¡Agrega el primer usuario para comenzar!"
+				actionText="Añadir usuario"
+				actionLink="/users/add"
+			/>
 		</div>
 
 		<div v-else class="w-full">
