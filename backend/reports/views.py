@@ -1,9 +1,9 @@
+from django.db import models
 from django.db.models import Sum, Count, Avg
 from django.utils import timezone
-from rest_framework import viewsets, status
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from businesses.models import Business
 from sales.models import Sale
@@ -22,6 +22,9 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint for generating and retrieving reports.
     """
+
+    serializer_class = SalesReportSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -45,17 +48,19 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
 
         summary_data = []
         for business in businesses:
-            total_sales = Sale.objects.filter(business=business).aggregate(
+            total_sales = Sale.objects.filter(business_id=business).aggregate(
                 total=Sum('total')
             )['total'] or 0
 
-            total_purchases = Purchase.objects.filter(business=business).aggregate(
+            total_purchases = Purchase.objects.filter(business_id=business).aggregate(
                 total=Sum('total')
             )['total'] or 0
 
-            total_products = Product.objects.filter(business=business).count()
+            total_products = Product.objects.filter(business_id=business).count()
             low_stock = Product.objects.filter(
-                business=business
+                business_id=business,
+                stock__isnull=False,
+                min_stock__isnull=False,
             ).filter(stock__lt=models.F('min_stock')).count()
 
             summary_data.append({
@@ -77,7 +82,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         if user.is_superuser:
             queryset = Sale.objects.all()
         else:
-            queryset = Sale.objects.filter(business=user.business_id)
+            queryset = Sale.objects.filter(business_id=user.business_id)
 
         start_date = request.query_params.get('start_date')
         end_date = request.query_params.get('end_date')
@@ -105,13 +110,16 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         if user.is_superuser:
             queryset = Product.objects.all()
         else:
-            queryset = Product.objects.filter(business=user.business_id)
+            queryset = Product.objects.filter(business_id=user.business_id)
 
         total_products = queryset.count()
         total_value = queryset.aggregate(
             total=Sum(models.F('stock') * models.F('cost_price'))
         )['total'] or 0
-        low_stock = queryset.filter(stock__lt=models.F('min_stock')).count()
+        low_stock = queryset.filter(
+            stock__isnull=False,
+            min_stock__isnull=False,
+        ).filter(stock__lt=models.F('min_stock')).count()
         out_of_stock = queryset.filter(stock=0).count()
 
         return Response({
@@ -130,7 +138,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         if user.is_superuser:
             queryset = Customer.objects.all()
         else:
-            queryset = Customer.objects.filter(business=user.business_id)
+            queryset = Customer.objects.filter(business_id=user.business_id)
 
         total = queryset.count()
         with_sales = queryset.annotate(
@@ -148,39 +156,27 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         Get global statistics for admin dashboard.
         Only accessible by superusers.
         """
-        # Check if user is superuser
         if not request.user.is_superuser:
             return Response(
-                {'detail': 'Not found'}, 
-                status=status.HTTP_404_NOT_FOUND
+                {'detail': 'Not authorized'},
+                status=status.HTTP_403_FORBIDDEN
             )
-        
-        # Import models needed for the query
+
         from accounts.models import CustomUser
         from billing.models import Subscription
-        
-        # Get total businesses
+
         total_businesses = Business.objects.count()
-        
-        # Get total users
         total_users = CustomUser.objects.count()
-        
-        # Get total sales (sum of all sale totals)
         total_sales = Sale.objects.aggregate(
             total=Sum('total')
         )['total'] or 0
-        
-        # Get active subscriptions count
         active_subscriptions = Subscription.objects.filter(
             status='active'
         ).count()
-        
+
         return Response({
             'totalBusinesses': total_businesses,
             'totalUsers': total_users,
             'totalSales': float(total_sales),
             'activeSubscriptions': active_subscriptions,
         })
-
-
-from django.db import models
