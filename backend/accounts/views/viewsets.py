@@ -1,6 +1,8 @@
 from django.contrib.auth.models import Group
 from accounts.models import CustomUser
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from core.permissions import IsAdminUser
 from accounts.serializers import (
@@ -25,6 +27,29 @@ class UserViewSet(viewsets.ModelViewSet):
         return CustomUser.objects.filter(
             business_id=user.business_id
         ).select_related('business_id').order_by("-date_joined")
+
+    @action(detail=False, methods=['post'], url_path='change-password')
+    def change_password(self, request):
+        user = request.user
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+
+        if not current_password or not new_password:
+            return Response(
+                {'detail': 'Se requieren current_password y new_password'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not user.check_password(current_password):
+            return Response(
+                {'detail': 'La contraseña actual es incorrecta'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Contraseña cambiada correctamente'})
 
 
 class GroupViewSet(viewsets.ModelViewSet):
