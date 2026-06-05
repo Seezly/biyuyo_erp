@@ -145,6 +145,12 @@ const startNewSale = () => {
 }
 
 const printReceipt = () => {
+	const escapeHtml = (str: string) => {
+		const div = document.createElement('div')
+		div.textContent = str
+		return div.innerHTML
+	}
+
 	const receiptContent = `
 		<!DOCTYPE html>
 		<html>
@@ -180,7 +186,7 @@ const printReceipt = () => {
 				<tbody>
 					${cart.value.map(item => `
 						<tr>
-							<td>${item.product_name}</td>
+							<td>${escapeHtml(item.product_name)}</td>
 							<td>${item.quantity}</td>
 							<td>$${item.unit_price.toFixed(2)}</td>
 							<td>$${item.total.toFixed(2)}</td>
@@ -195,7 +201,6 @@ const printReceipt = () => {
 			</div>
 			<div class="footer">
 				<p>Gracias por su compra!</p>
-				<p>1 USD = 500 Bs</p>
 			</div>
 		</body>
 		</html>

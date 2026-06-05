@@ -19,7 +19,9 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+import BaseButton from '@/components/ui/BaseButton.vue'
+
+defineProps<{
   icon: string
   title: string
   description: string
