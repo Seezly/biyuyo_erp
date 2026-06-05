@@ -1,8 +1,31 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { useBusinessesStore } from '@/stores/businesses'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
+
+const authStore = useAuthStore()
+const businessesStore = useBusinessesStore()
+
+const business = ref<any>(null)
+const loading = ref(true)
+
+onMounted(async () => {
+  try {
+    if (authStore.user?.business_id) {
+      await businessesStore.fetchBusinesses()
+      business.value = businessesStore.businesses.find(
+        (b: any) => b.id === authStore.user?.business_id
+      )
+    }
+  } catch (error) {
+    console.error('Error loading profile:', error)
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
@@ -11,41 +34,44 @@ import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 			<h1 class="text-primary text-2xl font-bold">Mi perfil</h1>
 			<p>Maneja tu información personal y preferencias</p>
 		</div>
-		<div class="w-full h-screen grid grid-cols-12 grid-rows-12 gap-8">
+		<div v-if="loading" class="w-full text-center py-8">
+			<p>Cargando perfil...</p>
+		</div>
+		<div v-else class="w-full h-screen grid grid-cols-12 grid-rows-12 gap-8">
 			<BaseCard
 				variant="outlined"
 				class="col-span-full w-full row-span-full lg:col-span-8 lg:row-span-8"
 			>
 				<div class="flex flex-col gap-4">
-					<form action="" class="flex justify-start items-start flex-col gap-4 w-full">
+					<form class="flex justify-start items-start flex-col gap-4 w-full">
 						<h2 class="text-xl text-primary font-bold">Información del negocio</h2>
 						<div class="flex justify-between items-center gap-4 w-full">
-							<label for="" class="w-full flex flex-col text-dark">
+							<label class="w-full flex flex-col text-dark">
 								Nombre del negocio
-								<BaseInput name="business_name" model-value="" disabled />
+								<BaseInput :model-value="business?.name || ''" name="business_name" disabled />
 							</label>
-							<label for="" class="w-full flex flex-col text-dark">
+							<label class="w-full flex flex-col text-dark">
 								Correo electrónico
-								<BaseInput name="email" type="email" model-value="" disabled />
+								<BaseInput :model-value="authStore.user?.email || ''" name="email" type="email" disabled />
 							</label>
 						</div>
-						<label for="" class="w-full flex flex-col text-dark">
+						<label class="w-full flex flex-col text-dark">
 							Teléfono
-							<BaseInput name="phone" model-value="" disabled />
+							<BaseInput :model-value="business?.phone || ''" name="phone" disabled />
 						</label>
 						<div class="flex justify-between items-center gap-4 w-full">
-							<label for="" class="w-full flex flex-col text-dark">
+							<label class="w-full flex flex-col text-dark">
 								Estado
-								<BaseInput name="state" model-value="" disabled />
+								<BaseInput :model-value="business?.state || ''" name="state" disabled />
 							</label>
-							<label for="" class="w-full flex flex-col text-dark">
+							<label class="w-full flex flex-col text-dark">
 								Municipio
-								<BaseInput name="municipality" model-value="" disabled />
+								<BaseInput :model-value="business?.municipality || ''" name="municipality" disabled />
 							</label>
 						</div>
-						<label for="" class="w-full flex flex-col text-dark">
+						<label class="w-full flex flex-col text-dark">
 							Dirección
-							<BaseInput name="business_address" model-value="" disabled />
+							<BaseInput :model-value="business?.address || ''" name="business_address" disabled />
 						</label>
 					</form>
 				</div>
@@ -57,8 +83,6 @@ import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 				<div class="flex flex-col gap-4">
 					<h2 class="text-xl text-primary font-bold">Seguridad de la cuenta</h2>
 					<BaseButton to="/profile/change-password" text="Cambiar contraseña" />
-					<BaseButton to="/profile/2fa" text="Autenticación 2FA" />
-					<hr />
 					<BaseButton to="/profile/notifications" text="Notificaciones" />
 					<BaseButton to="/profile/reminders" text="Recordatorios" />
 				</div>
@@ -71,25 +95,6 @@ import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 							Si tienes alguna pregunta o necesitas asistencia, no dudes en contactarnos.
 						</p>
 					</div>
-					<BaseButton variant="secondary" to="/contact" width="auto" text="Chatea con soporte" />
-				</div>
-			</BaseCard>
-			<BaseCard
-				variant="outlined"
-				class="col-span-full w-full row-span-full lg:col-span-8 lg:row-span-4"
-			>
-				<div class="flex flex-col gap-4">
-					<form action="" class="flex justify-start items-start flex-col gap-4 w-full">
-						<h2 class="text-xl text-primary font-bold">Métodos de pago aceptados</h2>
-						<div class="flex gap-4 w-full">
-							<BaseCheckbox text="Punto de Venta (POS)" type="button" />
-							<BaseCheckbox text="Binance" type="button" />
-							<BaseCheckbox text="Zelle" type="button" />
-							<BaseCheckbox text="Pago móvil" type="button" />
-							<BaseCheckbox text="Transferencia bancaria" type="button" />
-							<BaseCheckbox text="Efectivo" type="button" />
-						</div>
-					</form>
 				</div>
 			</BaseCard>
 		</div>
