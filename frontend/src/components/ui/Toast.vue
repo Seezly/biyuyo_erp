@@ -27,13 +27,14 @@ const colorMap = {
 			class="flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white min-w-[300px] max-w-md animate-slide-in"
 			:class="colorMap[toast.type]"
 		>
-			<i :class="['fa-solid text-xl', iconMap[toast.type]]"></i>
-			<p class="flex-1 text-sm font-medium">{{ toast.message }}</p>
+			<i :class="['fa-solid text-xl', iconMap[toast.type]]" aria-hidden="true"></i>
+			<p class="flex-1 text-sm font-medium" role="alert">{{ toast.message }}</p>
 			<button
 				@click="toastStore.remove(toast.id)"
 				class="opacity-70 hover:opacity-100 transition-opacity"
+				aria-label="Cerrar notificación"
 			>
-				<i class="fa-solid fa-xmark"></i>
+				<i class="fa-solid fa-xmark" aria-hidden="true"></i>
 			</button>
 		</div>
 	</div>

@@ -1,5 +1,5 @@
 <template>
-  <nav class="flex flex-wrap items-center justify-between px-2 pt-1 pb-3">
+  <nav class="flex flex-wrap items-center justify-between px-2 pt-1 pb-3" aria-label="Paginación">
     <span class="text-xs text-gray-500 dark:text-gray-400">
       Showing {{ from }} to {{ to }} of {{ total }} entries
     </span>

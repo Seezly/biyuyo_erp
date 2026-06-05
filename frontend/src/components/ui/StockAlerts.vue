@@ -43,9 +43,11 @@ const getAlertClass = (stock: number, minStock: number) => {
 		<button
 			@click="showAlerts = !showAlerts"
 			class="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
-			title="Alertas de inventario"
+			:aria-expanded="showAlerts"
+			aria-haspopup="true"
+			aria-label="Alertas de inventario"
 		>
-			<i class="fa-solid fa-bell text-xl text-gray-600"></i>
+			<i class="fa-solid fa-bell text-xl text-gray-600" aria-hidden="true"></i>
 			<span
 				v-if="lowStockProducts.length > 0"
 				class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full size-5 flex items-center justify-center"
@@ -96,7 +98,7 @@ const getAlertClass = (stock: number, minStock: number) => {
 			v-if="showAlerts && lowStockProducts.length === 0 && !loading"
 			class="absolute right-0 top-12 w-64 bg-white shadow-xl rounded-lg border border-gray-200 z-50 p-4 text-center"
 		>
-			<i class="fa-solid fa-check-circle text-green-500 text-2xl mb-2"></i>
+			<i class="fa-solid fa-check-circle text-green-500 text-2xl mb-2" aria-hidden="true"></i>
 			<p class="text-sm text-gray-600">No hay alertas de inventario</p>
 		</div>
 	</div>

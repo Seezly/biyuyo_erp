@@ -1,7 +1,7 @@
 <template>
   <nav class="flex items-center gap-2 text-sm text-gray-500" aria-label="Breadcrumb">
     <router-link to="/" class="flex items-center gap-1 hover:text-primary transition-colors">
-      <i class="fa-solid fa-home"></i>
+      <i class="fa-solid fa-home" aria-hidden="true"></i>
       Inicio
     </router-link>
     <span class="mx-2">/</span>

@@ -99,7 +99,7 @@ const formatCurrency = (value: number) => {
 			<BaseCard variant="outlined">
 				<div class="flex flex-col justify-start items-start">
 					<div class="mb-4">
-						<i class="fa-solid fa-calculator text-[3rem]"></i>
+						<i class="fa-solid fa-calculator text-[3rem]" aria-hidden="true"></i>
 					</div>
 					<div class="">
 						<h2 class="font-semibold text-md uppercase tracking-widest mb-2">POS</h2>
@@ -110,7 +110,7 @@ const formatCurrency = (value: number) => {
 			<BaseCard variant="outlined">
 				<div class="flex flex-col justify-start items-start">
 					<div class="mb-4">
-						<i class="fa-solid fa-boxes-stacked text-[3rem]"></i>
+						<i class="fa-solid fa-boxes-stacked text-[3rem]" aria-hidden="true"></i>
 					</div>
 					<div class="">
 						<h2 class="font-semibold text-md uppercase tracking-widest mb-2">Inventario</h2>
@@ -121,7 +121,7 @@ const formatCurrency = (value: number) => {
 			<BaseCard variant="outlined">
 				<div class="flex flex-col justify-start items-start">
 					<div class="mb-4">
-						<i class="fa-solid fa-tags text-[3rem]"></i>
+						<i class="fa-solid fa-tags text-[3rem]" aria-hidden="true"></i>
 					</div>
 					<div class="">
 						<h2 class="font-semibold text-md uppercase tracking-widest mb-2">Ventas</h2>
@@ -132,7 +132,7 @@ const formatCurrency = (value: number) => {
 			<BaseCard variant="outlined">
 				<div class="flex flex-col justify-start items-start">
 					<div class="mb-4">
-						<i class="fa-solid fa-users text-[3rem]"></i>
+						<i class="fa-solid fa-users text-[3rem]" aria-hidden="true"></i>
 					</div>
 					<div class="">
 						<h2 class="font-semibold text-md uppercase tracking-widest mb-2">Clientes</h2>
@@ -143,7 +143,7 @@ const formatCurrency = (value: number) => {
 			<BaseCard variant="outlined">
 				<div class="flex flex-col justify-start items-start">
 					<div class="mb-4">
-						<i class="fa-solid fa-wallet text-[3rem]"></i>
+						<i class="fa-solid fa-wallet text-[3rem]" aria-hidden="true"></i>
 					</div>
 					<div class="">
 						<h2 class="font-semibold text-md uppercase tracking-widest mb-2">Finanzas</h2>
@@ -154,7 +154,7 @@ const formatCurrency = (value: number) => {
 			<BaseCard variant="outlined">
 				<div class="flex flex-col justify-start items-start">
 					<div class="mb-4">
-						<i class="fa-regular fa-file text-[3rem]"></i>
+						<i class="fa-regular fa-file text-[3rem]" aria-hidden="true"></i>
 					</div>
 					<div class="">
 						<h2 class="font-semibold text-md uppercase tracking-widest mb-2">Reportes</h2>
