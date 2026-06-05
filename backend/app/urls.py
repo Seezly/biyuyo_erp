@@ -23,6 +23,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 from accounts.views.viewsets import UserViewSet, GroupViewSet
 from accounts.views.auth import RegisterView, LoginView, LogoutView, MeView
 from accounts.views.tokens import RefreshView
+from accounts.views.csrf import csrf
 from billing.views import PlanViewSet, SubscriptionViewSet, InvoiceViewSet
 from businesses.views import BusinessViewSet
 from customers.views import CustomerViewSet
@@ -61,6 +62,7 @@ urlpatterns = [
     path("api/logout/", LogoutView.as_view(), name="logout"),
     path("api/refresh/", RefreshView.as_view(), name="token_refresh_cookie"),
     path("api/me/", MeView.as_view(), name="me"),
+    path("api/csrf/", csrf, name="csrf"),
     path("api/audit/logs/", AuditLogListView.as_view(), name="auditlog-list"),
     path("api/audit/logs/<int:pk>/", AuditLogDetailView.as_view(), name="auditlog-detail"),
     # API Documentation
