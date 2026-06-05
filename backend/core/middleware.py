@@ -3,26 +3,23 @@ from businesses.models import Business
 
 class BusinessMiddleware:
     """
-    Middleware for attaching the business to the request based on the user's business association
+    Middleware for attaching the business instance to the request based on the user's business association.
 
-    Returns:
-        request.business: The business associated with the user, or None if not found
+    Sets request.business to a Business instance or None.
     """
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        business_id = (
-            request.user.business_id if request.user.is_authenticated else None
-        )
+        request.business = None
 
-        if business_id:
-            try:
-                request.business = business_id
-            except Business.DoesNotExist:
-                request.business = None
-        else:
-            request.business = None
+        if request.user.is_authenticated:
+            business_id = getattr(request.user, 'business_id_id', None)
+            if business_id:
+                try:
+                    request.business = Business.objects.get(pk=business_id)
+                except (Business.DoesNotExist, ValueError):
+                    request.business = None
 
         return self.get_response(request)
