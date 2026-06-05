@@ -7,7 +7,7 @@
       <!-- Previous Button -->
       <button
         :disabled="currentPage <= 1"
-        @click="if (currentPage > 1) emit('update:page', currentPage - 1)"
+        @click="goPrev"
         class="flex items-center px-2.5 pt-1 pb-2 mr-2 mb-0 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
       >
         <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -24,7 +24,7 @@
       <!-- Next Button -->
       <button
         :disabled="currentPage >= lastPage"
-        @click="if (currentPage < lastPage) emit('update:page', currentPage + 1)"
+        @click="goNext"
         class="flex items-center px-2.5 pt-1 pb-2 ml-2 mb-0 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
       >
         Next
@@ -46,4 +46,16 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['update:page'])
+
+const goPrev = () => {
+  if (props.currentPage > 1) {
+    emit('update:page', props.currentPage - 1)
+  }
+}
+
+const goNext = () => {
+  if (props.currentPage < props.lastPage) {
+    emit('update:page', props.currentPage + 1)
+  }
+}
 </script>

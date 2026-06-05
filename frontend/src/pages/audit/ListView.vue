@@ -5,7 +5,7 @@ import { useAuditStore } from '@/stores/audit'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import Pagination from '@/components/Pagination.vue'
+import Pagination from '@/components/ui/Pagination.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -158,18 +158,18 @@ const getActionClass = (action: string) => {
       <!-- Pagination -->
       <div v-if="auditStore.pagination.count > 0" class="flex justify-center mt-4">
            <Pagination
+             :currentPage="getPageFromQuery(route.query.page as string | string[] | undefined)"
+             :lastPage="Math.ceil(auditStore.pagination.count / 10)"
+             :from="(getPageFromQuery(route.query.page as string | string[] | undefined) - 1) * 10 + 1"
+             :to="Math.min(getPageFromQuery(route.query.page as string | string[] | undefined) * 10, auditStore.pagination.count)"
              :total="auditStore.pagination.count"
-             :page="getPageFromQuery(route.query.page as string | string[] | undefined)"
-             :pageCount="Math.ceil(auditStore.pagination.count / 10)"
-             @update="page => { 
+             @update:page="page => { 
                const query = { ...route.query };
-               // Remove any null or undefined values from query
                Object.keys(query).forEach(key => {
                  if (query[key] === null || query[key] === undefined) {
                    delete query[key];
                  }
                });
-               // Ensure page is a string
                router.push({ query: { ...query, page: String(page) } });
              }"
            />
