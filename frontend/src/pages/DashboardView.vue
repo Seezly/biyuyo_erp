@@ -1,8 +1,25 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useReportsStore } from '@/stores/reports'
 import BaseCard from '@/components/ui/BaseCard.vue'
 
-const store = useAuthStore()
+const authStore = useAuthStore()
+const reportsStore = useReportsStore()
+
+onMounted(async () => {
+  await Promise.all([
+    reportsStore.fetchSales(),
+    reportsStore.fetchInventory(),
+  ])
+})
+
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('es-VE', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(value)
+}
 </script>
 
 <template>
@@ -10,7 +27,7 @@ const store = useAuthStore()
 		<article class="w-full">
 			<p class="text-2xl font-semibold mb-8">
 				Bienvenido,
-				<span class="font-bold text-primary font-heading">{{ store.user?.first_name }}</span>
+				<span class="font-bold text-primary font-heading">{{ authStore.user?.first_name }}</span>
 			</p>
 			<div class="grid grid-cols-4 md:grid-cols-3 grid-rows-4 md:grid-rows-4 gap-4 md:gap-4">
 				<BaseCard
@@ -22,15 +39,13 @@ const store = useAuthStore()
 								Ventas de hoy
 							</h2>
 							<div class="flex flex-col gap-2 mb-4">
-								<p class="text-6xl font-heading font-extrabold text-white tracking-tighter">$ 12.000,00</p>
-								<small class="text-xl text-secondary">Bs 258.000,00</small>
+								<p class="text-6xl font-heading font-extrabold text-white tracking-tighter">
+									{{ reportsStore.sales ? formatCurrency(reportsStore.sales.total_sales) : '$ 0,00' }}
+								</p>
+								<small class="text-xl text-secondary">
+									{{ reportsStore.sales ? `${reportsStore.sales.count} ventas` : '0 ventas' }}
+								</small>
 							</div>
-						</div>
-						<div class="bg-secondary text-white px-8 py-4 rounded-xl">
-							<h3 class="text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">
-								Tasa de cambio:
-							</h3>
-							<p class="font-heading font-black text-xl">1 USD = 500 Bs</p>
 						</div>
 					</div>
 				</BaseCard>
@@ -38,25 +53,45 @@ const store = useAuthStore()
 					variant="outlined"
 					class="col-start-1 row-start-3 col-span-4 md:col-start-3 md:row-start-1 md:col-span-1 md:row-span-2"
 				>
-					1
+					<div class="flex flex-col items-center justify-center h-full">
+						<p class="text-3xl font-bold text-primary">
+							{{ reportsStore.inventory ? reportsStore.inventory.total_products : 0 }}
+						</p>
+						<p class="text-sm text-dark">Productos</p>
+					</div>
 				</BaseCard>
 				<BaseCard
 					variant="outlined"
 					class="col-start-1 row-start-5 col-span-2 md:col-start-3 md:row-start-3 md:col-span-1 md:row-span-2"
 				>
-					2
+					<div class="flex flex-col items-center justify-center h-full">
+						<p class="text-3xl font-bold text-red-500">
+							{{ reportsStore.inventory ? reportsStore.inventory.low_stock_count : 0 }}
+						</p>
+						<p class="text-sm text-dark">Stock bajo</p>
+					</div>
 				</BaseCard>
 				<BaseCard
 					variant="secondary"
 					class="col-start-1 row-start-4 col-span-4 md:col-start-2 md:row-start-4 md:col-span-1 md:row-span-1"
 				>
-					3
+					<div class="flex flex-col items-center justify-center h-full">
+						<p class="text-xl font-bold text-white">
+							{{ reportsStore.inventory ? formatCurrency(reportsStore.inventory.total_value) : '$ 0,00' }}
+						</p>
+						<p class="text-sm text-white/80">Valor inventario</p>
+					</div>
 				</BaseCard>
 				<BaseCard
 					variant="secondary"
 					class="col-start-3 row-start-5 col-span-2 md:col-start-1 md:row-start-4 md:col-span-1 md:row-span-1"
 				>
-					4
+					<div class="flex flex-col items-center justify-center h-full">
+						<p class="text-xl font-bold text-white">
+							{{ reportsStore.sales ? formatCurrency(reportsStore.sales.average_sale) : '$ 0,00' }}
+						</p>
+						<p class="text-sm text-white/80">Venta promedio</p>
+					</div>
 				</BaseCard>
 			</div>
 		</article>
