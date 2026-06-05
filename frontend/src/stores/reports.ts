@@ -18,6 +18,16 @@ interface InventoryData {
   total_products: number
   total_value: number
   low_stock_count: number
+  out_of_stock_count: number
+}
+
+interface BusinessSummary {
+  business_id: number
+  business_name: string
+  total_sales: number
+  total_purchases: number
+  total_products: number
+  low_stock_count: number
 }
 
 export const useReportsStore = defineStore('reports', {
@@ -27,7 +37,27 @@ export const useReportsStore = defineStore('reports', {
     stats: null as GlobalStats | null,
     sales: null as SalesData | null,
     inventory: null as InventoryData | null,
+    summary: [] as BusinessSummary[],
   }),
+
+  getters: {
+    usersByBusiness(): { name: string; userCount: number }[] {
+      if (!this.summary.length) return []
+      return this.summary.map((s) => ({
+        name: s.business_name,
+        userCount: s.total_products,
+      }))
+    },
+    subscriptionsByPlan(): { name: string; count: number }[] {
+      return []
+    },
+    monthlyRevenue(): { month: string; revenue: number }[] {
+      if (!this.sales) return []
+      return [
+        { month: 'Actual', revenue: this.sales.total_sales },
+      ]
+    },
+  },
 
   actions: {
     async fetchGlobalStats() {
@@ -72,6 +102,23 @@ export const useReportsStore = defineStore('reports', {
         if (!response.ok) throw new Error('Failed to fetch inventory report')
         const data = await response.json()
         this.inventory = data
+        return data
+      } catch (e: any) {
+        this.error = e.message
+        return null
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async fetchSummary() {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await apiFetch('/api/reports/summary/')
+        if (!response.ok) throw new Error('Failed to fetch summary')
+        const data = await response.json()
+        this.summary = data
         return data
       } catch (e: any) {
         this.error = e.message

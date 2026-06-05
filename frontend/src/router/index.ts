@@ -307,30 +307,6 @@ const router = createRouter({
 						},
 					],
 				},
-				{
-					path: 'roles',
-					meta: { title: 'Roles' },
-					children: [
-						{
-							path: '',
-							name: 'AdminRoles',
-							component: () => import('@/pages/Roles/ListView.vue'),
-							meta: { title: 'Lista de Roles' },
-						},
-						{
-							path: 'add',
-							name: 'AdminAddRole',
-							component: () => import('@/pages/Roles/CreateView.vue'),
-							meta: { title: 'Crear Rol' },
-						},
-						{
-							path: 'edit/:roleId',
-							name: 'AdminEditRole',
-							component: () => import('@/pages/Roles/EditView.vue'),
-							meta: { title: 'Editar Rol' },
-						},
-					],
-				},
 			],
 		},
 		{
@@ -374,10 +350,6 @@ router.beforeEach(async (to, from, next) => {
 	const guestOnly = to.matched.some((r) => r.meta.guestOnly)
 	const adminOnly = to.matched.some((r) => r.meta.adminOnly)
 
-	if (requiresAuth && auth.user?.role === 'admin' && !to.matched.some((r) => r.meta.adminOnly)) {
-		return next('/admin')
-	}
-
 	if (requiresAuth && !auth.isAuthenticated) {
 		return next('/login')
 	}
@@ -390,7 +362,8 @@ router.beforeEach(async (to, from, next) => {
 		return next('/dashboard')
 	}
 
-	document.title = to.matched.find((r) => r.meta.title)?.meta.title + ' | Biyuyo ERP' || 'Biyuyo ERP'
+	const title = to.matched.find((r) => r.meta.title)?.meta.title
+	document.title = title ? `${title} | Biyuyo ERP` : 'Biyuyo ERP'
 
 	next()
 })
