@@ -229,6 +229,21 @@ export const useSalesStore = defineStore('sales', {
 			}
 		},
 
+		async fetchPaymentById(id: number) {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch(`/api/payments/${id}/`)
+				if (!response.ok) throw new Error('Failed to fetch payment')
+				return await response.json()
+			} catch (e: any) {
+				this.error = e.message
+				return null
+			} finally {
+				this.loading = false
+			}
+		},
+
 		clearCurrentSale() {
 			this.currentSale = null
 		},

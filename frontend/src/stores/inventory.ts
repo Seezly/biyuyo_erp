@@ -234,6 +234,20 @@ export const useInventoryStore = defineStore('inventory', {
 			}
 		},
 
+		async fetchCategoryById(id: number) {
+			this.loading = true
+			try {
+				const response = await apiFetch(`/api/categories/${id}/`)
+				if (!response.ok) throw new Error('Failed to fetch category')
+				return await response.json()
+			} catch (e: any) {
+				this.error = e.message
+				return null
+			} finally {
+				this.loading = false
+			}
+		},
+
 		async fetchMovements() {
 			this.loading = true
 			this.error = null

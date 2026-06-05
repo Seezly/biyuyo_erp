@@ -70,12 +70,18 @@ const router = createRouter({
 					component: () => import('@/pages/Users/Users/CreateView.vue'),
 					meta: { title: 'Crear Usuario' },
 				},
-				{
-					path: 'edit/:userId',
-					name: 'EditUser',
-					component: () => import('@/pages/Users/Users/EditView.vue'),
-					meta: { title: 'Editar Usuario' },
-				},
+			{
+				path: 'edit/:userId',
+				name: 'EditUser',
+				component: () => import('@/pages/Users/Users/EditView.vue'),
+				meta: { title: 'Editar Usuario' },
+			},
+			{
+				path: ':userId',
+				name: 'ShowUser',
+				component: () => import('@/pages/Users/Users/ShowView.vue'),
+				meta: { title: 'Detalle de Usuario' },
+			},
 			],
 		},
 		{
@@ -153,12 +159,18 @@ const router = createRouter({
 							component: () => import('@/pages/Inventory/Categories/CreateView.vue'),
 							meta: { title: 'Crear Categoría' },
 						},
-						{
-							path: 'edit/:categoryId',
-							name: 'EditCategory',
-							component: () => import('@/pages/Inventory/Categories/EditView.vue'),
-							meta: { title: 'Editar Categoría' },
-						},
+				{
+					path: 'edit/:categoryId',
+					name: 'EditCategory',
+					component: () => import('@/pages/Inventory/Categories/EditView.vue'),
+					meta: { title: 'Editar Categoría' },
+				},
+				{
+					path: ':categoryId',
+					name: 'ShowCategory',
+					component: () => import('@/pages/Inventory/Categories/ShowView.vue'),
+					meta: { title: 'Detalle de Categoría' },
+				},
 					],
 				},
 			],
@@ -218,11 +230,17 @@ const router = createRouter({
 					name: 'AddCustomer',
 					component: () => import('@/pages/Customers/CreateView.vue'),
 				},
-				{
-					path: 'edit/:customerId',
-					name: 'EditCustomer',
-					component: () => import('@/pages/Customers/EditView.vue'),
-				},
+			{
+				path: 'edit/:customerId',
+				name: 'EditCustomer',
+				component: () => import('@/pages/Customers/EditView.vue'),
+			},
+			{
+				path: ':customerId',
+				name: 'ShowCustomer',
+				component: () => import('@/pages/Customers/ShowView.vue'),
+				meta: { title: 'Detalle de Cliente' },
+			},
 			],
 		},
 		{
@@ -299,12 +317,18 @@ const router = createRouter({
 							component: () => import('@/pages/Businesses/CreateView.vue'),
 							meta: { title: 'Crear Negocio' },
 						},
-						{
-							path: 'edit/:businessId',
-							name: 'AdminEditBusiness',
-							component: () => import('@/pages/Businesses/EditView.vue'),
-							meta: { title: 'Editar Negocio' },
-						},
+					{
+						path: 'edit/:businessId',
+						name: 'AdminEditBusiness',
+						component: () => import('@/pages/Businesses/EditView.vue'),
+						meta: { title: 'Editar Negocio' },
+					},
+					{
+						path: ':businessId',
+						name: 'AdminShowBusiness',
+						component: () => import('@/pages/Businesses/ShowView.vue'),
+						meta: { title: 'Detalle de Negocio' },
+					},
 					],
 				},
 			],
@@ -313,16 +337,28 @@ const router = createRouter({
 			path: '/billing',
 			meta: { requiresAuth: true, adminOnly: true, title: 'Facturación' },
 			children: [
-				{
-					path: 'plans',
-					name: 'Plans',
-					component: () => import('@/pages/Billing/Plans/ListView.vue'),
-				},
-				{
-					path: 'subscriptions',
-					name: 'Subscriptions',
-					component: () => import('@/pages/Billing/Subscriptions/ListView.vue'),
-				},
+			{
+				path: 'plans',
+				name: 'Plans',
+				component: () => import('@/pages/Billing/Plans/ListView.vue'),
+			},
+			{
+				path: 'plans/:planId',
+				name: 'ShowPlan',
+				component: () => import('@/pages/Billing/Plans/ShowView.vue'),
+				meta: { title: 'Detalle de Plan' },
+			},
+			{
+				path: 'subscriptions',
+				name: 'Subscriptions',
+				component: () => import('@/pages/Billing/Subscriptions/ListView.vue'),
+			},
+			{
+				path: 'subscriptions/:subscriptionId',
+				name: 'ShowSubscription',
+				component: () => import('@/pages/Billing/Subscriptions/ShowView.vue'),
+				meta: { title: 'Detalle de Suscripción' },
+			},
 				{
 					path: 'invoices',
 					name: 'Invoices',

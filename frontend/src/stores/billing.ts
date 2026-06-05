@@ -195,6 +195,21 @@ export const useBillingStore = defineStore('billing', {
 			}
 		},
 
+		async fetchSubscriptionById(id: number) {
+			this.loading = true
+			this.error = null
+			try {
+				const response = await apiFetch(`/api/subscriptions/${id}/`)
+				if (!response.ok) throw new Error('Failed to fetch subscription')
+				return await response.json()
+			} catch (e: any) {
+				this.error = e.message
+				return null
+			} finally {
+				this.loading = false
+			}
+		},
+
 		async createSubscription(data: Omit<Subscription, 'id' | 'created_at' | 'updated_at' | 'plan_name'>) {
 			this.loading = true
 			this.error = null
