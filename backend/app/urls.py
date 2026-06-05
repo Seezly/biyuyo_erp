@@ -30,7 +30,7 @@ from inventory.views import CategoryViewSet, ProductViewSet, InventoryMovementVi
 from sales.views import SaleViewSet, SaleItemViewSet, PaymentViewSet
 from suppliers.views import SupplierViewSet, PurchaseViewSet, PurchaseItemViewSet
 from reports.views import ReportViewSet
-from roles.views import RoleViewSet
+from audit.views import AuditLogListView, AuditLogDetailView
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
@@ -52,7 +52,6 @@ router.register(r"suppliers", SupplierViewSet, basename="suppliers")
 router.register(r"purchases", PurchaseViewSet, basename="purchases")
 router.register(r"purchase-items", PurchaseItemViewSet, basename="purchase-items")
 router.register(r"reports", ReportViewSet, basename="reports")
-router.register(r"roles", RoleViewSet, basename="roles")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -62,6 +61,8 @@ urlpatterns = [
     path("api/logout/", LogoutView.as_view(), name="logout"),
     path("api/refresh/", RefreshView.as_view(), name="token_refresh_cookie"),
     path("api/me/", MeView.as_view(), name="me"),
+    path("api/audit/logs/", AuditLogListView.as_view(), name="auditlog-list"),
+    path("api/audit/logs/<int:pk>/", AuditLogDetailView.as_view(), name="auditlog-detail"),
     # API Documentation
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
