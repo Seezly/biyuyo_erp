@@ -7,7 +7,7 @@ class Category(models.Model):
     name = models.CharField(max_length=100)
     # parent_id = models.ForeignKey("inventory.Category", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
@@ -31,7 +31,7 @@ class Product(models.Model):
     stock = models.IntegerField(null=True, blank=True)
     min_stock = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
@@ -51,7 +51,7 @@ class InventoryMovement(models.Model):
     quantity = models.IntegerField()
     reference = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [

@@ -148,7 +148,7 @@ class CustomUser(AbstractUser):
     identification_number = models.CharField(max_length=10, unique=True)
     phone = models.CharField(max_length=16, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = [
