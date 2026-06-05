@@ -19,7 +19,7 @@ class PlanViewSet(FilteringMixin, viewsets.ModelViewSet):
     queryset = Plan.objects.all().order_by("name")
     serializer_class = PlanSerializer
     permission_classes = [permissions.IsAdminUser]
-    search_fields = ['name', 'description']
+    search_fields = ['name']
     ordering_fields = ['name', 'price']
     default_ordering = ['name']
 
@@ -63,7 +63,7 @@ class InvoiceViewSet(FilteringMixin, viewsets.ModelViewSet):
     serializer_class = InvoiceSerializer
     search_fields = ['subscription_id__business_id__name']
     filter_fields = ['status']
-    ordering_fields = ['created_at', 'due_date', 'total']
+    ordering_fields = ['created_at', 'amount']
     default_ordering = ['-created_at']
 
     def get_queryset(self):

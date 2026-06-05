@@ -46,7 +46,7 @@ class PurchaseViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     queryset = Purchase.objects.all()
     serializer_class = PurchaseSerializer
-    search_fields = ['id', 'supplier_id__name', 'reference']
+    search_fields = ['id', 'supplier_id__name']
     filter_fields = ['status']
     ordering_fields = ['created_at', 'total']
     default_ordering = ['-created_at']
