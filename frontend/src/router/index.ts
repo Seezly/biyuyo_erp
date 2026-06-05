@@ -5,6 +5,10 @@ const router = createRouter({
 	linkActiveClass: 'text-primary font-bold',
 	linkExactActiveClass: 'border border-primary text-primary font-bold rounded-full',
 	history: createWebHistory(import.meta.env.BASE_URL),
+	scrollBehavior(to, from, savedPosition) {
+		if (savedPosition) return savedPosition
+		return { top: 0 }
+	},
 	routes: [
 		{
 			path: '/login',
