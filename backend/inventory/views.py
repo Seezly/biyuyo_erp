@@ -79,9 +79,8 @@ class ProductViewSet(FilteringMixin, viewsets.ModelViewSet):
         products = Product.objects.filter(
             business_id=user.business_id,
             stock__isnull=False,
-            min_stock__isnull=False
-        ).extra(
-            where=['stock <= min_stock']
+            min_stock__isnull=False,
+            stock__lte=models.F('min_stock'),
         )
 
         serializer = self.get_serializer(products, many=True)

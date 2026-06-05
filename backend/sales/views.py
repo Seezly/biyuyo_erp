@@ -1,4 +1,4 @@
-from django.db import transaction
+from django.db import transaction, models
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
@@ -42,11 +42,8 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
     def receipt(self, request, pk=None):
         """Get sale details formatted for receipt"""
         sale = self.get_object()
-        items = sale.saleitem_set.all()
+        items = sale.saleitem_set.select_related('product_id').all()
         payments = sale.payment_set.all()
-
-        from django.template.loader import render_to_string
-        from django.http import HttpResponse
 
         return Response({
             'sale': {
@@ -56,7 +53,7 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
                 'tax': float(sale.tax),
                 'total': float(sale.total),
                 'status': sale.status,
-                'customer': sale.customer_id_id if sale.customer_id else None,
+                'customer': sale.customer_id.id if sale.customer_id else None,
                 'cashier': sale.user_id.first_name if sale.user_id else None,
             },
             'items': [
@@ -89,11 +86,16 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
 
             if product_id and quantity > 0:
                 try:
-                    product = Product.objects.get(id=product_id, business_id=request.user.business_id)
+                    product = Product.objects.select_for_update().get(
+                        id=product_id, business_id=request.user.business_id
+                    )
                     if product.stock is not None and product.stock < quantity:
-                        errors.append(f"Insufficient stock for '{product.name}'. Available: {product.stock}, requested: {quantity}")
+                        errors.append(
+                            f"Stock insuficiente para '{product.name}'. "
+                            f"Disponible: {product.stock}, solicitado: {quantity}"
+                        )
                 except Product.DoesNotExist:
-                    errors.append(f"Product with ID {product_id} not found")
+                    errors.append(f"Producto con ID {product_id} no encontrado")
 
         if errors:
             return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -116,7 +118,9 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
 
             if product_id and quantity > 0:
                 try:
-                    product = Product.objects.get(id=product_id, business_id=request.user.business_id)
+                    product = Product.objects.select_for_update().get(
+                        id=product_id, business_id=request.user.business_id
+                    )
 
                     SaleItem.objects.create(
                         sale_id=sale,
@@ -127,8 +131,9 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
                     )
 
                     if product.stock is not None:
-                        product.stock -= quantity
-                        product.save()
+                        Product.objects.filter(pk=product.pk).update(
+                            stock=models.F('stock') - quantity
+                        )
                 except Product.DoesNotExist:
                     pass
 
