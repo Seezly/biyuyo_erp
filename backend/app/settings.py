@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     "sales",
     "suppliers",
     "audit",
-    "roles",
 ]
 
 MIDDLEWARE = [

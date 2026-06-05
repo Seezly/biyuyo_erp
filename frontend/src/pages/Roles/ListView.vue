@@ -5,7 +5,6 @@ import { useRolesStore } from '@/stores/roles'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import Pagination from '@/components/Pagination.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -63,12 +62,12 @@ const cancelDelete = () => {
   <section class="w-full flex flex-col gap-8 mx-8 justify-start items-start self-start">
     <div>
       <h1 class="text-primary text-2xl font-bold">Roles</h1>
-      <p>Administra y controla los roles del sistema</p>
+      <p>Administra y controla los roles del sistema (Grupos de Django)</p>
     </div>
 
     <div class="grid grid-cols-12 grid-rows-1 gap-4 w-full">
-      <BaseButton to="/admin/roles/add" text="Añadir rol" class="col-span-12 lg:col-span-3" />
-      <BaseInput v-model="search" placeholder="Buscar rol por nombre o descripción" class="col-span-12 lg:col-span-9" />
+      <BaseButton to="/admin/roles/add" text="Agregar rol" class="col-span-12 lg:col-span-3" />
+      <BaseInput v-model="search" placeholder="Buscar rol por nombre" class="col-span-12 lg:col-span-9" />
     </div>
 
     <div v-if="rolesStore.loading" class="w-full text-center py-8">
@@ -85,32 +84,36 @@ const cancelDelete = () => {
         <table class="min-w-full divide-y-2 divide-gray-200">
           <thead class="ltr:text-left rtl:text-right">
             <tr class="*:font-medium *:text-gray-900">
+              <th class="px-4 py-2 whitespace-nowrap">ID</th>
               <th class="px-4 py-2 whitespace-nowrap">Nombre</th>
-              <th class="px-4 py-2 whitespace-nowrap">Descripción</th>
-              <th class="px-4 py-2 whitespace-nowrap">Estado</th>
               <th class="px-4 py-2 whitespace-nowrap text-right">Acciones</th>
             </tr>
           </thead>
 
           <tbody class="divide-y divide-gray-200 *:even:bg-gray-50">
             <tr v-for="role in rolesStore.roles" :key="role.id" class="*:text-gray-900 *:first:font-medium">
+              <td class="px-4 py-2 whitespace-nowrap">{{ role.id }}</td>
               <td class="px-4 py-2 whitespace-nowrap">{{ role.name }}</td>
-              <td class="px-4 py-2 whitespace-nowrap">{{ role.description }}</td>
-              <td class="px-4 py-2 whitespace-nowrap">
-                <span v-if="role.is_active" class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded">
-                  Activo
-                </span>
-                <span v-else class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded">
-                  Inactivo
-                </span>
-              </td>
               <td class="px-4 py-2 whitespace-nowrap flex justify-end items-center gap-2">
-                <BaseButton :to="'/admin/roles/edit/' + role.id" text="Editar" variant="secondary" width="auto" />
                 <BaseButton text="Eliminar" width="auto" @click="confirmDelete(role.id)" />
               </td>
             </tr>
           </tbody>
         </table>
+      </BaseCard>
+    </div>
+
+    <!-- Delete Confirmation -->
+    <div v-if="showDeleteAlert" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <BaseCard variant="outlined" class="max-w-md w-full mx-4">
+        <div class="flex flex-col gap-4">
+          <h3 class="text-lg font-bold">Confirmar eliminacion</h3>
+          <p>Estas seguro de que deseas eliminar este rol? Esta accion no se puede deshacer.</p>
+          <div class="flex gap-2 justify-end">
+            <BaseButton text="Cancelar" variant="secondary" @click="cancelDelete" />
+            <BaseButton text="Eliminar" @click="handleDelete" />
+          </div>
+        </div>
       </BaseCard>
     </div>
   </section>
