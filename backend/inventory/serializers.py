@@ -10,7 +10,7 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = "__all__"
-        read_only_fields = ["business_id"]
+        read_only_fields = ["business_id", "created_at", "updated_at"]
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -21,6 +21,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = "__all__"
+        read_only_fields = ["business_id", "created_at", "updated_at"]
 
 
 class InventoryMovementSerializer(serializers.ModelSerializer):
@@ -31,3 +32,4 @@ class InventoryMovementSerializer(serializers.ModelSerializer):
     class Meta:
         model = InventoryMovement
         fields = "__all__"
+        read_only_fields = ["business_id", "created_at", "updated_at"]

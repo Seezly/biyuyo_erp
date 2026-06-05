@@ -10,7 +10,7 @@ class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = "__all__"
-        read_only_fields = ["business_id", "user_id"]
+        read_only_fields = ["business_id", "user_id", "created_at", "updated_at"]
 
 
 class SaleItemSerializer(serializers.ModelSerializer):
@@ -21,6 +21,7 @@ class SaleItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = SaleItem
         fields = "__all__"
+        read_only_fields = ["created_at", "updated_at"]
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -31,3 +32,4 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = "__all__"
+        read_only_fields = ["created_at", "updated_at"]

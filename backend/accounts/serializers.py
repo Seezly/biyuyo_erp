@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
     Serializer for the User model.
     """
 
-    # role = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -26,9 +26,11 @@ class UserSerializer(serializers.ModelSerializer):
             "identification_number",
             "phone",
             "is_active",
+            "role",
             "created_at",
             "updated_at",
         ]
+        read_only_fields = ["created_at", "updated_at"]
         extra_kwargs = {"url": {"view_name": "user-detail"}}
 
     def get_role(self, obj):
@@ -60,11 +62,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     business_municipality = serializers.CharField(max_length=255, required=True)
 
     class Meta:
-        """
-        Meta class to define the fields that the RegisterSerializer needs and
-        the behavior of each field
-        """
-
         model = CustomUser
         fields = [
             "email",
@@ -73,8 +70,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             "identification_number",
             "phone",
             "password",
-            "is_active",
-            "is_staff",
             "business_name",
             "business_description",
             "business_rif",
@@ -85,8 +80,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         extra_kwargs = {
             "password": {"write_only": True},
-            "is_active": {"read_only": True},
-            "is_staff": {"read_only": True},
         }
 
     def create(self, validated_data):
@@ -109,7 +102,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         user = create_user_with_role(validated_data, business, "owner")
-
         user.save()
 
         return user
@@ -125,11 +117,9 @@ class CustomTokenSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
 
-        # extra info from user
         token["business_id"] = user.business_id.id
         token["business_name"] = user.business_id.name
         token["first_name"] = user.first_name
-        # Use first Group name as the role
         group = user.groups.first()
         token["role"] = group.name if group else None
 

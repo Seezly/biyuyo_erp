@@ -2,7 +2,7 @@ from businesses.models import Business
 from rest_framework import serializers
 
 
-class BusinessSerializers(serializers.ModelSerializer):
+class BusinessSerializer(serializers.ModelSerializer):
     """
     Serializer for the Business model.
     """
@@ -23,3 +23,4 @@ class BusinessSerializers(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+        read_only_fields = ["created_at", "updated_at"]

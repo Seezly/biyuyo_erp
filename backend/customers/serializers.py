@@ -14,6 +14,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             "name",
             "phone",
             "identification_number",
+            "business_id",
             "created_at",
             "updated_at",
         ]
