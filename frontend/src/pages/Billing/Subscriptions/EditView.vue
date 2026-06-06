@@ -18,7 +18,10 @@ const toastStore = useToastStore()
 const loading = ref(false)
 const saving = ref(false)
 
-const subscriptionId = Number(route.params.id)
+const subscriptionId = Number(route.params.subscriptionId)
+if (!subscriptionId) {
+  router.back()
+}
 
 const validationSchema = toTypedSchema(
   z.object({
@@ -141,7 +144,7 @@ const onSubmit = handleSubmit(async (values) => {
             <input v-model="is_active" type="checkbox" class="rounded border-gray-300 text-primary" />
           </label>
         </div>
-        <BaseButton :text="saving ? 'Guardando...' : 'Guardar suscripción'" :disabled="saving" type="submit" />
+        <BaseButton :text="saving ? 'Guardando...' : 'Guardar suscripción'" :loading="saving" :disabled="saving" type="submit" />
       </form>
     </div>
   </section>

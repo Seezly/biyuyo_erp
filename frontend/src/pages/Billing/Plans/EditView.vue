@@ -13,7 +13,10 @@ const router = useRouter()
 const route = useRoute()
 const billingStore = useBillingStore()
 const loading = ref(false)
-const planId = Number(route.params.id)
+const planId = Number(route.params.planId)
+if (!planId) {
+  router.back()
+}
 
 const validationSchema = toTypedSchema(
   z.object({
@@ -49,7 +52,7 @@ const { value: max_users } = useField<number>('max_users')
 const { value: max_products } = useField<number>('max_products')
 
 watch(
-  () => route.params.id,
+  () => route.params.planId,
   async (newId) => {
     if (newId) {
       const plan = await billingStore.fetchPlan(Number(newId))
@@ -111,6 +114,7 @@ const onSubmit = handleSubmit(async (values) => {
       </label>
       <BaseButton
         :text="loading ? 'Actualizando...' : 'Actualizar plan'"
+        :loading="loading"
         :disabled="loading"
         type="submit"
       />
