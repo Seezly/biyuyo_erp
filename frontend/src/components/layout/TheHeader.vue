@@ -37,10 +37,6 @@ watch(() => route.path, () => {
 			</NavItem>
 			<NavItem v-if="!auth.isAuthenticated" class="hidden md:flex">
 				<RouterLink class="rounded-full py-2 px-4" to="/">Inicio</RouterLink>
-				<RouterLink class="rounded-full py-2 px-4" to="/about">Nosotros</RouterLink>
-				<RouterLink class="rounded-full py-2 px-4" to="/benefits">Beneficios</RouterLink>
-				<RouterLink class="rounded-full py-2 px-4" to="/plans">Planes</RouterLink>
-				<RouterLink class="rounded-full py-2 px-4" to="/contact">Contáctanos</RouterLink>
 			</NavItem>
 			<NavItem v-if="auth.isAuthenticated && auth.user?.role !== 'admin'" class="hidden md:flex">
 				<RouterLink class="rounded-full py-2 px-4" to="/dashboard">Inicio</RouterLink>
@@ -81,10 +77,6 @@ watch(() => route.path, () => {
 		>
 			<div v-if="!auth.isAuthenticated" class="flex flex-col gap-2 pt-4">
 				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/" role="menuitem">Inicio</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/about" role="menuitem">Nosotros</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/benefits" role="menuitem">Beneficios</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/plans" role="menuitem">Planes</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/contact" role="menuitem">Contáctanos</RouterLink>
 				<div class="flex gap-2 pt-2">
 					<BaseButton to="/login" text="Iniciar sesión" width="auto" />
 					<BaseButton to="/register" text="Registrarse" variant="ghost" width="auto" />
