@@ -2,12 +2,15 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useBillingStore } from '@/stores/billing'
+import { useToastStore } from '@/stores/toast'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
 const router = useRouter()
 const route = useRoute()
 const billingStore = useBillingStore()
+const toastStore = useToastStore()
 
 const search = ref('')
 
@@ -36,13 +39,26 @@ const formatPrice = (price: number) => {
 		currency: 'USD',
 	}).format(price)
 }
+
+const deletePlan = async (planId: number) => {
+	if (!confirm('¿Estás seguro de eliminar este plan?')) return
+	try {
+		await billingStore.deletePlan(planId)
+		toastStore.success('Plan eliminado correctamente')
+	} catch {
+		toastStore.error('Error al eliminar el plan')
+	}
+}
 </script>
 
 <template>
 	<section class="w-full flex flex-col gap-8 mx-8 justify-start items-start self-start">
-		<div>
-			<h1 class="text-primary text-2xl font-bold">Planes</h1>
-			<p>Planes disponibles para tu negocio</p>
+		<div class="flex justify-between items-center w-full">
+			<div>
+				<h1 class="text-primary text-2xl font-bold">Planes</h1>
+				<p>Planes disponibles para tu negocio</p>
+			</div>
+			<BaseButton to="/billing/plans/add" text="Crear plan" width="auto" />
 		</div>
 
 		<div class="grid grid-cols-12 grid-rows-1 gap-4 w-full">
@@ -63,6 +79,22 @@ const formatPrice = (price: number) => {
 					<div class="flex justify-between w-full items-center">
 						<div class="flex justify-center items-center size-10 rounded-full bg-secondary">
 							<i class="fa-solid fa-layer-group text-lg"></i>
+						</div>
+						<div class="flex gap-2">
+							<button
+								class="text-primary hover:text-secondary transition-colors"
+								@click="router.push(`/billing/plans/edit/${plan.id}`)"
+								aria-label="Editar plan"
+							>
+								<i class="fa-solid fa-pen"></i>
+							</button>
+							<button
+								class="text-red-500 hover:text-red-600 transition-colors"
+								@click="deletePlan(plan.id)"
+								aria-label="Eliminar plan"
+							>
+								<i class="fa-solid fa-trash"></i>
+							</button>
 						</div>
 					</div>
 					<div class="flex flex-col gap-2">
