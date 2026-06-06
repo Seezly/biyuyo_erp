@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from accounts.models import CustomUser
+from accounts.models import CustomUser, ReminderSettings
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -26,6 +26,10 @@ class UserSerializer(serializers.ModelSerializer):
             "identification_number",
             "phone",
             "is_active",
+            "email_notifications",
+            "push_notifications",
+            "low_stock_alerts",
+            "out_of_stock_alerts",
             "role",
             "created_at",
             "updated_at",
@@ -46,6 +50,7 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ["url", "name"]
+        read_only_fields = ["name"]
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -138,3 +143,20 @@ class CustomTokenSerializer(TokenObtainPairSerializer):
         }
 
         return data
+
+
+class ReminderSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReminderSettings
+        fields = [
+            "id",
+            "business_id",
+            "whatsapp_enabled",
+            "preventive_enabled",
+            "due_date_enabled",
+            "overdue_enabled",
+            "message_template",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["business_id", "created_at", "updated_at"]

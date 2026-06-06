@@ -20,10 +20,11 @@ from django.urls import path, include
 from rest_framework import routers
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
-from accounts.views.viewsets import UserViewSet, GroupViewSet
+from accounts.views.viewsets import UserViewSet, GroupViewSet, ReminderSettingsViewSet
 from accounts.views.auth import RegisterView, LoginView, LogoutView, MeView
 from accounts.views.tokens import RefreshView
 from accounts.views.csrf import csrf
+from core.views import ExchangeRateView
 from billing.views import PlanViewSet, SubscriptionViewSet, InvoiceViewSet
 from businesses.views import BusinessViewSet
 from customers.views import CustomerViewSet
@@ -36,6 +37,7 @@ from audit.views import AuditLogListView, AuditLogDetailView
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
 router.register(r"groups", GroupViewSet, basename="group")
+router.register(r"reminder-settings", ReminderSettingsViewSet, basename="reminder-settings")
 router.register(r"plans", PlanViewSet, basename="plans")
 router.register(r"subscriptions", SubscriptionViewSet, basename="subscriptions")
 router.register(r"invoices", InvoiceViewSet, basename="invoices")
@@ -63,6 +65,7 @@ urlpatterns = [
     path("api/refresh/", RefreshView.as_view(), name="token_refresh_cookie"),
     path("api/me/", MeView.as_view(), name="me"),
     path("api/csrf/", csrf, name="csrf"),
+    path("api/exchange-rate/", ExchangeRateView.as_view(), name="exchange-rate"),
     path("api/audit/logs/", AuditLogListView.as_view(), name="auditlog-list"),
     path("api/audit/logs/<int:pk>/", AuditLogDetailView.as_view(), name="auditlog-detail"),
     # API Documentation

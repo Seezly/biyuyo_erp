@@ -1,12 +1,13 @@
 from django.contrib.auth.models import Group
-from accounts.models import CustomUser
+from accounts.models import CustomUser, ReminderSettings
 from rest_framework import permissions, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from core.permissions import IsAdminUser
+from core.permissions import IsAdminOrBusinessUser, IsAdminUser
 from accounts.serializers import (
     GroupSerializer,
+    ReminderSettingsSerializer,
     UserSerializer,
 )
 
@@ -61,3 +62,29 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all().order_by("name")
     serializer_class = GroupSerializer
     permission_classes = [IsAdminUser]
+
+
+class ReminderSettingsViewSet(viewsets.ModelViewSet):
+    serializer_class = ReminderSettingsSerializer
+    permission_classes = [IsAdminOrBusinessUser]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return ReminderSettings.objects.all()
+        return ReminderSettings.objects.filter(business_id=user.business_id)
+
+    def perform_create(self, serializer):
+        serializer.save(business_id=self.request.user.business_id)
+
+    @action(detail=False, methods=["get", "patch"], url_path="current")
+    def current(self, request):
+        settings, _ = ReminderSettings.objects.get_or_create(
+            business_id=request.user.business_id
+        )
+        if request.method == "PATCH":
+            serializer = self.get_serializer(settings, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        return Response(self.get_serializer(settings).data)

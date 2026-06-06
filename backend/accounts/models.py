@@ -147,6 +147,10 @@ class CustomUser(AbstractUser):
     business_id = models.ForeignKey("businesses.Business", on_delete=models.CASCADE)
     identification_number = models.CharField(max_length=10, unique=True)
     phone = models.CharField(max_length=16, unique=True)
+    email_notifications = models.BooleanField(default=True)
+    push_notifications = models.BooleanField(default=True)
+    low_stock_alerts = models.BooleanField(default=True)
+    out_of_stock_alerts = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -165,3 +169,25 @@ class CustomUser(AbstractUser):
 
     def __bool__(self):
         return self.is_active
+
+
+class ReminderSettings(models.Model):
+    business_id = models.OneToOneField(
+        "businesses.Business", on_delete=models.CASCADE, related_name="reminder_settings"
+    )
+    whatsapp_enabled = models.BooleanField(default=False)
+    preventive_enabled = models.BooleanField(default=False)
+    due_date_enabled = models.BooleanField(default=False)
+    overdue_enabled = models.BooleanField(default=False)
+    message_template = models.TextField(
+        default="Hola [nombre], te recordamos que tienes un pago pendiente de [monto] con fecha próxima a vencer el día [fecha]. Por favor, puedes realizar el pago por cualquier medio que manejemos. ¡Gracias por tu atención!"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Reminder Settings"
+        verbose_name_plural = "Reminder Settings"
+
+    def __str__(self):
+        return f"Reminder Settings - {self.business_id.name}"
