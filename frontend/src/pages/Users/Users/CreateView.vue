@@ -8,12 +8,18 @@ import * as z from 'zod'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useBusinessesStore } from '@/stores/businesses'
 import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const businessesStore = useBusinessesStore()
 const toastStore = useToastStore()
 const loading = ref(false)
+
+onMounted(async () => {
+	await businessesStore.fetchBusinesses()
+})
 
 const validationSchema = toTypedSchema(
 	z.object({
@@ -21,15 +27,16 @@ const validationSchema = toTypedSchema(
 		last_name: z.string().min(1, 'El apellido es requerido'),
 		identification_number: z
 			.string()
-			.min(1, 'La identificaci��n es requerida')
+			.min(1, 'La identificación es requerida')
 			.regex(/^[VEJGvejg]\d{5,9}$/, 'Formato: V12345678 o E123456789'),
-		email: z.string().min(1, 'El email es requerido').email('Email invǭlido'),
-		phone: z.string().min(1, 'El telǸfono es requerido'),
+		email: z.string().min(1, 'El email es requerido').email('Email inválido'),
+		phone: z.string().min(1, 'El teléfono es requerido'),
+		business_id: z.number().min(1, 'Selecciona un negocio'),
 		role: z.string().min(1, 'El rol es requerido'),
-		password: z.string().min(6, 'La contrase��a debe tener al menos 6 caracteres'),
-		confirm_password: z.string().min(1, 'Debe confirmar la contrase��a'),
+		password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+		confirm_password: z.string().min(1, 'Debe confirmar la contraseña'),
 	}).refine((data) => data.password === data.confirm_password, {
-		message: 'Las contrase��as no coinciden',
+		message: 'Las contraseñas no coinciden',
 		path: ['confirm_password'],
 	})
 )
@@ -42,6 +49,7 @@ const { handleSubmit, errors } = useForm({
 		identification_number: '',
 		email: '',
 		phone: '',
+		business_id: undefined as number | undefined,
 		role: 'EMPLOYEE',
 		password: '',
 		confirm_password: '',
@@ -53,6 +61,7 @@ const { value: last_name } = useField<string>('last_name')
 const { value: identification_number } = useField<string>('identification_number')
 const { value: email } = useField<string>('email')
 const { value: phone } = useField<string>('phone')
+const { value: business_id } = useField<number | undefined>('business_id')
 const { value: role } = useField<string>('role')
 const { value: password } = useField<string>('password')
 const { value: confirm_password } = useField<string>('confirm_password')
@@ -110,6 +119,16 @@ const onSubmit = handleSubmit(async (values) => {
 				<span v-if="errors.phone" class="text-red-500 text-sm">{{ errors.phone }}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
+				Negocio *
+				<select v-model="business_id" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+					<option :value="undefined">Seleccionar negocio</option>
+					<option v-for="b in businessesStore.businesses" :key="b.id" :value="b.id">
+						{{ b.name }}
+					</option>
+				</select>
+				<span v-if="errors.business_id" class="text-red-500 text-sm">{{ errors.business_id }}</span>
+			</label>
+			<label class="w-full flex flex-col text-dark">
 				Rol
 				<select v-model="role" class="py-2 px-4 rounded-xl border border-secondary text-primary">
 					<option value="EMPLOYEE">Empleado</option>
@@ -129,7 +148,7 @@ const onSubmit = handleSubmit(async (values) => {
 					<span v-if="errors.confirm_password" class="text-red-500 text-sm">{{ errors.confirm_password }}</span>
 				</label>
 			</div>
-			<BaseButton :text="loading ? 'Creando...' : 'Agregar usuario'" :disabled="loading" type="submit" />
+			<BaseButton :text="loading ? 'Creando...' : 'Agregar usuario'" :loading="loading" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>
