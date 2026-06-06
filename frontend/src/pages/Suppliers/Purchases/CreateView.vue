@@ -9,6 +9,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import { useSuppliersStore } from '@/stores/suppliers'
 import { useToastStore } from '@/stores/toast'
+import { apiFetch } from '@/utils/helpers'
 
 const router = useRouter()
 const suppliersStore = useSuppliersStore()
@@ -40,13 +41,11 @@ const { value: total } = useField<number | undefined>('total')
 const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
 	try {
-		const response = await fetch('/api/purchases/', {
+		const response = await apiFetch('/api/purchases/', {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
-				supplier: values.supplier,
+				supplier_id: values.supplier,
 				total: values.total || 0,
-				items: [],
 			}),
 		})
 

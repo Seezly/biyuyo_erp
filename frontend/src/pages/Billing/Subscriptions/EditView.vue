@@ -9,6 +9,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import { useBillingStore } from '@/stores/billing'
 import { useToastStore } from '@/stores/toast'
+import { apiFetch } from '@/utils/helpers'
 
 const router = useRouter()
 const route = useRoute()
@@ -49,7 +50,7 @@ const { value: is_active } = useField<boolean>('is_active')
 const fetchSubscription = async () => {
   loading.value = true
   try {
-    const response = await fetch(`/api/subscriptions/${subscriptionId}/`)
+    const response = await apiFetch(`/api/subscriptions/${subscriptionId}/`)
     if (response.ok) {
       const data = await response.json()
       setValues({
@@ -74,9 +75,8 @@ onMounted(() => {
 const onSubmit = handleSubmit(async (values) => {
   saving.value = true
   try {
-    const response = await fetch(`/api/subscriptions/${subscriptionId}/`, {
+    const response = await apiFetch(`/api/subscriptions/${subscriptionId}/`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(values),
     })
 

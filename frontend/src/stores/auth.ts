@@ -36,12 +36,11 @@ export const useAuthStore = defineStore('auth', {
       this.isAuthenticated = false
 
       try {
-        await fetch('/api/logout/', {
+        await apiFetch('/api/logout/', {
           method: 'POST',
-          credentials: 'include',
         })
       } catch (e) {
-        console.log('Logout failed: ' + e)
+        console.error('Logout failed: ' + e)
       }
     },
 

@@ -9,6 +9,7 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 import { useToastStore } from '@/stores/toast'
+import { apiFetch } from '@/utils/helpers'
 
 const router = useRouter()
 const toastStore = useToastStore()
@@ -23,7 +24,7 @@ const categories = ref<Category[]>([])
 
 const getCategories = async () => {
 	try {
-		const response = await fetch('/api/categories/')
+		const response = await apiFetch('/api/categories/')
 		if (response.ok) {
 			const data = await response.json()
 			categories.value = data.results || data
@@ -76,9 +77,8 @@ const onSubmit = handleSubmit(async (values) => {
 			payload.parent_category = values.parent_category
 		}
 
-		const response = await fetch('/api/categories/', {
+		const response = await apiFetch('/api/categories/', {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(payload),
 		})
 

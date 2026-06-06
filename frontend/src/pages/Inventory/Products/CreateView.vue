@@ -9,6 +9,7 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useInventoryStore } from '@/stores/inventory'
 import { useToastStore } from '@/stores/toast'
+import { apiFetch } from '@/utils/helpers'
 
 const router = useRouter()
 const inventoryStore = useInventoryStore()
@@ -63,9 +64,8 @@ const onSubmit = handleSubmit(async (values) => {
 			category_id: values.category_id || null,
 		}
 
-		const response = await fetch('/api/products/', {
+		const response = await apiFetch('/api/products/', {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(payload),
 		})
 

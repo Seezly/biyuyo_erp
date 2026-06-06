@@ -9,6 +9,7 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useInventoryStore } from '@/stores/inventory'
 import { useToastStore } from '@/stores/toast'
+import { apiFetch } from '@/utils/helpers'
 
 const route = useRoute()
 const router = useRouter()
@@ -22,7 +23,7 @@ const saving = ref(false)
 onMounted(async () => {
 	await inventoryStore.fetchCategories()
 	try {
-		const response = await fetch(`/api/categories/${categoryId}/`)
+		const response = await apiFetch(`/api/categories/${categoryId}/`)
 		if (response.ok) {
 			const data = await response.json()
 			setValues({
@@ -66,9 +67,8 @@ const onSubmit = handleSubmit(async (values) => {
 			payload.parent_category = values.parent_category
 		}
 
-		const response = await fetch(`/api/categories/${categoryId}/`, {
+		const response = await apiFetch(`/api/categories/${categoryId}/`, {
 			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(payload),
 		})
 

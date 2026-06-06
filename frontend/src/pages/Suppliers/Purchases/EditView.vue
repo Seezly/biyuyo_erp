@@ -9,6 +9,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import { useSuppliersStore } from '@/stores/suppliers'
 import { useToastStore } from '@/stores/toast'
+import { apiFetch } from '@/utils/helpers'
 
 const router = useRouter()
 const route = useRoute()
@@ -22,7 +23,7 @@ const saving = ref(false)
 onMounted(async () => {
 	await suppliersStore.fetchSuppliers()
 	try {
-		const response = await fetch(`/api/purchases/${purchaseId}/`)
+		const response = await apiFetch(`/api/purchases/${purchaseId}/`)
 		if (response.ok) {
 			const data = await response.json()
 			setValues({
@@ -58,9 +59,8 @@ const { value: total } = useField<number | undefined>('total')
 const onSubmit = handleSubmit(async (values) => {
 	saving.value = true
 	try {
-		const response = await fetch(`/api/purchases/${purchaseId}/`, {
+		const response = await apiFetch(`/api/purchases/${purchaseId}/`, {
 			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(values),
 		})
 
