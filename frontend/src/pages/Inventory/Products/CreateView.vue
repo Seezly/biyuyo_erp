@@ -56,12 +56,20 @@ const { value: sell_price } = useField<number | undefined>('sell_price')
 const { value: stock } = useField<number | undefined>('stock')
 const { value: min_stock } = useField<number | undefined>('min_stock')
 
-const onSubmit = handleSubmit(async (values) => {
+	const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
 	try {
-		const payload = {
-			...values,
-			category_id: values.category_id || null,
+		const payload: Record<string, unknown> = {
+			sku: values.sku,
+			name: values.name,
+			description: values.description || '',
+			cost_price: values.cost_price,
+			sell_price: values.sell_price,
+			stock: values.stock,
+			min_stock: values.min_stock,
+		}
+		if (values.category_id) {
+			payload.category_id = values.category_id
 		}
 
 		const response = await apiFetch('/api/products/', {
@@ -140,7 +148,7 @@ const onSubmit = handleSubmit(async (values) => {
 					<span v-if="errors.min_stock" class="text-red-500 text-sm">{{ errors.min_stock }}</span>
 				</label>
 			</div>
-			<BaseButton :text="loading ? 'Creando...' : 'Agregar producto'" :disabled="loading" type="submit" />
+			<BaseButton :text="loading ? 'Creando...' : 'Agregar producto'" :loading="loading" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>
