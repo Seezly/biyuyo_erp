@@ -58,7 +58,7 @@ const onSubmit = handleSubmit(async (values) => {
         <BaseInput v-model="name" type="text" name="name" placeholder="Nombre del rol" />
         <span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
       </label>
-      <BaseButton :text="loading ? 'Creando...' : 'Agregar rol'" :disabled="loading" type="submit" />
+      <BaseButton :text="loading ? 'Creando...' : 'Agregar rol'" :loading="loading" :disabled="loading" type="submit" />
     </form>
   </section>
 </template>

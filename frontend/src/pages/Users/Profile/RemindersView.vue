@@ -196,6 +196,7 @@ const saveReminderSettings = async () => {
       <div class="flex gap-4 w-full">
         <BaseButton 
           :text="saving ? 'Guardando...' : 'Guardar cambios'" 
+          :loading="saving"
           :disabled="saving"
           @click="saveReminderSettings"
         />

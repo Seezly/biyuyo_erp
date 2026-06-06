@@ -91,7 +91,7 @@ const onSubmit = handleSubmit(async (values) => {
 						<BaseInput v-model="confirm_password" name="confirm_password" type="password" />
 						<span v-if="errors.confirm_password" class="text-red-500 text-sm">{{ errors.confirm_password }}</span>
 					</label>
-					<BaseButton :text="loading ? 'Cambiando...' : 'Cambiar contraseña'" :disabled="loading" type="submit" class="mt-4" />
+					<BaseButton :text="loading ? 'Cambiando...' : 'Cambiar contraseña'" :loading="loading" :disabled="loading" type="submit" class="mt-4" />
 				</form>
 			</div>
 		</BaseCard>

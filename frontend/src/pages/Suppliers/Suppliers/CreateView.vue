@@ -88,7 +88,7 @@ const onSubmit = handleSubmit(async (values) => {
 				Teléfono
 				<BaseInput v-model="phone" type="tel" name="phone" placeholder="Teléfono del proveedor" />
 			</label>
-			<BaseButton :text="loading ? 'Creando...' : 'Agregar proveedor'" :disabled="loading" type="submit" />
+			<BaseButton :text="loading ? 'Creando...' : 'Agregar proveedor'" :loading="loading" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>

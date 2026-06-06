@@ -93,6 +93,7 @@ const onSubmit = handleSubmit(async (values) => {
 			</label>
 			<BaseButton
 				:text="loading ? 'Creando...' : 'Agregar cliente'"
+				:loading="loading"
 				:disabled="loading"
 				type="submit"
 			/>

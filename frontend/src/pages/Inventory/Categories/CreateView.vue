@@ -129,7 +129,7 @@ const onSubmit = handleSubmit(async (values) => {
 					</label>
 				</div>
 			</Transition>
-			<BaseButton :text="loading ? 'Creando...' : 'Agregar categoría'" :disabled="loading" type="submit" />
+			<BaseButton :text="loading ? 'Creando...' : 'Agregar categoría'" :loading="loading" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>

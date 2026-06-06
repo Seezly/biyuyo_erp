@@ -88,7 +88,7 @@ const onSubmit = handleSubmit(async (values) => {
 				<BaseInput v-model="total" type="number" step="0.01" name="total" placeholder="Monto total" />
 				<span v-if="errors.total" class="text-red-500 text-sm">{{ errors.total }}</span>
 			</label>
-			<BaseButton :text="loading ? 'Creando...' : 'Crear compra'" :disabled="loading" type="submit" />
+			<BaseButton :text="loading ? 'Creando...' : 'Crear compra'" :loading="loading" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>

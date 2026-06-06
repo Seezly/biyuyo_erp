@@ -131,7 +131,7 @@ const onSubmit = handleSubmit(async (values) => {
           <input v-model="is_active" type="checkbox" class="rounded border-gray-300 text-primary" />
         </label>
       </div>
-      <BaseButton :text="loading ? 'Creando...' : 'Agregar negocio'" :disabled="loading" type="submit" />
+      <BaseButton :text="loading ? 'Creando...' : 'Agregar negocio'" :loading="loading" :disabled="loading" type="submit" />
     </form>
   </section>
 </template>

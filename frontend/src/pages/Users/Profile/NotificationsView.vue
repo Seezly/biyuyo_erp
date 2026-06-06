@@ -139,6 +139,7 @@ const savePreferences = async () => {
 			<div class="flex gap-4 w-full">
 				<BaseButton
 					:text="saving ? 'Guardando...' : 'Guardar preferencias'"
+					:loading="saving"
 					:disabled="saving"
 					@click="savePreferences"
 				/>
