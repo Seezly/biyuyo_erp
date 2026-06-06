@@ -347,10 +347,22 @@ const router = createRouter({
 				component: () => import('@/pages/Billing/Plans/ListView.vue'),
 			},
 			{
+				path: 'plans/add',
+				name: 'CreatePlan',
+				component: () => import('@/pages/Billing/Plans/CreateView.vue'),
+				meta: { title: 'Crear Plan' },
+			},
+			{
 				path: 'plans/:planId',
 				name: 'ShowPlan',
 				component: () => import('@/pages/Billing/Plans/ShowView.vue'),
 				meta: { title: 'Detalle de Plan' },
+			},
+			{
+				path: 'plans/edit/:planId',
+				name: 'EditPlan',
+				component: () => import('@/pages/Billing/Plans/EditView.vue'),
+				meta: { title: 'Editar Plan' },
 			},
 			{
 				path: 'subscriptions',
@@ -358,10 +370,22 @@ const router = createRouter({
 				component: () => import('@/pages/Billing/Subscriptions/ListView.vue'),
 			},
 			{
+				path: 'subscriptions/add',
+				name: 'CreateSubscription',
+				component: () => import('@/pages/Billing/Subscriptions/CreateView.vue'),
+				meta: { title: 'Crear Suscripción' },
+			},
+			{
 				path: 'subscriptions/:subscriptionId',
 				name: 'ShowSubscription',
 				component: () => import('@/pages/Billing/Subscriptions/ShowView.vue'),
 				meta: { title: 'Detalle de Suscripción' },
+			},
+			{
+				path: 'subscriptions/edit/:subscriptionId',
+				name: 'EditSubscription',
+				component: () => import('@/pages/Billing/Subscriptions/EditView.vue'),
+				meta: { title: 'Editar Suscripción' },
 			},
 				{
 					path: 'invoices',
@@ -374,7 +398,13 @@ const router = createRouter({
 			path: '/logout',
 			name: 'Logout',
 			component: () => import('@/pages/Auth/LogoutView.vue'),
-			meta: { guestOnly: true, title: 'Cerrar Sesión' },
+			meta: { title: 'Cerrar Sesión' },
+		},
+		{
+			path: '/:pathMatch(.*)*',
+			name: 'NotFound',
+			component: () => import('@/pages/NotFoundView.vue'),
+			meta: { title: 'Página no encontrada' },
 		},
 	],
 })
