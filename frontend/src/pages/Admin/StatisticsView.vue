@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useReportsStore } from '@/stores/reports'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -30,11 +30,12 @@ const fetchStats = async () => {
       reportsStore.fetchInventory(),
       reportsStore.fetchSummary(),
     ])
+    loading.value = false
+    await nextTick()
     initCharts()
   } catch (err) {
     error.value = 'Error al cargar las estadisticas'
     console.error('Error fetching stats:', err)
-  } finally {
     loading.value = false
   }
 }
@@ -47,17 +48,17 @@ const initCharts = () => {
   if (usersChartRef.value && reportsStore.stats) {
     const ctx = usersChartRef.value.getContext('2d')
     if (ctx) {
-      const usersByBusiness = reportsStore.usersByBusiness
+      const productsByBusiness = reportsStore.productsByBusiness
       usersChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: usersByBusiness.length > 0
-            ? usersByBusiness.map((b) => b.name)
+          labels: productsByBusiness.length > 0
+            ? productsByBusiness.map((b) => b.name)
             : ['Sin datos'],
           datasets: [{
             label: 'Productos por Negocio',
-            data: usersByBusiness.length > 0
-              ? usersByBusiness.map((b) => b.userCount || 0)
+            data: productsByBusiness.length > 0
+              ? productsByBusiness.map((b) => b.count || 0)
               : [0],
             backgroundColor: [
               'rgba(54, 162, 235, 0.5)',
