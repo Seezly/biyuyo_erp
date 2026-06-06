@@ -60,11 +60,6 @@ watch([search, stockFilter], () => {
 	router.push({ query })
 }, { deep: true })
 
-// Watch for pagination from store
-watch(() => inventoryStore.pagination, () => {
-	// Pagination is handled by the store
-}, { deep: true })
-
 const confirmDelete = (id: number) => {
 	productToDelete.value = id
 	showDeleteAlert.value = true

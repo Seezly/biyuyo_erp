@@ -2,7 +2,6 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useSalesStore } from '@/stores/sales'
-import { useToastStore } from '@/stores/toast'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
@@ -10,7 +9,6 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 const router = useRouter()
 const route = useRoute()
 const salesStore = useSalesStore()
-const toastStore = useToastStore()
 
 const search = ref('')
 const methodFilter = ref('')

@@ -46,7 +46,7 @@ const confirmDelete = (id: number) => {
 
 const handleDelete = async () => {
   if (businessToDelete.value) {
-    // TODO: Implement deleteBusiness method in store
+    await businessesStore.deleteBusiness(businessToDelete.value)
     showDeleteAlert.value = false
     businessToDelete.value = null
   }
