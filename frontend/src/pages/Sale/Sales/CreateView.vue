@@ -7,12 +7,14 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useInventoryStore } from '@/stores/inventory'
 import { useSalesStore } from '@/stores/sales'
+import { useCustomersStore } from '@/stores/customers'
 import { useToastStore } from '@/stores/toast'
 import { useExchangeRate } from '@/composables/useExchangeRate'
 
 const router = useRouter()
 const inventoryStore = useInventoryStore()
 const salesStore = useSalesStore()
+const customersStore = useCustomersStore()
 const toastStore = useToastStore()
 const { exchangeRate } = useExchangeRate()
 
@@ -27,11 +29,15 @@ const searchQuery = ref('')
 const cart = ref<any[]>([])
 const paymentMethod = ref('cash')
 const saleId = ref<number | null>(null)
+const selectedCustomerId = ref<number | null>(null)
 
 const IVA_RATE = 0.16
 
 onMounted(async () => {
-	await inventoryStore.fetchProducts()
+	await Promise.all([
+		inventoryStore.fetchProducts(),
+		customersStore.fetchCustomers(),
+	])
 })
 
 const filteredProducts = computed(() => {
@@ -107,24 +113,18 @@ const processPayment = async () => {
 	}
 
 	const saleData = {
-		customer: 1,
+		customer_id: selectedCustomerId.value || undefined,
 		subtotal: cartSubtotal.value,
 		discount: 0,
 		tax: cartIva.value,
 		total: cartTotalWithIva.value,
+		status: 'completed',
 		items: cart.value.map(item => ({
 			product: item.product,
 			quantity: item.quantity,
 			unit_price: item.unit_price,
 			total_price: item.total,
 		})),
-		payments: [
-			{
-				method: paymentMethod.value,
-				amount: cartTotalWithIva.value,
-				reference: '',
-			},
-		],
 	}
 
 	const result = await salesStore.createSale(saleData)
@@ -144,6 +144,7 @@ const startNewSale = () => {
 	saleId.value = null
 	paymentMethod.value = 'cash'
 	searchQuery.value = ''
+	selectedCustomerId.value = null
 }
 
 const printReceipt = () => {
@@ -307,10 +308,20 @@ const sendReceipt = () => {
 						variant="secondary"
 						class="col-span-full order-3 lg:order-3 lg:col-span-3 lg:row-span-5"
 					>
-						<div class="flex flex-col w-full h-full gap-4">
-							<h2 class="text-2xl font-bold text-primary">Total del pedido</h2>
+					<div class="flex flex-col gap-2">
+						<h2 class="text-2xl font-bold text-primary">Total del pedido</h2>
 
-							<div v-if="cart.length === 0" class="text-center py-8 text-white/70">
+						<label class="w-full flex flex-col text-dark">
+							<span class="text-sm font-medium">Cliente (opcional)</span>
+							<select v-model="selectedCustomerId" class="py-2 px-4 rounded-xl border border-secondary text-primary bg-white">
+								<option :value="null">Sin cliente</option>
+								<option v-for="c in customersStore.customers" :key="c.id" :value="c.id">
+									{{ c.name }}
+								</option>
+							</select>
+						</label>
+
+						<div v-if="cart.length === 0" class="text-center py-8 text-white/70">
 								<p>Carrito vacío</p>
 							</div>
 
