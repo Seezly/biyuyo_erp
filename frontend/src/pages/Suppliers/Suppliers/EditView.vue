@@ -16,6 +16,9 @@ const loading = ref(true)
 const saving = ref(false)
 
 const supplierId = Number(route.params.supplierId)
+if (!supplierId) {
+  router.back()
+}
 
 const validationSchema = toTypedSchema(
 	z.object({
@@ -116,7 +119,7 @@ const onSubmit = handleSubmit(async (values) => {
 					Teléfono
 					<BaseInput v-model="phone" type="tel" name="phone" placeholder="Teléfono del proveedor" />
 				</label>
-				<BaseButton :text="saving ? 'Guardando...' : 'Guardar proveedor'" :disabled="saving" type="submit" />
+				<BaseButton :text="saving ? 'Guardando...' : 'Guardar proveedor'" :loading="saving" :disabled="saving" type="submit" />
 			</form>
 		</div>
 	</section>

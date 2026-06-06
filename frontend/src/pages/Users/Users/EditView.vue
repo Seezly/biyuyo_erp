@@ -17,6 +17,9 @@ const toastStore = useToastStore()
 const loading = ref(false)
 
 const userId = Number(route.params.userId)
+if (!userId) {
+  router.back()
+}
 
 const validationSchema = toTypedSchema(
 	z.object({
@@ -167,7 +170,7 @@ const onSubmit = handleSubmit(async (values) => {
 					<span v-if="errors.confirm_password" class="text-red-500 text-sm">{{ errors.confirm_password }}</span>
 				</label>
 			</div>
-			<BaseButton :text="loading ? 'Guardando...' : 'Editar usuario'" :disabled="loading" type="submit" />
+			<BaseButton :text="loading ? 'Guardando...' : 'Editar usuario'" :loading="loading" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>

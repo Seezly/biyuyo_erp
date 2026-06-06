@@ -16,6 +16,9 @@ const inventoryStore = useInventoryStore()
 const toastStore = useToastStore()
 
 const productId = Number(route.params.productId)
+if (!productId) {
+  router.back()
+}
 const loading = ref(true)
 const saving = ref(false)
 
@@ -159,7 +162,7 @@ const onSubmit = handleSubmit(async (values) => {
 						<span v-if="errors.min_stock" class="text-red-500 text-sm">{{ errors.min_stock }}</span>
 					</label>
 				</div>
-				<BaseButton :text="saving ? 'Guardando...' : 'Guardar producto'" :disabled="saving" type="submit" />
+				<BaseButton :text="saving ? 'Guardando...' : 'Guardar producto'" :loading="saving" :disabled="saving" type="submit" />
 			</form>
 		</div>
 	</section>

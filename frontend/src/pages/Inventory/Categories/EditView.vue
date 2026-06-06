@@ -17,6 +17,9 @@ const inventoryStore = useInventoryStore()
 const toastStore = useToastStore()
 
 const categoryId = Number(route.params.categoryId)
+if (!categoryId) {
+  router.back()
+}
 const loading = ref(true)
 const saving = ref(false)
 
@@ -115,7 +118,7 @@ const onSubmit = handleSubmit(async (values) => {
 						</option>
 					</select>
 				</label>
-				<BaseButton :text="saving ? 'Guardando...' : 'Guardar categoría'" :disabled="saving" type="submit" />
+				<BaseButton :text="saving ? 'Guardando...' : 'Guardar categoría'" :loading="saving" :disabled="saving" type="submit" />
 			</form>
 		</div>
 	</section>

@@ -17,6 +17,9 @@ const toastStore = useToastStore()
 const loading = ref(false)
 
 const businessId = Number(route.params.businessId)
+if (!businessId) {
+  router.back()
+}
 
 const validationSchema = toTypedSchema(
   z.object({
@@ -157,7 +160,7 @@ const onSubmit = handleSubmit(async (values) => {
           <input v-model="is_active" type="checkbox" class="rounded border-gray-300 text-primary" />
         </label>
       </div>
-      <BaseButton :text="loading ? 'Guardando...' : 'Editar negocio'" :disabled="loading" type="submit" />
+      <BaseButton :text="loading ? 'Guardando...' : 'Editar negocio'" :loading="loading" :disabled="loading" type="submit" />
     </form>
   </section>
 </template>

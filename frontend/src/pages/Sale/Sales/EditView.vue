@@ -17,14 +17,16 @@ const toastStore = useToastStore()
 const loading = ref(false)
 const saving = ref(false)
 
-const saleId = Number(route.params.id)
+const saleId = Number(route.params.saleId)
+if (!saleId) {
+  router.back()
+}
 
 const validationSchema = toTypedSchema(
   z.object({
     customer_id: z.number().min(1, 'Selecciona un cliente'),
     total: z.number().min(0, 'El total debe ser positivo').optional(),
     status: z.string().default('pending'),
-    payment_status: z.string().default('pending'),
   })
 )
 
@@ -34,14 +36,12 @@ const { handleSubmit, errors, setValues } = useForm({
     customer_id: undefined as number | undefined,
     total: undefined as number | undefined,
     status: 'pending',
-    payment_status: 'pending',
   },
 })
 
 const { value: customer_id } = useField<number>('customer_id')
 const { value: total } = useField<number | undefined>('total')
 const { value: status } = useField<string>('status')
-const { value: payment_status } = useField<string>('payment_status')
 
 const fetchSale = async () => {
   loading.value = true
@@ -53,7 +53,6 @@ const fetchSale = async () => {
         customer_id: sale.customer ? Number(sale.customer) : undefined,
         total: sale.total ? Number(sale.total) : undefined,
         status: sale.status || 'pending',
-        payment_status: sale.payment_status || 'pending',
       })
     }
   } catch (error) {
@@ -118,17 +117,7 @@ const onSubmit = handleSubmit(async (values) => {
           </select>
           <span v-if="errors.status" class="text-red-500 text-sm">{{ errors.status }}</span>
         </label>
-        <label class="w-full flex flex-col text-dark">
-          Estado de pago
-          <select v-model="payment_status" class="py-2 px-4 rounded-xl border border-secondary text-primary">
-            <option value="pending">Pendiente</option>
-            <option value="paid">Pagada</option>
-            <option value="partial">Parcial</option>
-            <option value="failed">Fallida</option>
-          </select>
-          <span v-if="errors.payment_status" class="text-red-500 text-sm">{{ errors.payment_status }}</span>
-        </label>
-        <BaseButton :text="saving ? 'Guardando...' : 'Guardar venta'" :disabled="saving" type="submit" />
+        <BaseButton :text="saving ? 'Guardando...' : 'Guardar venta'" :loading="saving" :disabled="saving" type="submit" />
       </form>
     </div>
   </section>

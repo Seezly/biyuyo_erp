@@ -17,6 +17,9 @@ const toastStore = useToastStore()
 const loading = ref(false)
 
 const customerId = Number(route.params.customerId)
+if (!customerId) {
+  router.back()
+}
 
 const validationSchema = toTypedSchema(
 	z.object({
@@ -102,7 +105,7 @@ const onSubmit = handleSubmit(async (values) => {
 				<BaseInput v-model="identification_number" name="identification_number" placeholder="V12345678" maxlength="9" />
 				<span v-if="errors.identification_number" class="text-red-500 text-sm">{{ errors.identification_number }}</span>
 			</label>
-			<BaseButton :text="loading ? 'Guardando...' : 'Editar cliente'" :disabled="loading" type="submit" />
+			<BaseButton :text="loading ? 'Guardando...' : 'Editar cliente'" :loading="loading" :disabled="loading" type="submit" />
 		</form>
 	</section>
 </template>

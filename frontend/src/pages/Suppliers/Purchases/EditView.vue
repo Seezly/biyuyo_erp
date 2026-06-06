@@ -17,6 +17,9 @@ const suppliersStore = useSuppliersStore()
 const toastStore = useToastStore()
 
 const purchaseId = Number(route.params.purchaseId)
+if (!purchaseId) {
+  router.back()
+}
 const loading = ref(true)
 const saving = ref(false)
 
@@ -108,7 +111,7 @@ const onSubmit = handleSubmit(async (values) => {
 					<BaseInput v-model="total" type="number" step="0.01" name="total" placeholder="Monto total" />
 					<span v-if="errors.total" class="text-red-500 text-sm">{{ errors.total }}</span>
 				</label>
-				<BaseButton :text="saving ? 'Guardando...' : 'Guardar compra'" :disabled="saving" type="submit" />
+				<BaseButton :text="saving ? 'Guardando...' : 'Guardar compra'" :loading="saving" :disabled="saving" type="submit" />
 			</form>
 		</div>
 	</section>
