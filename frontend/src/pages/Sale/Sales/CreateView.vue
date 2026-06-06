@@ -8,11 +8,13 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import { useInventoryStore } from '@/stores/inventory'
 import { useSalesStore } from '@/stores/sales'
 import { useToastStore } from '@/stores/toast'
+import { useExchangeRate } from '@/composables/useExchangeRate'
 
 const router = useRouter()
 const inventoryStore = useInventoryStore()
 const salesStore = useSalesStore()
 const toastStore = useToastStore()
+const { exchangeRate } = useExchangeRate()
 
 const currentStep = ref(1)
 const steps = [
@@ -232,7 +234,7 @@ TOTAL:        $${cartTotalWithIva.value.toFixed(2)}
 Método de pago: ${paymentMethod.value}
 
 Gracias por su compra!
-Tasa de cambio: 1 USD = 500 Bs
+Tasa de cambio: 1 USD = ${exchangeRate.value} Bs
 	`.trim()
 
 	const blob = new Blob([receiptText], { type: 'text/plain' })
@@ -442,7 +444,7 @@ const sendReceipt = () => {
 							<p class="text-sm text-white/80">
 								La tasa cambiaria se actualiza cada 30 minutos y se toma como referencia la tasa actual del
 								Dólar Estadounidense (US$) del Banco Central de Venezuela. La tasa actual es de
-								<span class="text-primary font-medium">1 USD = 500 Bs</span>
+								<span class="text-primary font-medium">1 USD = {{ exchangeRate }} Bs</span>
 							</p>
 							<BaseButton
 								class="mt-auto"
