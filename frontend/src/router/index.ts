@@ -11,6 +11,15 @@ const router = createRouter({
 	},
 	routes: [
 		{
+			path: '/',
+			name: 'Home',
+			redirect: (to) => {
+				const auth = useAuthStore()
+				if (!auth.isAuthenticated) return '/login'
+				return auth.user?.role === 'admin' ? '/admin' : '/dashboard'
+			},
+		},
+		{
 			path: '/login',
 			name: 'Login',
 			component: () => import('@/pages/Auth/LoginView.vue'),
@@ -104,12 +113,18 @@ const router = createRouter({
 					component: () => import('@/pages/Sale/Sales/CreateView.vue'),
 					meta: { title: 'Punto de Venta' },
 				},
-				{
-					path: 'all',
-					name: 'ListSales',
-					component: () => import('@/pages/Sale/Sales/ListView.vue'),
-					meta: { title: 'Lista de Ventas' },
-				},
+			{
+				path: 'all',
+				name: 'ListSales',
+				component: () => import('@/pages/Sale/Sales/ListView.vue'),
+				meta: { title: 'Lista de Ventas' },
+			},
+			{
+				path: 'edit/:saleId',
+				name: 'EditSale',
+				component: () => import('@/pages/Sale/Sales/EditView.vue'),
+				meta: { title: 'Editar Venta' },
+			},
 			],
 		},
 		{
@@ -341,6 +356,10 @@ const router = createRouter({
 			path: '/billing',
 			meta: { requiresAuth: true, adminOnly: true, title: 'Facturación' },
 			children: [
+			{
+				path: '',
+				redirect: '/billing/plans',
+			},
 			{
 				path: 'plans',
 				name: 'Plans',
