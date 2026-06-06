@@ -121,4 +121,6 @@ class MeView(views.APIView):
             "role": user.groups.first().name if user.groups.exists() else None,
             "business_id": user.business_id.id,
             "first_name": user.first_name,
+            "email": user.email,
+            "phone": getattr(user, 'phone', None),
         })
