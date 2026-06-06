@@ -47,8 +47,7 @@ class Purchase(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["business_id", "supplier_id", "created_at"],
-                name="unique_purchase",
+                fields=["business_id", "supplier_id"], name="unique_purchase_per_supplier"
             )
         ]
 
