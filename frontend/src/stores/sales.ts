@@ -37,13 +37,13 @@ interface Payment {
 }
 
 interface SaleForm {
-	customer: number
+	customer_id?: number
 	subtotal: number
 	discount: number
 	tax: number
 	total: number
+	status: string
 	items: { product: number; quantity: number; unit_price: number; total_price: number }[]
-	payments: { method: string; amount: number; reference: string }[]
 }
 
 export const useSalesStore = defineStore('sales', {
