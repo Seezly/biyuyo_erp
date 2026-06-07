@@ -44,7 +44,7 @@ class PurchaseViewSet(FilteringMixin, viewsets.ModelViewSet):
     Supports search by supplier name, filtering by status, and ordering.
     """
 
-    queryset = Purchase.objects.all()
+    queryset = Purchase.objects.select_related('supplier_id').all()
     serializer_class = PurchaseSerializer
     search_fields = ['id', 'supplier_id__name']
     filter_fields = ['status']
@@ -71,7 +71,7 @@ class PurchaseItemViewSet(FilteringMixin, viewsets.ModelViewSet):
     API endpoint that allows purchase items to be viewed or edited.
     """
 
-    queryset = PurchaseItem.objects.all()
+    queryset = PurchaseItem.objects.select_related('purchase_id', 'product_id').all()
     serializer_class = PurchaseItemSerializer
     search_fields = ['product_id__name']
     filter_fields = ['purchase_id', 'product_id']

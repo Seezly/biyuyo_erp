@@ -19,7 +19,7 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
     Supports search by sale ID or customer name, filtering by status, and ordering.
     """
 
-    queryset = Sale.objects.all()
+    queryset = Sale.objects.select_related('customer_id', 'user_id').all()
     serializer_class = SaleSerializer
     search_fields = ['id', 'customer_id__name']
     filter_fields = ['status']
@@ -149,7 +149,7 @@ class SaleItemViewSet(FilteringMixin, viewsets.ModelViewSet):
     API endpoint that allows sale items to be viewed or edited.
     """
 
-    queryset = SaleItem.objects.all()
+    queryset = SaleItem.objects.select_related('sale_id', 'product_id').all()
     serializer_class = SaleItemSerializer
     search_fields = ['product_id__name']
     filter_fields = ['sale_id', 'product_id']
@@ -174,7 +174,7 @@ class PaymentViewSet(FilteringMixin, viewsets.ModelViewSet):
     Supports search by reference, filtering by method/status, and ordering.
     """
 
-    queryset = Payment.objects.all()
+    queryset = Payment.objects.select_related('sale_id').all()
     serializer_class = PaymentSerializer
     search_fields = ['reference']
     filter_fields = ['method', 'status']

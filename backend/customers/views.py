@@ -12,7 +12,7 @@ class CustomerViewSet(FilteringMixin, viewsets.ModelViewSet):
     Supports search by name/phone, and ordering.
     """
 
-    queryset = Customer.objects.all()
+    queryset = Customer.objects.select_related('business_id').all()
     serializer_class = CustomerSerializer
     search_fields = ['name', 'phone', 'identification_number']
     filter_fields = []

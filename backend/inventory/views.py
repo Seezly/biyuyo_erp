@@ -49,7 +49,7 @@ class ProductViewSet(FilteringMixin, viewsets.ModelViewSet):
     Supports search by name/sku, filtering by category, and ordering.
     """
 
-    queryset = Product.objects.all()
+    queryset = Product.objects.select_related('category_id').all()
     serializer_class = ProductSerializer
     search_fields = ['name', 'sku', 'description']
     filter_fields = ['category_id', 'stock']
@@ -93,7 +93,7 @@ class InventoryMovementViewSet(FilteringMixin, viewsets.ModelViewSet):
     Supports filtering by type and ordering.
     """
 
-    queryset = InventoryMovement.objects.all()
+    queryset = InventoryMovement.objects.select_related('product_id').all()
     serializer_class = InventoryMovementSerializer
     search_fields = ['reference']
     filter_fields = ['type', 'product_id']
