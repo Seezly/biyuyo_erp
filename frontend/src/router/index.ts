@@ -125,6 +125,24 @@ const router = createRouter({
 				component: () => import('@/pages/Sale/Sales/EditView.vue'),
 				meta: { title: 'Editar Venta' },
 			},
+			{
+				path: 'payments',
+				name: 'Payments',
+				component: () => import('@/pages/Sale/Payments/ListView.vue'),
+				meta: { title: 'Lista de Pagos' },
+			},
+			{
+				path: 'payments/add',
+				name: 'AddPayment',
+				component: () => import('@/pages/Sale/Payments/CreateView.vue'),
+				meta: { title: 'Registrar Pago' },
+			},
+			{
+				path: 'payments/edit/:paymentId',
+				name: 'EditPayment',
+				component: () => import('@/pages/Sale/Payments/EditView.vue'),
+				meta: { title: 'Editar Pago' },
+			},
 			],
 		},
 		{
@@ -319,6 +337,24 @@ const router = createRouter({
 					path: 'reports',
 					name: 'AdminReports',
 					component: () => import('@/pages/Admin/ReportsView.vue'),
+				},
+				{
+					path: 'roles',
+					name: 'Roles',
+					component: () => import('@/pages/Roles/ListView.vue'),
+					meta: { title: 'Lista de Roles' },
+				},
+				{
+					path: 'roles/add',
+					name: 'AddRole',
+					component: () => import('@/pages/Roles/CreateView.vue'),
+					meta: { title: 'Crear Rol' },
+				},
+				{
+					path: 'roles/edit/:roleId',
+					name: 'EditRole',
+					component: () => import('@/pages/Roles/EditView.vue'),
+					meta: { title: 'Editar Rol' },
 				},
 				{
 					path: 'businesses',
