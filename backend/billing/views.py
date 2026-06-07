@@ -32,9 +32,9 @@ class SubscriptionViewSet(FilteringMixin, viewsets.ModelViewSet):
     API endpoint that allows subscriptions to be viewed or edited.
     """
 
-    queryset = Subscription.objects.all()
+    queryset = Subscription.objects.select_related('business_id', 'plan_id').all()
     serializer_class = SubscriptionSerializer
-    search_fields = ['business_id__name', 'plan__name']
+    search_fields = ['business_id__name', 'plan_id__name']
     filter_fields = ['status']
     ordering_fields = ['start_date', 'end_date', 'created_at']
     default_ordering = ['-start_date']
@@ -59,7 +59,7 @@ class InvoiceViewSet(FilteringMixin, viewsets.ModelViewSet):
     API endpoint that allows invoices to be viewed or edited.
     """
 
-    queryset = Invoice.objects.all()
+    queryset = Invoice.objects.select_related('subscription_id').all()
     serializer_class = InvoiceSerializer
     search_fields = ['subscription_id__business_id__name']
     filter_fields = ['status']

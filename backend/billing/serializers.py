@@ -35,8 +35,10 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             "status",
             "start_date",
             "end_date",
+            "created_at",
+            "updated_at",
         ]
-        read_only_fields = ["business_id"]
+        read_only_fields = ["business_id", "created_at", "updated_at"]
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
