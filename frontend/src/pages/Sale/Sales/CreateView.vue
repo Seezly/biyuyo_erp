@@ -377,7 +377,7 @@ const sendReceipt = () => {
 									<p class="font-bold text-2xl text-right font-heading text-primary mb-2">
 										${{ cartTotalWithIva.toFixed(2) }}
 									</p>
-									<p class="text-sm text-right text-white/70">Bs. {{ (cartTotalWithIva * 500).toFixed(2) }}</p>
+									<p class="text-sm text-right text-white/70">Bs. {{ (cartTotalWithIva * exchangeRate).toFixed(2) }}</p>
 								</div>
 							</div>
 							<BaseButton
@@ -443,7 +443,7 @@ const sendReceipt = () => {
 						<div class="flex flex-col justify-center items-center gap-4">
 							<h2 class="text-lg font-semibold">Total del pedido</h2>
 							<p class="text-4xl font-heading font-bold text-primary">${{ cartTotalWithIva.toFixed(2) }}</p>
-							<p class="text-lg">Bs. {{ (cartTotalWithIva * 500).toFixed(2) }}</p>
+							<p class="text-lg">Bs. {{ (cartTotalWithIva * exchangeRate).toFixed(2) }}</p>
 						</div>
 					</BaseCard>
 					<BaseCard
@@ -498,7 +498,7 @@ const sendReceipt = () => {
 						<div class="flex flex-col justify-center items-start gap-2">
 							<h2 class="text-xl font-semibold text-white">Monto total</h2>
 							<p class="text-4xl font-bold text-primary">${{ cartTotalWithIva.toFixed(2) }}</p>
-							<p class="font-medium">Bs. {{ (cartTotalWithIva * 500).toFixed(2) }}</p>
+							<p class="font-medium">Bs. {{ (cartTotalWithIva * exchangeRate).toFixed(2) }}</p>
 						</div>
 					</BaseCard>
 					<BaseCard variant="outlined" class="col-span-full order-3 lg:col-span-3 lg:row-span-2">

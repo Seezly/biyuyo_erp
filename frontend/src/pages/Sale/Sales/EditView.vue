@@ -8,11 +8,13 @@ import * as z from 'zod'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import { useSalesStore } from '@/stores/sales'
+import { useCustomersStore } from '@/stores/customers'
 import { useToastStore } from '@/stores/toast'
 
 const router = useRouter()
 const route = useRoute()
 const salesStore = useSalesStore()
+const customersStore = useCustomersStore()
 const toastStore = useToastStore()
 const loading = ref(false)
 const saving = ref(false)
@@ -62,7 +64,8 @@ const fetchSale = async () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await customersStore.fetchCustomers()
   fetchSale()
 })
 
@@ -99,7 +102,9 @@ const onSubmit = handleSubmit(async (values) => {
           Cliente *
            <select v-model="customer_id" class="py-2 px-4 rounded-xl border border-secondary text-primary">
              <option value="">Seleccionar cliente</option>
-             <!-- Options would be populated from customers store -->
+             <option v-for="c in customersStore.customers" :key="c.id" :value="c.id">
+               {{ c.name }}
+             </option>
            </select>
           <span v-if="errors.customer_id" class="text-red-500 text-sm">{{ errors.customer_id }}</span>
         </label>

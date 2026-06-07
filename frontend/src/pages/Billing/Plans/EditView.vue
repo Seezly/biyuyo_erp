@@ -36,7 +36,7 @@ const validationSchema = toTypedSchema(
   }),
 )
 
-const { handleSubmit, errors } = useForm({
+const { handleSubmit, errors, setValues } = useForm({
   validationSchema,
   initialValues: {
     name: '',
@@ -57,7 +57,12 @@ watch(
     if (newId) {
       const plan = await billingStore.fetchPlan(Number(newId))
       if (plan) {
-        // Form will auto-update via initialValues
+        setValues({
+          name: plan.name || '',
+          price: plan.price || 0,
+          max_users: plan.max_users || 1,
+          max_products: plan.max_products || 1,
+        })
       }
     }
   },
