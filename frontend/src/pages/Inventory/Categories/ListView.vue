@@ -6,6 +6,7 @@ import { useToastStore } from '@/stores/toast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseAlert from '@/components/ui/BaseAlert.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -13,6 +14,8 @@ const inventoryStore = useInventoryStore()
 const toastStore = useToastStore()
 
 const search = ref('')
+const showDeleteAlert = ref(false)
+const categoryToDelete = ref<number | null>(null)
 
 onMounted(() => {
 	search.value = (route.query.search as string) || ''
@@ -39,14 +42,22 @@ watch(search, () => {
 	router.push({ query })
 })
 
-const handleDelete = async (id: number) => {
-	await inventoryStore.deleteCategory(id)
-	if (inventoryStore.error) {
-		toastStore.error('Error al eliminar la categoría')
-	} else {
-		toastStore.success('Categoría eliminada correctamente')
-		fetchCategories()
+const confirmDelete = (id: number) => {
+	categoryToDelete.value = id
+	showDeleteAlert.value = true
+}
+
+const handleDelete = async () => {
+	if (categoryToDelete.value) {
+		await inventoryStore.deleteCategory(categoryToDelete.value)
+		showDeleteAlert.value = false
+		categoryToDelete.value = null
 	}
+}
+
+const cancelDelete = () => {
+	showDeleteAlert.value = false
+	categoryToDelete.value = null
 }
 
 const formatDate = (dateString: string) => {
@@ -113,7 +124,7 @@ const formatDate = (dateString: string) => {
 								text=""
 								icon="fa-solid fa-trash"
 								width="auto"
-								@click="handleDelete(category.id)"
+								@click="confirmDelete(category.id)"
 							/>
 						</div>
 					</div>
@@ -121,4 +132,13 @@ const formatDate = (dateString: string) => {
 			</BaseCard>
 		</div>
 	</section>
+
+	<BaseAlert
+		v-model:visible="showDeleteAlert"
+		title="Eliminar categoría"
+		description="¿Estás seguro de que deseas eliminar esta categoría? Esta acción no se puede deshacer."
+		confirm-text="Eliminar"
+		@confirm="handleDelete"
+		@cancel="cancelDelete"
+	/>
 </template>

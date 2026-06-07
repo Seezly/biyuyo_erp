@@ -5,6 +5,7 @@ import { useRolesStore } from '@/stores/roles'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import BaseAlert from '@/components/ui/BaseAlert.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -103,18 +104,13 @@ const cancelDelete = () => {
       </BaseCard>
     </div>
 
-    <!-- Delete Confirmation -->
-    <div v-if="showDeleteAlert" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <BaseCard variant="outlined" class="max-w-md w-full mx-4">
-        <div class="flex flex-col gap-4">
-          <h3 class="text-lg font-bold">Confirmar eliminacion</h3>
-          <p>Estas seguro de que deseas eliminar este rol? Esta accion no se puede deshacer.</p>
-          <div class="flex gap-2 justify-end">
-            <BaseButton text="Cancelar" variant="secondary" @click="cancelDelete" />
-            <BaseButton text="Eliminar" @click="handleDelete" />
-          </div>
-        </div>
-      </BaseCard>
-    </div>
+    <BaseAlert
+      v-model:visible="showDeleteAlert"
+      title="Eliminar rol"
+      description="¿Estás seguro de que deseas eliminar este rol? Esta acción no se puede deshacer."
+      confirm-text="Eliminar"
+      @confirm="handleDelete"
+      @cancel="cancelDelete"
+    />
   </section>
 </template>
