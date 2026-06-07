@@ -118,7 +118,6 @@ const getStatusClass = (status: string) => {
 					</div>
 					<div class="flex gap-2 w-full">
 						<BaseButton :to="'/suppliers/purchases/edit/' + purchase.id" text="Editar" variant="secondary" />
-						<BaseButton :to="'/suppliers/purchases/' + purchase.id" text="Ver" />
 					</div>
 				</div>
 			</BaseCard>

@@ -5,6 +5,7 @@ import { useSuppliersStore } from '@/stores/suppliers'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import BaseAlert from '@/components/ui/BaseAlert.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -118,5 +119,14 @@ const formatDate = (dateString: string) => {
 				</table>
 			</BaseCard>
 		</div>
+
+		<BaseAlert
+			v-if="showDeleteAlert"
+			title="Eliminar proveedor"
+			message="¿Estás seguro de eliminar este proveedor? Esta acción no se puede deshacer."
+			variant="danger"
+			@confirm="handleDelete"
+			@cancel="cancelDelete"
+		/>
 	</section>
 </template>
