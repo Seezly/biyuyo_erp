@@ -8,11 +8,10 @@
         <BaseButton
           v-if="actionText && actionLink"
           :to="actionLink"
+          :text="actionText"
           variant="primary"
           width="auto"
-        >
-          {{ actionText }}
-        </BaseButton>
+        />
       </slot>
     </div>
   </div>
