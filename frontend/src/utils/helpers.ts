@@ -30,12 +30,13 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 		})
 
 		if (refreshResponse.ok) {
+			const newCsrfToken = getCookie('csrftoken') || csrfToken
 			return fetch(import.meta.env.VITE_API_URL + url, {
 				...options,
 				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json',
-					'X-CSRFToken': csrfToken,
+					'X-CSRFToken': newCsrfToken,
 					...(options.headers || {}),
 				},
 			})

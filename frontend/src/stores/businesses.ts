@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
+import { useToastStore } from '@/stores/toast'
 
 interface Business {
   id: number
@@ -79,6 +80,7 @@ export const useBusinessesStore = defineStore('businesses', {
     async createBusiness(data: any): Promise<Business | null> {
       this.loading = true
       this.error = null
+      const toastStore = useToastStore()
       try {
         const response = await apiFetch('/api/businesses/', {
           method: 'POST',
@@ -91,9 +93,11 @@ export const useBusinessesStore = defineStore('businesses', {
         if (!response.ok) throw new Error('Failed to create business')
         const business = await response.json()
         this.businesses.push(business)
+        toastStore.success('Negocio creado correctamente')
         return business
       } catch (e: any) {
         this.error = e.message
+        toastStore.error(e.message || 'Error al crear el negocio')
         return null
       } finally {
         this.loading = false
@@ -103,6 +107,7 @@ export const useBusinessesStore = defineStore('businesses', {
     async updateBusiness(id: number, data: any): Promise<Business | null> {
       this.loading = true
       this.error = null
+      const toastStore = useToastStore()
       try {
         const response = await apiFetch(`/api/businesses/${id}/`, {
           method: 'PUT',
@@ -121,9 +126,11 @@ export const useBusinessesStore = defineStore('businesses', {
           this.businesses[index] = business
         }
         
+        toastStore.success('Negocio actualizado correctamente')
         return business
       } catch (e: any) {
         this.error = e.message
+        toastStore.error(e.message || 'Error al actualizar el negocio')
         return null
       } finally {
         this.loading = false
@@ -133,6 +140,7 @@ export const useBusinessesStore = defineStore('businesses', {
     async deleteBusiness(id: number): Promise<boolean> {
       this.loading = true
       this.error = null
+      const toastStore = useToastStore()
       try {
         const response = await apiFetch(`/api/businesses/${id}/`, {
           method: 'DELETE'
@@ -142,9 +150,11 @@ export const useBusinessesStore = defineStore('businesses', {
         
         // Remove from local state
         this.businesses = this.businesses.filter(b => b.id !== id)
+        toastStore.success('Negocio eliminado correctamente')
         return true
       } catch (e: any) {
         this.error = e.message
+        toastStore.error(e.message || 'Error al eliminar el negocio')
         return false
       } finally {
         this.loading = false
