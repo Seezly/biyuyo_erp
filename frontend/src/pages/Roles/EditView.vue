@@ -17,6 +17,7 @@ const toastStore = useToastStore()
 const loading = ref(false)
 
 const groupId = Number(route.params.roleId)
+if (isNaN(groupId)) router.back()
 
 const validationSchema = toTypedSchema(
   z.object({

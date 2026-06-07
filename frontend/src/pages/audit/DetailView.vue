@@ -10,6 +10,7 @@ const route = useRoute()
 const auditStore = useAuditStore()
 
 const logId = Number(route.params.id)
+if (isNaN(logId)) router.back()
 const loading = ref(true)
 const error = ref<string | null>(null)
 const log = ref<any>(null)
