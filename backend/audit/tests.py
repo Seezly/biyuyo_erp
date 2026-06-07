@@ -28,7 +28,7 @@ class AuditLogListViewTestCase(TestCase):
         response = self.client.get("/api/audit/logs/")
         results = response.data.get("results", response.data)
         for log in results:
-            self.assertNotEqual(log.get("user_email"), "other@test.com")
+            self.assertNotEqual(log.get("email"), "other@test.com")
 
 
 class AuditLogDetailViewTestCase(TestCase):

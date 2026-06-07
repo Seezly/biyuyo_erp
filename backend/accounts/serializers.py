@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["created_at", "updated_at"]
+        read_only_fields = ["business_id", "created_at", "updated_at"]
         extra_kwargs = {"url": {"view_name": "user-detail"}}
 
     def get_role(self, obj):
