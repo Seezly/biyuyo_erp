@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
+import { useToastStore } from '@/stores/toast'
 
 interface Group {
   id: number
@@ -65,6 +66,7 @@ export const useRolesStore = defineStore('roles', {
     async createRole(data: { name: string }): Promise<Group | null> {
       this.loading = true
       this.error = null
+      const toastStore = useToastStore()
       try {
         const response = await apiFetch('/api/groups/', {
           method: 'POST',
@@ -74,9 +76,11 @@ export const useRolesStore = defineStore('roles', {
         if (!response.ok) throw new Error('Failed to create group')
         const group = await response.json()
         this.roles.push(group)
+        toastStore.success('Rol creado correctamente')
         return group
       } catch (e: any) {
         this.error = e.message
+        toastStore.error(e.message || 'Error al crear rol')
         return null
       } finally {
         this.loading = false
@@ -86,6 +90,7 @@ export const useRolesStore = defineStore('roles', {
     async updateRole(id: number, data: Partial<{ name: string }>): Promise<Group | null> {
       this.loading = true
       this.error = null
+      const toastStore = useToastStore()
       try {
         const response = await apiFetch(`/api/groups/${id}/`, {
           method: 'PATCH',
@@ -100,9 +105,11 @@ export const useRolesStore = defineStore('roles', {
           this.roles[index] = group
         }
 
+        toastStore.success('Rol actualizado correctamente')
         return group
       } catch (e: any) {
         this.error = e.message
+        toastStore.error(e.message || 'Error al actualizar rol')
         return null
       } finally {
         this.loading = false
@@ -112,6 +119,7 @@ export const useRolesStore = defineStore('roles', {
     async deleteRole(id: number): Promise<boolean> {
       this.loading = true
       this.error = null
+      const toastStore = useToastStore()
       try {
         const response = await apiFetch(`/api/groups/${id}/`, {
           method: 'DELETE',
@@ -120,9 +128,11 @@ export const useRolesStore = defineStore('roles', {
         if (!response.ok) throw new Error('Failed to delete group')
 
         this.roles = this.roles.filter((r) => r.id !== id)
+        toastStore.success('Rol eliminado correctamente')
         return true
       } catch (e: any) {
         this.error = e.message
+        toastStore.error(e.message || 'Error al eliminar rol')
         return false
       } finally {
         this.loading = false

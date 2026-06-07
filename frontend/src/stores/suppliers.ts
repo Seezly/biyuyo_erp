@@ -227,6 +227,7 @@ export const useSuppliersStore = defineStore('suppliers', {
 		async createPurchase(data: PurchaseForm) {
 			this.loading = true
 			this.error = null
+			const toastStore = useToastStore()
 			try {
 				const response = await apiFetch('/api/purchases/', {
 					method: 'POST',
@@ -235,9 +236,11 @@ export const useSuppliersStore = defineStore('suppliers', {
 				if (!response.ok) throw new Error('Failed to create purchase')
 				const purchase = await response.json()
 				this.purchases.unshift(purchase)
+				toastStore.success('Compra registrada correctamente')
 				return purchase
 			} catch (e: any) {
 				this.error = e.message
+				toastStore.error(e.message || 'Error al registrar compra')
 				return null
 			} finally {
 				this.loading = false

@@ -212,6 +212,7 @@ export const useSalesStore = defineStore('sales', {
 		async createPayment(data: { sale: number; method: string; amount: number; reference: string }) {
 			this.loading = true
 			this.error = null
+			const toastStore = useToastStore()
 			try {
 				const response = await apiFetch('/api/payments/', {
 					method: 'POST',
@@ -220,9 +221,11 @@ export const useSalesStore = defineStore('sales', {
 				if (!response.ok) throw new Error('Failed to create payment')
 				const payment = await response.json()
 				this.payments.push(payment)
+				toastStore.success('Pago registrado correctamente')
 				return payment
 			} catch (e: any) {
 				this.error = e.message
+				toastStore.error(e.message || 'Error al registrar pago')
 				return null
 			} finally {
 				this.loading = false

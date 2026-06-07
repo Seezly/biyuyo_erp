@@ -184,6 +184,7 @@ export const useInventoryStore = defineStore('inventory', {
 		async createCategory(data: { name: string; parent_id?: number }) {
 			this.loading = true
 			this.error = null
+			const toastStore = useToastStore()
 			try {
 				const response = await apiFetch('/api/categories/', {
 					method: 'POST',
@@ -192,8 +193,10 @@ export const useInventoryStore = defineStore('inventory', {
 				if (!response.ok) throw new Error('Failed to create category')
 				const category = await response.json()
 				this.categories.push(category)
+				toastStore.success('Categoría creada correctamente')
 			} catch (e: any) {
 				this.error = e.message
+				toastStore.error(e.message || 'Error al crear categoría')
 			} finally {
 				this.loading = false
 			}
@@ -202,6 +205,7 @@ export const useInventoryStore = defineStore('inventory', {
 		async updateCategory(id: number, data: { name: string; parent_id?: number }) {
 			this.loading = true
 			this.error = null
+			const toastStore = useToastStore()
 			try {
 				const response = await apiFetch(`/api/categories/${id}/`, {
 					method: 'PATCH',
@@ -211,8 +215,10 @@ export const useInventoryStore = defineStore('inventory', {
 				const updated = await response.json()
 				const index = this.categories.findIndex(c => c.id === id)
 				if (index !== -1) this.categories[index] = updated
+				toastStore.success('Categoría actualizada correctamente')
 			} catch (e: any) {
 				this.error = e.message
+				toastStore.error(e.message || 'Error al actualizar categoría')
 			} finally {
 				this.loading = false
 			}
@@ -221,14 +227,17 @@ export const useInventoryStore = defineStore('inventory', {
 		async deleteCategory(id: number) {
 			this.loading = true
 			this.error = null
+			const toastStore = useToastStore()
 			try {
 				const response = await apiFetch(`/api/categories/${id}/`, {
 					method: 'DELETE',
 				})
 				if (!response.ok) throw new Error('Failed to delete category')
 				this.categories = this.categories.filter(c => c.id !== id)
+				toastStore.success('Categoría eliminada correctamente')
 			} catch (e: any) {
 				this.error = e.message
+				toastStore.error(e.message || 'Error al eliminar categoría')
 			} finally {
 				this.loading = false
 			}
@@ -270,6 +279,7 @@ export const useInventoryStore = defineStore('inventory', {
 		}) {
 			this.loading = true
 			this.error = null
+			const toastStore = useToastStore()
 			try {
 				const response = await apiFetch('/api/inventory-movements/', {
 					method: 'POST',
@@ -278,8 +288,10 @@ export const useInventoryStore = defineStore('inventory', {
 				if (!response.ok) throw new Error('Failed to create movement')
 				const movement = await response.json()
 				this.movements.push(movement)
+				toastStore.success('Movimiento registrado correctamente')
 			} catch (e: any) {
 				this.error = e.message
+				toastStore.error(e.message || 'Error al registrar movimiento')
 			} finally {
 				this.loading = false
 			}
