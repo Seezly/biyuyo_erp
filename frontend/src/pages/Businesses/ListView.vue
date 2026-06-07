@@ -5,6 +5,7 @@ import { useBusinessesStore } from '@/stores/businesses'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import BaseAlert from '@/components/ui/BaseAlert.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -124,4 +125,13 @@ const formatDate = (dateString: string) => {
       </BaseCard>
     </div>
   </section>
+
+  <BaseAlert
+    v-model:visible="showDeleteAlert"
+    title="Eliminar negocio"
+    description="¿Estás seguro de que deseas eliminar este negocio? Esta acción no se puede deshacer."
+    confirm-text="Eliminar"
+    @confirm="handleDelete"
+    @cancel="cancelDelete"
+  />
 </template>

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import BaseAlert from '@/components/ui/BaseAlert.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 
 const router = useRouter()
@@ -129,4 +130,13 @@ const formatDate = (dateString: string) => {
 			</BaseCard>
 		</div>
 	</section>
+
+	<BaseAlert
+		v-model:visible="showDeleteAlert"
+		title="Eliminar usuario"
+		description="¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer."
+		confirm-text="Eliminar"
+		@confirm="handleDelete"
+		@cancel="cancelDelete"
+	/>
 </template>
