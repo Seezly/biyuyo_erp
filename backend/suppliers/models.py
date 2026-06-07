@@ -45,11 +45,13 @@ class Purchase(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["business_id", "supplier_id"], name="unique_purchase_per_supplier"
-            )
-        ]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Compra #{self.id} - {self.supplier_id}"
+
+    def __float__(self):
+        return float(self.total)
 
 
 class PurchaseItem(models.Model):
@@ -67,3 +69,9 @@ class PurchaseItem(models.Model):
                 fields=["purchase_id", "product_id"], name="unique_purchase_item"
             )
         ]
+
+    def __str__(self):
+        return f"{self.product_id} x{self.quantity}"
+
+    def __float__(self):
+        return float(self.total_price)

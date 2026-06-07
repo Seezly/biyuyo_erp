@@ -25,9 +25,11 @@ class Subscription(models.Model):
     status = models.CharField(max_length=20)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.status
+        return f"{self.business_id} - {self.plan_id} ({self.status})"
 
 
 class Invoice(models.Model):

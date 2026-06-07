@@ -40,11 +40,14 @@ class SaleItem(models.Model):
             )
         ]
 
+    def __str__(self):
+        return f"{self.product_id} x{self.quantity}"
+
     def __int__(self):
         return self.quantity
 
     def __float__(self):
-        return self.total_price
+        return float(self.total_price)
 
 
 class Payment(models.Model):

@@ -2,7 +2,7 @@ from django.test import TestCase
 from rest_framework import status
 
 from test_helpers import (
-    create_business, create_user, create_plan, create_subscription,
+    create_business, create_user, create_admin_user, create_plan, create_subscription,
     get_authenticated_client,
 )
 
