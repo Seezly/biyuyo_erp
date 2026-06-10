@@ -103,7 +103,6 @@ const formatTime = (dateString: string) => {
 						</div>
 						<div class="ml-auto text-right">
 							<p class="text-xl font-semibold">{{ formatCurrency(Number(sale.total)) }}</p>
-							<p class="text-sm text-gray-500">{{ sale.payment_status }}</p>
 						</div>
 					</div>
 				</BaseCard>

@@ -42,12 +42,12 @@ const validationSchema = toTypedSchema(
 	z.object({
 		name: z.string().min(1, 'El nombre es requerido'),
 		is_subcategory: z.boolean(),
-		parent_category: z.number().nullable().optional(),
+		parent_id: z.number().nullable().optional(),
 	}).refine(
-		(data) => !data.is_subcategory || (data.is_subcategory && data.parent_category !== null),
+		(data) => !data.is_subcategory || (data.is_subcategory && data.parent_id !== null),
 		{
 			message: 'Seleccione una categoría padre',
-			path: ['parent_category'],
+			path: ['parent_id'],
 		}
 	)
 )
@@ -57,24 +57,23 @@ const { handleSubmit, errors } = useForm({
 	initialValues: {
 		name: '',
 		is_subcategory: false,
-		parent_category: null as number | null,
+		parent_id: null as number | null,
 	},
 })
 
 const { value: name } = useField<string>('name')
 const { value: is_subcategory } = useField<boolean>('is_subcategory')
-const { value: parent_category } = useField<number | null>('parent_category')
+const { value: parent_id } = useField<number | null>('parent_id')
 
 const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
 	try {
 		const payload: Record<string, unknown> = {
 			name: values.name,
-			is_subcategory: values.is_subcategory,
 		}
 
-		if (values.is_subcategory && values.parent_category) {
-			payload.parent_category = values.parent_category
+		if (values.is_subcategory && values.parent_id) {
+			payload.parent_id = values.parent_id
 		}
 
 		const response = await apiFetch('/api/categories/', {
@@ -116,8 +115,8 @@ const onSubmit = handleSubmit(async (values) => {
 					<label class="w-full flex flex-col text-dark">
 						Seleccione la categoría a la que pertenece
 						<select
-							v-model="parent_category"
-							name="parent_category"
+							v-model="parent_id"
+							name="parent_id"
 							class="py-2 px-4 rounded-xl border border-secondary text-primary"
 						>
 							<option :value="null">Seleccione una categoría</option>
@@ -125,7 +124,7 @@ const onSubmit = handleSubmit(async (values) => {
 								{{ category.name }}
 							</option>
 						</select>
-						<span v-if="errors.parent_category" class="text-red-500 text-sm">{{ errors.parent_category }}</span>
+						<span v-if="errors.parent_id" class="text-red-500 text-sm">{{ errors.parent_id }}</span>
 					</label>
 				</div>
 			</Transition>

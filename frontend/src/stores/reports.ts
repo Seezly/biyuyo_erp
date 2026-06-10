@@ -85,11 +85,16 @@ export const useReportsStore = defineStore('reports', {
       }
     },
 
-    async fetchSales() {
+    async fetchSales(params: { start_date?: string; end_date?: string } = {}) {
       this.loading = true
       this.error = null
       try {
-        const response = await apiFetch('/api/reports/sales/')
+        const queryParams = new URLSearchParams()
+        if (params.start_date) queryParams.set('start_date', params.start_date)
+        if (params.end_date) queryParams.set('end_date', params.end_date)
+        const queryString = queryParams.toString()
+        const url = `/api/reports/sales/${queryString ? '?' + queryString : ''}`
+        const response = await apiFetch(url)
         if (!response.ok) throw new Error('Failed to fetch sales report')
         const data = await response.json()
         this.sales = data

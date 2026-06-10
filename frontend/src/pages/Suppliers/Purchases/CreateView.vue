@@ -46,6 +46,7 @@ const onSubmit = handleSubmit(async (values) => {
 			body: JSON.stringify({
 				supplier_id: values.supplier,
 				total: values.total || 0,
+				status: 'pending',
 			}),
 		})
 

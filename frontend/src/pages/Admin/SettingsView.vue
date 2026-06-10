@@ -26,6 +26,38 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 					<BaseButton to="/billing/invoices" text="Ver facturas" variant="outlined" />
 				</div>
 			</BaseCard>
+
+			<BaseCard variant="outlined" class="col-span-12 md:col-span-6">
+				<div class="flex flex-col gap-4">
+					<h2 class="text-xl font-bold text-primary">Usuarios y Roles</h2>
+					<p class="text-gray-500">Gestionar usuarios del sistema y permisos por rol.</p>
+					<BaseButton to="/users" text="Administrar usuarios" variant="outlined" />
+				</div>
+			</BaseCard>
+
+			<BaseCard variant="outlined" class="col-span-12 md:col-span-6">
+				<div class="flex flex-col gap-4">
+					<h2 class="text-xl font-bold text-primary">Negocios Registrados</h2>
+					<p class="text-gray-500">Ver y administrar los negocios activos en la plataforma.</p>
+					<BaseButton to="/businesses" text="Ver negocios" variant="outlined" />
+				</div>
+			</BaseCard>
+
+			<BaseCard variant="outlined" class="col-span-12 md:col-span-6">
+				<div class="flex flex-col gap-4">
+					<h2 class="text-xl font-bold text-primary">Reportes Globales</h2>
+					<p class="text-gray-500">Estadísticas agregadas de todos los negocios.</p>
+					<BaseButton to="/reports" text="Ver reportes" variant="outlined" />
+				</div>
+			</BaseCard>
+
+			<BaseCard variant="outlined" class="col-span-12 md:col-span-6">
+				<div class="flex flex-col gap-4">
+					<h2 class="text-xl font-bold text-primary">Auditoría del Sistema</h2>
+					<p class="text-gray-500">Registro de actividades y cambios en el sistema.</p>
+					<BaseButton to="/audit" text="Ver auditoría" variant="outlined" />
+				</div>
+			</BaseCard>
 		</div>
 	</section>
 </template>

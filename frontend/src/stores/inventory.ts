@@ -275,7 +275,7 @@ export const useInventoryStore = defineStore('inventory', {
 			product: number
 			type: 'in' | 'out' | 'adjustment'
 			quantity: number
-			reason: string
+			reference: string
 		}) {
 			this.loading = true
 			this.error = null

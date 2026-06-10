@@ -29,6 +29,31 @@ class UserViewSet(viewsets.ModelViewSet):
             business_id=user.business_id
         ).select_related('business_id').order_by("-date_joined")
 
+    def create(self, request, *args, **kwargs):
+        role_name = request.data.get('role')
+        response = super().create(request, *args, **kwargs)
+        if response.status_code == 201 and role_name:
+            user = CustomUser.objects.get(pk=response.data['id'])
+            try:
+                group = Group.objects.get(name=role_name)
+                user.groups.add(group)
+            except Group.DoesNotExist:
+                pass
+        return response
+
+    def update(self, request, *args, **kwargs):
+        role_name = request.data.get('role')
+        response = super().update(request, *args, **kwargs)
+        if response.status_code == 200 and role_name:
+            user = self.get_object()
+            user.groups.clear()
+            try:
+                group = Group.objects.get(name=role_name)
+                user.groups.add(group)
+            except Group.DoesNotExist:
+                pass
+        return response
+
     @action(detail=False, methods=['post'], url_path='change-password')
     def change_password(self, request):
         user = request.user

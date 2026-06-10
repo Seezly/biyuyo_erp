@@ -50,7 +50,6 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ["url", "name"]
-        read_only_fields = ["name"]
 
 
 class RegisterSerializer(serializers.ModelSerializer):

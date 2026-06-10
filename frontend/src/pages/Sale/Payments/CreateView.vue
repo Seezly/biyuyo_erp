@@ -51,6 +51,7 @@ const onSubmit = handleSubmit(async (values) => {
       method: values.method,
       amount: values.amount,
       reference: values.reference || '',
+      status: 'pending',
     })
     if (result) {
       toastStore.success('Pago registrado correctamente')

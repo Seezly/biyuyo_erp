@@ -7,6 +7,7 @@ import * as z from 'zod'
 
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 import { useSuppliersStore } from '@/stores/suppliers'
 
 const router = useRouter()
@@ -16,10 +17,11 @@ const loading = ref(false)
 const validationSchema = toTypedSchema(
 	z.object({
 		name: z.string().min(1, 'El nombre es requerido'),
-		rif: z.string().min(1, 'El RIF es requerido').regex(/^[JGVEjgve]-\d{8}-\d$/, 'RIF invǭlido (ej: J-12345678-9)'),
-		email: z.string().email('Email invǭlido').or(z.literal('')),
-		address: z.string().optional(),
-		phone: z.string().optional(),
+		rif: z.string().min(1, 'El RIF es requerido').regex(/^[JGVEjgve]-\d{8}-\d$/, 'RIF inválido (ej: J-12345678-9)'),
+		email: z.string().min(1, 'El email es requerido').email('Email inválido'),
+		address: z.string().min(1, 'La dirección es requerida'),
+		phone: z.string().min(1, 'El teléfono es requerido'),
+		is_active: z.boolean(),
 	})
 )
 
@@ -31,6 +33,7 @@ const { handleSubmit, errors } = useForm({
 		email: '',
 		address: '',
 		phone: '',
+		is_active: true,
 	},
 })
 
@@ -39,6 +42,7 @@ const { value: rif } = useField<string>('rif')
 const { value: email } = useField<string>('email')
 const { value: address } = useField<string>('address')
 const { value: phone } = useField<string>('phone')
+const { value: is_active } = useField<boolean>('is_active')
 
 const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
@@ -76,18 +80,21 @@ const onSubmit = handleSubmit(async (values) => {
 				<span v-if="errors.rif" class="text-red-500 text-sm">{{ errors.rif }}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
-				Email
+				Email *
 				<BaseInput v-model="email" type="email" name="email" placeholder="Email del proveedor" />
 				<span v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
-				Dirección
+				Dirección *
 				<BaseInput v-model="address" type="text" name="address" placeholder="Dirección del proveedor" />
+				<span v-if="errors.address" class="text-red-500 text-sm">{{ errors.address }}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
-				Teléfono
+				Teléfono *
 				<BaseInput v-model="phone" type="tel" name="phone" placeholder="Teléfono del proveedor" />
+				<span v-if="errors.phone" class="text-red-500 text-sm">{{ errors.phone }}</span>
 			</label>
+			<BaseCheckbox v-model="is_active" name="is_active" text="Activo" />
 			<BaseButton :text="loading ? 'Creando...' : 'Agregar proveedor'" :loading="loading" :disabled="loading" type="submit" />
 		</form>
 	</section>

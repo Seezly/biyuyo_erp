@@ -7,9 +7,11 @@ import BaseCard from '@/components/ui/BaseCard.vue'
 const authStore = useAuthStore()
 const reportsStore = useReportsStore()
 
+const today = new Date().toISOString().split('T')[0]
+
 onMounted(async () => {
   await Promise.all([
-    reportsStore.fetchSales(),
+    reportsStore.fetchSales({ start_date: today, end_date: today }),
     reportsStore.fetchInventory(),
   ])
 })

@@ -21,7 +21,6 @@ interface Sale {
   tax: number
   total: number
   status: string
-  payment_status: string
   created_at: string
   items?: SaleItem[]
 }
@@ -209,7 +208,7 @@ export const useSalesStore = defineStore('sales', {
 			}
 		},
 
-		async createPayment(data: { sale: number; method: string; amount: number; reference: string }) {
+		async createPayment(data: { sale: number; method: string; amount: number; reference: string; status: string }) {
 			this.loading = true
 			this.error = null
 			const toastStore = useToastStore()

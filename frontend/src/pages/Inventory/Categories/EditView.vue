@@ -31,7 +31,7 @@ onMounted(async () => {
 			const data = await response.json()
 			setValues({
 				name: data.name || '',
-				parent_category: data.parent || null,
+				parent_id: data.parent_id || null,
 			})
 		}
 	} catch (error) {
@@ -44,7 +44,7 @@ onMounted(async () => {
 const validationSchema = toTypedSchema(
 	z.object({
 		name: z.string().min(1, 'El nombre es requerido'),
-		parent_category: z.number().nullable().optional(),
+		parent_id: z.number().nullable().optional(),
 	})
 )
 
@@ -52,12 +52,12 @@ const { handleSubmit, errors, setValues } = useForm({
 	validationSchema,
 	initialValues: {
 		name: '',
-		parent_category: null as number | null,
+		parent_id: null as number | null,
 	},
 })
 
 const { value: name } = useField<string>('name')
-const { value: parent_category } = useField<number | null>('parent_category')
+const { value: parent_id } = useField<number | null>('parent_id')
 
 const onSubmit = handleSubmit(async (values) => {
 	saving.value = true
@@ -66,8 +66,8 @@ const onSubmit = handleSubmit(async (values) => {
 			name: values.name,
 		}
 
-		if (values.parent_category) {
-			payload.parent_category = values.parent_category
+		if (values.parent_id) {
+			payload.parent_id = values.parent_id
 		}
 
 		const response = await apiFetch(`/api/categories/${categoryId}/`, {
@@ -111,7 +111,7 @@ const onSubmit = handleSubmit(async (values) => {
 				</label>
 				<label class="w-full flex flex-col text-dark">
 					Categoría padre (opcional)
-					<select v-model="parent_category" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+					<select v-model="parent_id" class="py-2 px-4 rounded-xl border border-secondary text-primary">
 						<option :value="null">Sin categoría padre</option>
 						<option v-for="cat in inventoryStore.categories" :key="cat.id" :value="cat.id">
 							{{ cat.name }}
