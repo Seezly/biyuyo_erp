@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/stores/auth'
+
 // Function that takes the cookies object and search for a specific cookie
 export function getCookie(name: string): string | undefined {
 	const value = `; ${document.cookie}`
@@ -14,12 +16,19 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 	const csrfToken = getCookie('csrftoken') || ''
 	const { headers: userHeaders, ...restOptions } = options
 
+	const auth = useAuthStore()
+	const businessHeaders: Record<string, string> = {}
+	if (auth.impersonatedBusinessId) {
+		businessHeaders['X-Business-Id'] = auth.impersonatedBusinessId.toString()
+	}
+
 	const res = await fetch(import.meta.env.VITE_API_URL + url, {
 		...restOptions,
 		credentials: 'include',
 		headers: {
 			'Content-Type': 'application/json',
 			'X-CSRFToken': csrfToken,
+			...businessHeaders,
 			...(userHeaders || {}),
 		},
 	})
@@ -39,6 +48,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRFToken': newCsrfToken,
+					...businessHeaders,
 					...(retryHeaders || {}),
 				},
 			})

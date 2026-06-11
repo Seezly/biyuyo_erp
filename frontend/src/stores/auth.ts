@@ -23,7 +23,13 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: false,
     loading: true,
     error: null as string | null,
+    impersonatedBusinessId: null as number | null,
+    impersonatedBusinessName: null as string | null,
   }),
+
+  getters: {
+    isImpersonating: (state) => state.impersonatedBusinessId !== null,
+  },
 
   actions: {
     setUser(user: User) {
@@ -31,9 +37,21 @@ export const useAuthStore = defineStore('auth', {
       this.isAuthenticated = true
     },
 
+    startImpersonation(businessId: number, businessName: string) {
+      this.impersonatedBusinessId = businessId
+      this.impersonatedBusinessName = businessName
+    },
+
+    stopImpersonation() {
+      this.impersonatedBusinessId = null
+      this.impersonatedBusinessName = null
+    },
+
     async logout() {
       this.user = null
       this.isAuthenticated = false
+      this.impersonatedBusinessId = null
+      this.impersonatedBusinessName = null
 
       try {
         await apiFetch('/api/logout/', {
@@ -64,7 +82,6 @@ export const useAuthStore = defineStore('auth', {
       search?: string
       ordering?: string
       page?: string
-      business_id?: number | null
     } = {}) {
       this.loading = true
       this.error = null
@@ -73,7 +90,6 @@ export const useAuthStore = defineStore('auth', {
         if (params.search) queryParams.set('search', params.search)
         if (params.ordering) queryParams.set('ordering', params.ordering)
         if (params.page) queryParams.set('page', params.page)
-        if (params.business_id) queryParams.set('business_id', params.business_id.toString())
 
         const queryString = queryParams.toString()
         const url = `/api/users/${queryString ? '?' + queryString : ''}`

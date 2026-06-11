@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TheHeader from './components/layout/TheHeader.vue'
+import TheBusinessBar from './components/layout/TheBusinessBar.vue'
 import TheFooter from './components/layout/TheFooter.vue'
 import Toast from './components/ui/Toast.vue'
 import Breadcrumb from './components/Breadcrumb.vue'
@@ -14,6 +15,7 @@ import Breadcrumb from './components/Breadcrumb.vue'
 	</a>
 	<Toast />
 	<TheHeader />
+	<TheBusinessBar />
 	<main
 		id="main-content"
 		tabindex="-1"

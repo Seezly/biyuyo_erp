@@ -16,6 +16,10 @@ const mobileMenuOpen = ref(false)
 watch(() => route.path, () => {
   mobileMenuOpen.value = false
 })
+
+const isAdmin = auth.user?.role === 'admin' || auth.user?.is_superuser
+const showUserNav = !isAdmin || auth.isImpersonating
+const showAdminNav = isAdmin && !auth.isImpersonating
 </script>
 
 <template>
@@ -38,7 +42,7 @@ watch(() => route.path, () => {
 			<NavItem v-if="!auth.isAuthenticated" class="hidden md:flex">
 				<RouterLink class="rounded-full py-2 px-4" to="/">Inicio</RouterLink>
 			</NavItem>
-			<NavItem v-if="auth.isAuthenticated && auth.user?.role !== 'admin'" class="hidden md:flex">
+			<NavItem v-if="showUserNav" class="hidden md:flex">
 				<RouterLink class="rounded-full py-2 px-4" to="/dashboard">Inicio</RouterLink>
 				<RouterLink class="rounded-full py-2 px-4" to="/customers">Clientes</RouterLink>
 				<RouterLink class="rounded-full py-2 px-4" to="/inventory">Inventario</RouterLink>
@@ -47,7 +51,7 @@ watch(() => route.path, () => {
 				<RouterLink class="rounded-full py-2 px-4" to="/suppliers">Proveedores</RouterLink>
 				<RouterLink class="rounded-full py-2 px-4" to="/reports">Reportes</RouterLink>
 			</NavItem>
-            <NavItem v-if="auth.isAuthenticated && auth.user?.role === 'admin'" class="hidden md:flex">
+            <NavItem v-if="showAdminNav" class="hidden md:flex">
                 <RouterLink class="rounded-full py-2 px-4" to="/admin">Administración</RouterLink>
                 <RouterLink class="rounded-full py-2 px-4" to="/users">Usuarios</RouterLink>
                 <RouterLink class="rounded-full py-2 px-4" to="/admin/businesses">Negocios</RouterLink>
@@ -82,7 +86,7 @@ watch(() => route.path, () => {
 					<BaseButton to="/register" text="Registrarse" variant="ghost" width="auto" />
 				</div>
 			</div>
-			<div v-if="auth.isAuthenticated && auth.user?.role !== 'admin'" class="flex flex-col gap-2 pt-4">
+			<div v-if="showUserNav" class="flex flex-col gap-2 pt-4">
 				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/dashboard" role="menuitem">Inicio</RouterLink>
 				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/customers" role="menuitem">Clientes</RouterLink>
 				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/inventory" role="menuitem">Inventario</RouterLink>
@@ -96,7 +100,7 @@ watch(() => route.path, () => {
 					<LogoutButton />
 				</div>
 			</div>
-			<div v-if="auth.isAuthenticated && auth.user?.role === 'admin'" class="flex flex-col gap-2 pt-4">
+			<div v-if="showAdminNav" class="flex flex-col gap-2 pt-4">
 				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/admin" role="menuitem">Administración</RouterLink>
 				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/users" role="menuitem">Usuarios</RouterLink>
 				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/admin/businesses" role="menuitem">Negocios</RouterLink>
