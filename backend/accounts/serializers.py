@@ -27,6 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
             "identification_number",
             "phone",
             "is_active",
+            "is_superuser",
             "email_notifications",
             "push_notifications",
             "low_stock_alerts",
@@ -36,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["business_id", "created_at", "updated_at"]
+        read_only_fields = ["business_id", "is_superuser", "created_at", "updated_at"]
         extra_kwargs = {
             "url": {"view_name": "user-detail"},
             "password": {"write_only": True},

@@ -119,8 +119,9 @@ class MeView(views.APIView):
         return Response({
             "id": user.id,
             "role": user.groups.first().name if user.groups.exists() else None,
-            "business_id": user.business_id.id,
+            "business_id": user.business_id.id if user.business_id else None,
             "first_name": user.first_name,
             "email": user.email,
             "phone": getattr(user, 'phone', None),
+            "is_superuser": user.is_superuser,
         })
