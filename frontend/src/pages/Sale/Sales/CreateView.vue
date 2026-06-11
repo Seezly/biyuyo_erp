@@ -68,14 +68,14 @@ const addToCart = (product: any) => {
 			return
 		}
 		existing.quantity += 1
-		existing.total = existing.quantity * existing.unit_price
+		existing.total = existing.quantity * Number(existing.unit_price)
 	} else {
 		cart.value.push({
 			product: product.id,
 			product_name: product.name,
 			quantity: 1,
-			unit_price: product.sell_price,
-			total: product.sell_price,
+			unit_price: Number(product.sell_price),
+			total: Number(product.sell_price),
 			stock: product.stock,
 		})
 	}
@@ -94,7 +94,7 @@ const updateQuantity = (index: number, delta: number) => {
 		return
 	}
 	item.quantity = newQty
-	item.total = item.quantity * item.unit_price
+	item.total = item.quantity * Number(item.unit_price)
 }
 
 const goToPayment = () => {

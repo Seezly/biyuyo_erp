@@ -4,7 +4,7 @@ from django.db import models
 # Create your models here.
 class Sale(models.Model):
     business_id = models.ForeignKey("businesses.Business", on_delete=models.CASCADE)
-    customer_id = models.ForeignKey("customers.Customer", on_delete=models.CASCADE)
+    customer_id = models.ForeignKey("customers.Customer", on_delete=models.CASCADE, null=True, blank=True)
     user_id = models.ForeignKey("accounts.CustomUser", on_delete=models.CASCADE)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2)
