@@ -32,15 +32,28 @@ class UserSerializer(serializers.ModelSerializer):
             "low_stock_alerts",
             "out_of_stock_alerts",
             "role",
+            "password",
             "created_at",
             "updated_at",
         ]
         read_only_fields = ["business_id", "created_at", "updated_at"]
-        extra_kwargs = {"url": {"view_name": "user-detail"}}
+        extra_kwargs = {
+            "url": {"view_name": "user-detail"},
+            "password": {"write_only": True},
+        }
 
     def get_role(self, obj):
         group = obj.groups.first()
         return group.name if group else None
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 
 class GroupSerializer(serializers.ModelSerializer):
