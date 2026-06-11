@@ -16,9 +16,9 @@ const loading = ref(false)
 const validationSchema = toTypedSchema(
 	z.object({
 		name: z.string().min(1, 'El nombre es requerido'),
-		price: z.string().min(0, 'El precio debe ser mayor o igual a cero'),
-		max_users: z.string().min(1, 'El número máximo de usuarios debe ser al menos 1'),
-		max_products: z.string().min(1, 'El número máximo de productos debe ser al menos 1'),
+		price: z.number().min(0, 'El precio debe ser mayor o igual a cero'),
+		max_users: z.number().min(1, 'El número máximo de usuarios debe ser al menos 1'),
+		max_products: z.number().min(1, 'El número máximo de productos debe ser al menos 1'),
 	}),
 )
 
@@ -26,16 +26,16 @@ const { handleSubmit, errors } = useForm({
 	validationSchema,
 	initialValues: {
 		name: '',
-		price: '0',
-		max_users: '1',
-		max_products: '1',
+		price: 0,
+		max_users: 1,
+		max_products: 1,
 	},
 })
 
 const { value: name } = useField<string>('name')
-const { value: price } = useField<string>('price')
-const { value: max_users } = useField<string>('max_users')
-const { value: max_products } = useField<string>('max_products')
+const { value: price } = useField<number>('price')
+const { value: max_users } = useField<number>('max_users')
+const { value: max_products } = useField<number>('max_products')
 
 const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
