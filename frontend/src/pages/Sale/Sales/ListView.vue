@@ -4,7 +4,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { useSalesStore } from '@/stores/sales'
 import { useCustomersStore } from '@/stores/customers'
 import { useAuthStore } from '@/stores/auth'
-import { useBusinessesStore } from '@/stores/businesses'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
@@ -15,10 +14,6 @@ const route = useRoute()
 const salesStore = useSalesStore()
 const customersStore = useCustomersStore()
 const authStore = useAuthStore()
-const businessesStore = useBusinessesStore()
-
-const isSuperadmin = computed(() => authStore.user?.is_superuser === true)
-const selectedBusinessId = ref<number | null>(null)
 
 const search = ref('')
 const statusFilter = ref('')
@@ -27,9 +22,6 @@ const saleToDelete = ref<number | null>(null)
 
 // Initialize filters from URL query params
 onMounted(async () => {
-	if (isSuperadmin.value) {
-		await businessesStore.fetchBusinesses()
-	}
 	search.value = (route.query.search as string) || ''
 	statusFilter.value = (route.query.status as string) || ''
 	await Promise.all([
@@ -45,14 +37,10 @@ const fetchSales = () => {
 		status?: string
 		ordering?: string
 		page?: string
-		business_id?: number | null
 	} = {}
 
 	if (search.value) params.search = search.value
 	if (statusFilter.value) params.status = statusFilter.value
-	if (isSuperadmin.value && selectedBusinessId.value) {
-		params.business_id = selectedBusinessId.value
-	}
 	if (route.query.ordering) params.ordering = route.query.ordering as string
 	if (route.query.page) params.page = route.query.page as string
 
@@ -60,7 +48,7 @@ const fetchSales = () => {
 }
 
 // Watch for filter changes and update URL
-watch([search, statusFilter, selectedBusinessId], () => {
+watch([search, statusFilter], () => {
 	const query: Record<string, string> = {}
 	if (search.value) query.search = search.value
 	if (statusFilter.value) query.status = statusFilter.value
@@ -155,14 +143,6 @@ const cancelDelete = () => {
 			<div class="col-span-12 lg:col-span-3 lg:row-span-1">
 				<BaseInput v-model="statusFilter" type="search" placeholder="Filtrar por status" class="w-full" />
 			</div>
-			<label v-if="isSuperadmin" class="w-full flex flex-col text-dark col-span-12 lg:col-span-2 lg:row-span-1">
-				<select v-model="selectedBusinessId" class="py-2 px-4 rounded-xl border border-secondary text-primary">
-					<option :value="null">Todos los negocios</option>
-					<option v-for="b in businessesStore.businesses" :key="b.id" :value="b.id">
-						{{ b.name }}
-					</option>
-				</select>
-			</label>
 
 			<div class="col-span-12 lg:col-span-12 lg:row-span-5">
 				<BaseCard variant="outlined">

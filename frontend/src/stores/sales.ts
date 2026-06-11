@@ -20,7 +20,6 @@ export const useSalesStore = defineStore('sales', {
 		payments: [] as Payment[],
 		loading: false,
 		error: null as string | null,
-		// Pagination state
 		pagination: {
 			count: 0,
 			next: null as string | null,
@@ -34,7 +33,6 @@ export const useSalesStore = defineStore('sales', {
 			status?: string
 			ordering?: string
 			page?: string
-			business_id?: number | null
 		} = {}) {
 			this.loading = true
 			this.error = null
@@ -44,7 +42,6 @@ export const useSalesStore = defineStore('sales', {
 				if (params.status) queryParams.set('status', params.status)
 				if (params.ordering) queryParams.set('ordering', params.ordering)
 				if (params.page) queryParams.set('page', params.page)
-				if (params.business_id) queryParams.set('business_id', params.business_id.toString())
 
 				const queryString = queryParams.toString()
 				const url = `/api/sales/${queryString ? '?' + queryString : ''}`
@@ -152,7 +149,6 @@ export const useSalesStore = defineStore('sales', {
 			search?: string
 			ordering?: string
 			page?: string
-			business_id?: number | null
 		} = {}) {
 			this.loading = true
 			this.error = null
@@ -164,7 +160,6 @@ export const useSalesStore = defineStore('sales', {
 				if (params.search) queryParams.set('search', params.search)
 				if (params.ordering) queryParams.set('ordering', params.ordering)
 				if (params.page) queryParams.set('page', params.page)
-				if (params.business_id) queryParams.set('business_id', params.business_id.toString())
 
 				const queryString = queryParams.toString()
 				const url = `/api/payments/${queryString ? '?' + queryString : ''}`

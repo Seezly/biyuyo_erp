@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useInventoryStore } from '@/stores/inventory'
 import { useToastStore } from '@/stores/toast'
 import { useAuthStore } from '@/stores/auth'
-import { useBusinessesStore } from '@/stores/businesses'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -15,19 +14,12 @@ const route = useRoute()
 const inventoryStore = useInventoryStore()
 const toastStore = useToastStore()
 const authStore = useAuthStore()
-const businessesStore = useBusinessesStore()
-
-const isSuperadmin = computed(() => authStore.user?.is_superuser === true)
-const selectedBusinessId = ref<number | null>(null)
 
 const search = ref('')
 const showDeleteAlert = ref(false)
 const categoryToDelete = ref<number | null>(null)
 
 onMounted(async () => {
-	if (isSuperadmin.value) {
-		await businessesStore.fetchBusinesses()
-	}
 	search.value = (route.query.search as string) || ''
 	fetchCategories()
 })
@@ -37,20 +29,16 @@ const fetchCategories = () => {
 		search?: string
 		ordering?: string
 		page?: string
-		business_id?: number | null
 	} = {}
 
 	if (search.value) params.search = search.value
-	if (isSuperadmin.value && selectedBusinessId.value) {
-		params.business_id = selectedBusinessId.value
-	}
 	if (route.query.ordering) params.ordering = route.query.ordering as string
 	if (route.query.page) params.page = route.query.page as string
 
 	inventoryStore.fetchCategories(params)
 }
 
-watch([search, selectedBusinessId], () => {
+watch([search], () => {
 	const query: Record<string, string> = {}
 	if (search.value) query.search = search.value
 	router.push({ query })
@@ -101,16 +89,8 @@ const formatDate = (dateString: string) => {
 			<BaseInput
 				v-model="search"
 				placeholder="Buscar categoría por nombre"
-				class="col-span-12 lg:col-span-6"
+				class="col-span-12 lg:col-span-9"
 			/>
-			<label v-if="isSuperadmin" class="w-full flex flex-col text-dark col-span-12 lg:col-span-3">
-				<select v-model="selectedBusinessId" class="py-2 px-4 rounded-xl border border-secondary text-primary">
-					<option :value="null">Todos los negocios</option>
-					<option v-for="b in businessesStore.businesses" :key="b.id" :value="b.id">
-						{{ b.name }}
-					</option>
-				</select>
-			</label>
 		</div>
 
 		<div v-if="inventoryStore.loading" class="w-full text-center py-8">

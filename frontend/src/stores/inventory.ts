@@ -24,19 +24,16 @@ export const useInventoryStore = defineStore('inventory', {
 			stock?: string
 			ordering?: string
 			page?: string
-			business_id?: number | null
 		} = {}) {
 			this.loading = true
 			this.error = null
 			try {
-				// Build query string from params
 				const queryParams = new URLSearchParams()
 				if (params.search) queryParams.set('search', params.search)
 				if (params.category_id) queryParams.set('category_id', params.category_id)
 				if (params.stock) queryParams.set('stock', params.stock)
 				if (params.ordering) queryParams.set('ordering', params.ordering)
 				if (params.page) queryParams.set('page', params.page)
-				if (params.business_id) queryParams.set('business_id', params.business_id.toString())
 
 				const queryString = queryParams.toString()
 				const url = `/api/products/${queryString ? '?' + queryString : ''}`
@@ -140,7 +137,6 @@ export const useInventoryStore = defineStore('inventory', {
 			search?: string
 			ordering?: string
 			page?: string
-			business_id?: number | null
 		} = {}) {
 			this.loading = true
 			this.error = null
@@ -149,7 +145,6 @@ export const useInventoryStore = defineStore('inventory', {
 				if (params.search) queryParams.set('search', params.search)
 				if (params.ordering) queryParams.set('ordering', params.ordering)
 				if (params.page) queryParams.set('page', params.page)
-				if (params.business_id) queryParams.set('business_id', params.business_id.toString())
 
 				const queryString = queryParams.toString()
 				const url = `/api/categories/${queryString ? '?' + queryString : ''}`
