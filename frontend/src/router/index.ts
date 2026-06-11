@@ -126,6 +126,12 @@ const router = createRouter({
 				meta: { title: 'Editar Venta' },
 			},
 			{
+				path: ':saleId',
+				name: 'ShowSale',
+				component: () => import('@/pages/Sale/Sales/SaleDetailView.vue'),
+				meta: { title: 'Detalle de Venta' },
+			},
+			{
 				path: 'payments',
 				name: 'Payments',
 				component: () => import('@/pages/Sale/Payments/ListView.vue'),

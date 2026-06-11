@@ -64,7 +64,10 @@ const onSubmit = handleSubmit(async (values) => {
 	try {
 		const response = await apiFetch(`/api/purchases/${purchaseId}/`, {
 			method: 'PATCH',
-			body: JSON.stringify(values),
+			body: JSON.stringify({
+				supplier_id: values.supplier,
+				total: values.total,
+			}),
 		})
 
 		if (!response.ok) {

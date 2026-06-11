@@ -1,5 +1,5 @@
 from businesses.models import Business
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
 
 from core.mixins import FilteringMixin
@@ -34,7 +34,7 @@ class BusinessViewSet(FilteringMixin, viewsets.ModelViewSet):
         if user.is_superuser:
             return obj
 
-        if obj.id != user.business_id:
+        if obj.id != user.business_id_id:
             raise PermissionDenied("You do not have access to this business.")
 
         return obj

@@ -1,6 +1,6 @@
 from django.db import models
 from inventory.models import Category, Product, InventoryMovement
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from rest_framework.response import Response

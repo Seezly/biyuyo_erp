@@ -52,7 +52,7 @@ const fetchSale = async () => {
     const sale = salesStore.currentSale
     if (sale) {
       setValues({
-        customer_id: sale.customer ? Number(sale.customer) : undefined,
+        customer_id: sale.customer_id ? Number(sale.customer_id) : undefined,
         total: sale.total ? Number(sale.total) : undefined,
         status: sale.status || 'pending',
       })

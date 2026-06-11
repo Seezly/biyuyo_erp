@@ -167,7 +167,7 @@ const cancelDelete = () => {
 								<div class="flex gap-4 justify-between items-center">
 									<div>
 										<h3 class="text-primary text-lg font-medium">
-											{{ getCustomerName(sale.customer) }}
+											{{ getCustomerName(sale.customer_id) }}
 										</h3>
 										<p class="text-xs text-gray-500">Venta #{{ sale.id }}</p>
 									</div>

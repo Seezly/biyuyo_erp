@@ -1,4 +1,3 @@
-import json
 from django.contrib.auth import get_user_model
 from django.utils.deprecation import MiddlewareMixin
 from audit.models import AuditLog

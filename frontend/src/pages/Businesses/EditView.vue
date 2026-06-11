@@ -90,7 +90,6 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     const business = await businessesStore.updateBusiness(businessId, values)
     if (business) {
-      toastStore.success('Negocio actualizado correctamente')
       router.push('/admin/businesses')
     }
   } catch (error) {

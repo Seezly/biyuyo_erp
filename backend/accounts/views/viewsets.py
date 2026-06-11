@@ -1,10 +1,10 @@
 from django.contrib.auth.models import Group
 from accounts.models import CustomUser, ReminderSettings
-from rest_framework import permissions, viewsets, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from core.permissions import IsAdminUser
+from core.permissions import IsAdminUser, IsAdminOrBusinessUser
 from accounts.serializers import (
     GroupSerializer,
     ReminderSettingsSerializer,

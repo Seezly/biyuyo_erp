@@ -54,7 +54,6 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     const updated = await rolesStore.updateRole(groupId, values)
     if (updated) {
-      toastStore.success('Rol actualizado correctamente')
       router.push('/admin/roles')
     }
   } catch {
