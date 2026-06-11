@@ -22,11 +22,8 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
 
     def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return CustomUser.objects.select_related('business_id').order_by("-date_joined")
         return CustomUser.objects.filter(
-            business_id=user.business_id
+            business_id=self.request.business
         ).select_related('business_id').order_by("-date_joined")
 
     def create(self, request, *args, **kwargs):
@@ -55,7 +52,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return response
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.user.business_id)
+        serializer.save(business_id=self.request.business)
 
     @action(detail=False, methods=['post'], url_path='change-password')
     def change_password(self, request):
@@ -97,18 +94,15 @@ class ReminderSettingsViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrBusinessUser]
 
     def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return ReminderSettings.objects.all()
-        return ReminderSettings.objects.filter(business_id=user.business_id)
+        return ReminderSettings.objects.filter(business_id=self.request.business)
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.user.business_id)
+        serializer.save(business_id=self.request.business)
 
     @action(detail=False, methods=["get", "patch"], url_path="current")
     def current(self, request):
         settings, _ = ReminderSettings.objects.get_or_create(
-            business_id=request.user.business_id
+            business_id=request.business
         )
         if request.method == "PATCH":
             serializer = self.get_serializer(settings, data=request.data, partial=True)

@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions
+from rest_framework.exceptions import PermissionDenied
 from .models import AuditLog
 from .serializers import AuditLogSerializer
 
@@ -12,11 +13,8 @@ class AuditLogListView(generics.ListAPIView):
     ordering = ['-timestamp']
 
     def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return AuditLog.objects.select_related('user').all()
         return AuditLog.objects.select_related('user').filter(
-            user__business_id=user.business_id
+            user__business_id=self.request.business
         )
 
 
@@ -29,9 +27,6 @@ class AuditLogDetailView(generics.RetrieveAPIView):
             AuditLog.objects.select_related('user'),
             pk=self.kwargs['pk']
         )
-        user = self.request.user
-        if not user.is_superuser:
-            if obj.user is None or obj.user.business_id != user.business_id:
-                from rest_framework.exceptions import PermissionDenied
-                raise PermissionDenied("You do not have access to this audit log.")
+        if obj.user is None or obj.user.business_id != self.request.business:
+            raise PermissionDenied("You do not have access to this audit log.")
         return obj

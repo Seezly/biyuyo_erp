@@ -27,74 +27,53 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return SalesReport.objects.all()
-        return SalesReport.objects.filter(business_id=user.business_id)
+        return SalesReport.objects.filter(business_id=self.request.business)
 
     @action(detail=False, methods=["get"])
     def summary(self, request):
         """Get summary statistics for the business."""
-        user = request.user
+        business = request.business
 
-        if user.is_superuser:
-            business_id = request.query_params.get("business_id")
-            if business_id:
-                businesses = Business.objects.filter(id=business_id)
-            else:
-                businesses = Business.objects.all()
-        else:
-            businesses = Business.objects.filter(id=user.business_id)
+        total_sales = (
+            Sale.objects.filter(business_id=business).aggregate(total=Sum("total"))[
+                "total"
+            ]
+            or 0
+        )
 
-        summary_data = []
-        for business in businesses:
-            total_sales = (
-                Sale.objects.filter(business_id=business).aggregate(total=Sum("total"))[
-                    "total"
-                ]
-                or 0
+        total_purchases = (
+            Purchase.objects.filter(business_id=business).aggregate(
+                total=Sum("total")
+            )["total"]
+            or 0
+        )
+
+        total_products = Product.objects.filter(business_id=business).count()
+        low_stock = (
+            Product.objects.filter(
+                business_id=business,
+                stock__isnull=False,
+                min_stock__isnull=False,
             )
+            .filter(stock__lt=models.F("min_stock"))
+            .count()
+        )
 
-            total_purchases = (
-                Purchase.objects.filter(business_id=business).aggregate(
-                    total=Sum("total")
-                )["total"]
-                or 0
-            )
-
-            total_products = Product.objects.filter(business_id=business).count()
-            low_stock = (
-                Product.objects.filter(
-                    business_id=business,
-                    stock__isnull=False,
-                    min_stock__isnull=False,
-                )
-                .filter(stock__lt=models.F("min_stock"))
-                .count()
-            )
-
-            summary_data.append(
-                {
-                    "business_id": business.id,
-                    "business_name": business.name,
-                    "total_sales": float(total_sales),
-                    "total_purchases": float(total_purchases),
-                    "total_products": total_products,
-                    "low_stock_count": low_stock,
-                }
-            )
-
-        return Response(summary_data)
+        return Response([
+            {
+                "business_id": business.id,
+                "business_name": business.name,
+                "total_sales": float(total_sales),
+                "total_purchases": float(total_purchases),
+                "total_products": total_products,
+                "low_stock_count": low_stock,
+            }
+        ])
 
     @action(detail=False, methods=["get"])
     def sales(self, request):
         """Get sales summary."""
-        user = request.user
-
-        if user.is_superuser:
-            queryset = Sale.objects.all()
-        else:
-            queryset = Sale.objects.filter(business_id=user.business_id)
+        queryset = Sale.objects.filter(business_id=request.business)
 
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
@@ -119,12 +98,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=["get"])
     def inventory(self, request):
         """Get inventory summary."""
-        user = request.user
-
-        if user.is_superuser:
-            queryset = Product.objects.all()
-        else:
-            queryset = Product.objects.filter(business_id=user.business_id)
+        queryset = Product.objects.filter(business_id=request.business)
 
         total_products = queryset.count()
         total_value = (
@@ -157,12 +131,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         """Get customers summary."""
         from customers.models import Customer
 
-        user = request.user
-
-        if user.is_superuser:
-            queryset = Customer.objects.all()
-        else:
-            queryset = Customer.objects.filter(business_id=user.business_id)
+        queryset = Customer.objects.filter(business_id=request.business)
 
         total = queryset.count()
         with_sales = (
