@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useBusinessesStore } from '@/stores/businesses'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -7,10 +7,10 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 const auth = useAuthStore()
 const businessesStore = useBusinessesStore()
 
-const isAdmin = auth.user?.role === 'admin' || auth.user?.is_superuser
+const isAdmin = computed(() => auth.user?.role === 'admin' || auth.user?.is_superuser)
 
 onMounted(async () => {
-  if (isAdmin && businessesStore.businesses.length === 0) {
+  if (isAdmin.value && businessesStore.businesses.length === 0) {
     await businessesStore.fetchBusinesses()
   }
 })

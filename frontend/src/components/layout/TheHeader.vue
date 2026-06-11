@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 import BaseNav from '@/components/ui/BaseNav.vue'
@@ -13,13 +13,18 @@ const auth = useAuthStore()
 const route = useRoute()
 const mobileMenuOpen = ref(false)
 
-watch(() => route.path, () => {
-  mobileMenuOpen.value = false
-})
+watch(
+	() => route.path,
+	() => {
+		mobileMenuOpen.value = false
+	},
+)
 
-const isAdmin = auth.user?.role === 'admin' || auth.user?.is_superuser
-const showUserNav = !isAdmin || auth.isImpersonating
-const showAdminNav = isAdmin && !auth.isImpersonating
+const isAdmin = computed(() => auth.user?.role === 'admin' || auth.user?.is_superuser)
+const showUserNav = computed(() =>
+	(!isAdmin.value && auth.isAuthenticated) || (auth.isImpersonating && auth.isAuthenticated)
+)
+const showAdminNav = computed(() => isAdmin.value && !auth.isImpersonating && auth.isAuthenticated)
 </script>
 
 <template>
@@ -51,13 +56,13 @@ const showAdminNav = isAdmin && !auth.isImpersonating
 				<RouterLink class="rounded-full py-2 px-4" to="/suppliers">Proveedores</RouterLink>
 				<RouterLink class="rounded-full py-2 px-4" to="/reports">Reportes</RouterLink>
 			</NavItem>
-            <NavItem v-if="showAdminNav" class="hidden md:flex">
-                <RouterLink class="rounded-full py-2 px-4" to="/admin">Administración</RouterLink>
-                <RouterLink class="rounded-full py-2 px-4" to="/users">Usuarios</RouterLink>
-                <RouterLink class="rounded-full py-2 px-4" to="/admin/businesses">Negocios</RouterLink>
-                <RouterLink class="rounded-full py-2 px-4" to="/audit">Auditoría</RouterLink>
-                <RouterLink class="rounded-full py-2 px-4" to="/billing">Facturación</RouterLink>
-            </NavItem>
+			<NavItem v-if="showAdminNav" class="hidden md:flex">
+				<RouterLink class="rounded-full py-2 px-4" to="/admin">Administración</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/users">Usuarios</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/admin/businesses">Negocios</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/audit">Auditoría</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/billing">Facturación</RouterLink>
+			</NavItem>
 			<NavItem class="ml-auto">
 				<div v-if="!auth.isAuthenticated" class="hidden md:flex justify-center items-center gap-4">
 					<BaseButton to="/login" text="Iniciar sesión" width="auto" />
@@ -80,20 +85,36 @@ const showAdminNav = isAdmin && !auth.isImpersonating
 			role="menu"
 		>
 			<div v-if="!auth.isAuthenticated" class="flex flex-col gap-2 pt-4">
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/" role="menuitem">Inicio</RouterLink>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/" role="menuitem"
+					>Inicio</RouterLink
+				>
 				<div class="flex gap-2 pt-2">
 					<BaseButton to="/login" text="Iniciar sesión" width="auto" />
 					<BaseButton to="/register" text="Registrarse" variant="ghost" width="auto" />
 				</div>
 			</div>
 			<div v-if="showUserNav" class="flex flex-col gap-2 pt-4">
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/dashboard" role="menuitem">Inicio</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/customers" role="menuitem">Clientes</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/inventory" role="menuitem">Inventario</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/sales" role="menuitem">Ventas</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/sales/pos" role="menuitem">POS</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/suppliers" role="menuitem">Proveedores</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/reports" role="menuitem">Reportes</RouterLink>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/dashboard" role="menuitem"
+					>Inicio</RouterLink
+				>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/customers" role="menuitem"
+					>Clientes</RouterLink
+				>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/inventory" role="menuitem"
+					>Inventario</RouterLink
+				>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/sales" role="menuitem"
+					>Ventas</RouterLink
+				>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/sales/pos" role="menuitem"
+					>POS</RouterLink
+				>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/suppliers" role="menuitem"
+					>Proveedores</RouterLink
+				>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/reports" role="menuitem"
+					>Reportes</RouterLink
+				>
 				<div class="flex gap-2 pt-2">
 					<StockAlerts />
 					<BaseButton to="/profile" text="Perfil" variant="outlined" width="auto" />
@@ -101,11 +122,24 @@ const showAdminNav = isAdmin && !auth.isImpersonating
 				</div>
 			</div>
 			<div v-if="showAdminNav" class="flex flex-col gap-2 pt-4">
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/admin" role="menuitem">Administración</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/users" role="menuitem">Usuarios</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/admin/businesses" role="menuitem">Negocios</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/audit" role="menuitem">Auditoría</RouterLink>
-				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/billing" role="menuitem">Facturación</RouterLink>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/admin" role="menuitem"
+					>Administración</RouterLink
+				>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/users" role="menuitem"
+					>Usuarios</RouterLink
+				>
+				<RouterLink
+					class="rounded-lg py-2 px-4 hover:bg-gray-100"
+					to="/admin/businesses"
+					role="menuitem"
+					>Negocios</RouterLink
+				>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/audit" role="menuitem"
+					>Auditoría</RouterLink
+				>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/billing" role="menuitem"
+					>Facturación</RouterLink
+				>
 				<div class="flex gap-2 pt-2">
 					<StockAlerts />
 					<BaseButton to="/profile" text="Perfil" variant="outlined" width="auto" />
