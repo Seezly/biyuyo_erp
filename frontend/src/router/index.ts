@@ -489,7 +489,7 @@ router.beforeEach(async (to, from, next) => {
 		return next('/dashboard')
 	}
 
-	if (adminOnly && auth.user?.role !== 'admin') {
+	if (adminOnly && auth.user?.role !== 'admin' && !auth.user?.is_superuser) {
 		return next('/dashboard')
 	}
 
