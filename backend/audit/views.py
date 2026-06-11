@@ -1,5 +1,4 @@
 from rest_framework import generics, permissions
-from core.permissions import IsAdminOrBusinessUser
 from .models import AuditLog
 from .serializers import AuditLogSerializer
 

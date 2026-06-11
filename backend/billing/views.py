@@ -76,3 +76,9 @@ class InvoiceViewSet(FilteringMixin, viewsets.ModelViewSet):
         if obj.subscription_id.business_id != self.request.user.business_id:
             raise PermissionDenied("You do not have access to this invoice.")
         return obj
+
+    def perform_create(self, serializer):
+        subscription = serializer.validated_data.get('subscription_id')
+        if subscription and subscription.business_id != self.request.user.business_id:
+            raise PermissionDenied("No tienes acceso a esta suscripción.")
+        serializer.save()

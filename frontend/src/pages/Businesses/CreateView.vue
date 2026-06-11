@@ -59,10 +59,7 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     const business = await businessesStore.createBusiness(values)
     if (business) {
-      toastStore.success('Negocio creado correctamente')
       router.push('/admin/businesses')
-    } else {
-      // Error will be handled by the store
     }
   } catch (error) {
     toastStore.error('Error de conexión')

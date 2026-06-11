@@ -134,11 +134,15 @@ const formatDate = (dateString: string) => {
 	</section>
 
 	<BaseAlert
-		v-model:visible="showDeleteAlert"
+		:visible="showDeleteAlert"
 		title="Eliminar categoría"
-		description="¿Estás seguro de que deseas eliminar esta categoría? Esta acción no se puede deshacer."
-		confirm-text="Eliminar"
-		@confirm="handleDelete"
-		@cancel="cancelDelete"
+		subtitle="Esta acción no se puede deshacer"
+		description="¿Estás seguro de que deseas eliminar esta categoría?"
+		variant="delete"
+		:cta="'Eliminar'"
+		:cancel="true"
+		@update="showDeleteAlert = false"
+		@close="cancelDelete"
+		@next="handleDelete"
 	/>
 </template>

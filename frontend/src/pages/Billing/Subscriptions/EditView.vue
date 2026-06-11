@@ -6,17 +6,18 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 
 import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseInput from '@/components/ui/BaseInput.vue'
 import { useBillingStore } from '@/stores/billing'
+import { useBusinessesStore } from '@/stores/businesses'
 import { useToastStore } from '@/stores/toast'
 import { apiFetch } from '@/utils/helpers'
 
 const router = useRouter()
 const route = useRoute()
 const billingStore = useBillingStore()
+const businessesStore = useBusinessesStore()
 const toastStore = useToastStore()
-const loading = ref(false)
 const saving = ref(false)
+const loading = ref(true)
 
 const subscriptionId = Number(route.params.subscriptionId)
 if (!subscriptionId) {
@@ -25,54 +26,53 @@ if (!subscriptionId) {
 
 const validationSchema = toTypedSchema(
   z.object({
-    user_id: z.number().min(1, 'Selecciona un usuario'),
+    business_id: z.number().min(1, 'Selecciona un negocio'),
     plan_id: z.number().min(1, 'Selecciona un plan'),
+    status: z.string().min(1, 'Selecciona un estado'),
     start_date: z.string().min(1, 'Fecha de inicio requerida'),
     end_date: z.string().optional(),
-    is_active: z.boolean().default(true),
   })
 )
 
 const { handleSubmit, errors, setValues } = useForm({
   validationSchema,
   initialValues: {
-    user_id: undefined as number | undefined,
+    business_id: undefined as number | undefined,
     plan_id: undefined as number | undefined,
+    status: 'active',
     start_date: '',
     end_date: undefined as string | undefined,
-    is_active: true,
   },
 })
 
-const { value: user_id } = useField<number>('user_id')
+const { value: business_id } = useField<number>('business_id')
 const { value: plan_id } = useField<number>('plan_id')
+const { value: status } = useField<string>('status')
 const { value: start_date } = useField<string>('start_date')
 const { value: end_date } = useField<string>('end_date')
-const { value: is_active } = useField<boolean>('is_active')
 
-const fetchSubscription = async () => {
-  loading.value = true
+onMounted(async () => {
+  await Promise.all([
+    billingStore.fetchPlans(),
+    businessesStore.fetchBusinesses(),
+  ])
   try {
     const response = await apiFetch(`/api/subscriptions/${subscriptionId}/`)
     if (response.ok) {
       const data = await response.json()
       setValues({
-        user_id: data.user_id || '',
-        plan_id: data.plan_id || '',
+        business_id: data.business_id || undefined,
+        plan_id: data.plan_id || undefined,
+        status: data.status || 'active',
         start_date: data.start_date || '',
-        end_date: data.end_date || '',
-        is_active: data.is_active || true,
+        end_date: data.end_date || undefined,
       })
     }
-  } catch (error) {
+  } catch {
     toastStore.error('Error al cargar la suscripción')
   } finally {
     loading.value = false
   }
-}
-
-onMounted(() => {
-  fetchSubscription()
 })
 
 const onSubmit = handleSubmit(async (values) => {
@@ -91,7 +91,7 @@ const onSubmit = handleSubmit(async (values) => {
 
     toastStore.success('Suscripción actualizada correctamente')
     router.push('/billing/subscriptions')
-  } catch (error) {
+  } catch {
     toastStore.error('Error de conexión')
   } finally {
     saving.value = false
@@ -113,20 +113,33 @@ const onSubmit = handleSubmit(async (values) => {
     <div v-else>
       <form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
         <label class="w-full flex flex-col text-dark">
-          Usuario *
-          <select v-model="user_id" class="py-2 px-4 rounded-xl border border-secondary text-primary">
-            <option value="">Seleccionar usuario</option>
-            <!-- Options would be populated from auth store -->
+          Negocio *
+          <select v-model="business_id" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+            <option :value="undefined">Seleccionar negocio</option>
+            <option v-for="b in businessesStore.businesses" :key="b.id" :value="b.id">
+              {{ b.name }}
+            </option>
           </select>
-          <span v-if="errors.user_id" class="text-red-500 text-sm">{{ errors.user_id }}</span>
+          <span v-if="errors.business_id" class="text-red-500 text-sm">{{ errors.business_id }}</span>
         </label>
         <label class="w-full flex flex-col text-dark">
           Plan *
           <select v-model="plan_id" class="py-2 px-4 rounded-xl border border-secondary text-primary">
-            <option value="">Seleccionar plan</option>
-            <!-- Options would be populated from billing store -->
+            <option :value="undefined">Seleccionar plan</option>
+            <option v-for="p in billingStore.plans" :key="p.id" :value="p.id">
+              {{ p.name }} — ${{ p.price }}/mes
+            </option>
           </select>
           <span v-if="errors.plan_id" class="text-red-500 text-sm">{{ errors.plan_id }}</span>
+        </label>
+        <label class="w-full flex flex-col text-dark">
+          Estado *
+          <select v-model="status" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+            <option value="active">Activo</option>
+            <option value="inactive">Inactivo</option>
+            <option value="cancelled">Cancelado</option>
+          </select>
+          <span v-if="errors.status" class="text-red-500 text-sm">{{ errors.status }}</span>
         </label>
         <label class="w-full flex flex-col text-dark">
           Fecha de inicio *
@@ -136,14 +149,7 @@ const onSubmit = handleSubmit(async (values) => {
         <label class="w-full flex flex-col text-dark">
           Fecha de fin (opcional)
           <input v-model="end_date" type="date" class="py-2 px-4 rounded-xl border border-secondary text-primary" />
-          <span v-if="errors.end_date" class="text-red-500 text-sm">{{ errors.end_date }}</span>
         </label>
-        <div class="grid grid-cols-2 grid-rows-1 gap-4 mb-6">
-          <label class="w-full flex flex-col text-dark">
-            Activo
-            <input v-model="is_active" type="checkbox" class="rounded border-gray-300 text-primary" />
-          </label>
-        </div>
         <BaseButton :text="saving ? 'Guardando...' : 'Guardar suscripción'" :loading="saving" :disabled="saving" type="submit" />
       </form>
     </div>

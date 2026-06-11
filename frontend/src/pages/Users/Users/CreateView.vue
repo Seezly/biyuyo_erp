@@ -66,18 +66,15 @@ const { value: role } = useField<string>('role')
 const { value: password } = useField<string>('password')
 const { value: confirm_password } = useField<string>('confirm_password')
 
-const onSubmit = handleSubmit(async (values) => {
+	const onSubmit = handleSubmit(async (values) => {
 	loading.value = true
 	try {
 		const user = await authStore.createUser(values)
 		if (user) {
-			toastStore.success('Usuario creado correctamente')
 			router.push('/users')
-		} else {
-			// Error will be handled by the store
 		}
 	} catch (error) {
-		toastStore.error('Error de conexi��n')
+		toastStore.error('Error de conexión')
 	} finally {
 		loading.value = false
 	}

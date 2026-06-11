@@ -14,7 +14,7 @@ class Plan(models.Model):
         return self.name
 
     def __float__(self):
-        return self.price
+        return float(self.price)
 
 
 class Subscription(models.Model):
@@ -44,4 +44,4 @@ class Invoice(models.Model):
         return self.method
 
     def __float__(self):
-        return self.amount
+        return float(self.amount)

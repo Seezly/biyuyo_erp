@@ -1,5 +1,4 @@
 from django.db import transaction, models
-from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -161,6 +160,12 @@ class SaleItemViewSet(FilteringMixin, viewsets.ModelViewSet):
         queryset = queryset.filter(sale_id__business_id=self.request.user.business_id)
         return self.filter_queryset_with_params(queryset)
 
+    def perform_create(self, serializer):
+        sale = serializer.validated_data.get('sale_id')
+        if sale and sale.business_id != self.request.user.business_id:
+            raise PermissionDenied("No tienes acceso a esta venta.")
+        serializer.save()
+
     def get_object(self):
         obj = super().get_object()
         if obj.sale_id.business_id != self.request.user.business_id:
@@ -185,6 +190,12 @@ class PaymentViewSet(FilteringMixin, viewsets.ModelViewSet):
         queryset = super().get_queryset()
         queryset = queryset.filter(sale_id__business_id=self.request.user.business_id)
         return self.filter_queryset_with_params(queryset)
+
+    def perform_create(self, serializer):
+        sale = serializer.validated_data.get('sale_id')
+        if sale and sale.business_id != self.request.user.business_id:
+            raise PermissionDenied("No tienes acceso a esta venta.")
+        serializer.save()
 
     def get_object(self):
         obj = super().get_object()

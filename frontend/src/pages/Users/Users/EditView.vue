@@ -105,11 +105,10 @@ const onSubmit = handleSubmit(async (values) => {
 
 		const updatedUser = await authStore.updateUser(userId, payload)
 		if (updatedUser) {
-			toastStore.success('Usuario actualizado correctamente')
 			router.push('/users')
 		}
 	} catch (error) {
-		toastStore.error('Error de conexi��n')
+		toastStore.error('Error de conexión')
 	} finally {
 		loading.value = false
 	}

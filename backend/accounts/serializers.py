@@ -106,7 +106,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         user = create_user_with_role(validated_data, business, "owner")
-        user.save()
 
         return user
 

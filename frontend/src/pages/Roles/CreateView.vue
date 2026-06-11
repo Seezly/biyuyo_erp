@@ -35,7 +35,6 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     const role = await rolesStore.createRole(values)
     if (role) {
-      toastStore.success('Rol creado correctamente')
       router.push('/admin/roles')
     }
   } catch {

@@ -30,7 +30,7 @@ onMounted(async () => {
 		if (response.ok) {
 			const data = await response.json()
 			setValues({
-				supplier: data.supplier || undefined,
+				supplier: data.supplier_id || undefined,
 				total: data.total || undefined,
 			})
 		}

@@ -83,6 +83,12 @@ class PurchaseItemViewSet(FilteringMixin, viewsets.ModelViewSet):
         queryset = queryset.filter(purchase_id__business_id=self.request.user.business_id)
         return self.filter_queryset_with_params(queryset)
 
+    def perform_create(self, serializer):
+        purchase = serializer.validated_data.get('purchase_id')
+        if purchase and purchase.business_id != self.request.user.business_id:
+            raise PermissionDenied("No tienes acceso a esta compra.")
+        serializer.save()
+
     def get_object(self):
         obj = super().get_object()
         if obj.purchase_id.business_id != self.request.user.business_id:

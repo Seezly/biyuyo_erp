@@ -105,12 +105,16 @@ const cancelDelete = () => {
     </div>
 
     <BaseAlert
-      v-model:visible="showDeleteAlert"
+      :visible="showDeleteAlert"
       title="Eliminar rol"
-      description="¿Estás seguro de que deseas eliminar este rol? Esta acción no se puede deshacer."
-      confirm-text="Eliminar"
-      @confirm="handleDelete"
-      @cancel="cancelDelete"
+      subtitle="Esta acción no se puede deshacer"
+      description="¿Estás seguro de que deseas eliminar este rol?"
+      variant="delete"
+      :cta="'Eliminar'"
+      :cancel="true"
+      @update="showDeleteAlert = false"
+      @close="cancelDelete"
+      @next="handleDelete"
     />
   </section>
 </template>

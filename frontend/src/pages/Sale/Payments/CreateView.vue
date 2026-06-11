@@ -54,7 +54,6 @@ const onSubmit = handleSubmit(async (values) => {
       status: 'pending',
     })
     if (result) {
-      toastStore.success('Pago registrado correctamente')
       router.push('/sales/payments')
     }
   } catch {

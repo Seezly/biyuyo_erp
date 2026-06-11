@@ -4,7 +4,7 @@ from rest_framework import permissions, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from core.permissions import IsAdminOrBusinessUser, IsAdminUser
+from core.permissions import IsAdminUser
 from accounts.serializers import (
     GroupSerializer,
     ReminderSettingsSerializer,
@@ -53,6 +53,9 @@ class UserViewSet(viewsets.ModelViewSet):
             except Group.DoesNotExist:
                 pass
         return response
+
+    def perform_create(self, serializer):
+        serializer.save(business_id=self.request.user.business_id)
 
     @action(detail=False, methods=['post'], url_path='change-password')
     def change_password(self, request):
