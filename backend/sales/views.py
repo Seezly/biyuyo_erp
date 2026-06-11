@@ -26,8 +26,15 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
     default_ordering = ['-created_at']
 
     def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            qs = super().get_queryset()
+            business_id = self.request.query_params.get('business_id')
+            if business_id:
+                qs = qs.filter(business_id=business_id)
+            return self.filter_queryset_with_params(qs.prefetch_related('saleitem_set', 'payment_set'))
         queryset = super().get_queryset()
-        queryset = queryset.filter(business_id=self.request.user.business_id).prefetch_related('saleitem_set', 'payment_set')
+        queryset = queryset.filter(business_id=user.business_id).prefetch_related('saleitem_set', 'payment_set')
         return self.filter_queryset_with_params(queryset)
 
     def retrieve(self, request, *args, **kwargs):
@@ -86,9 +93,10 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
 
             if product_id and quantity > 0:
                 try:
-                    product = Product.objects.select_for_update().get(
-                        id=product_id, business_id=request.user.business_id
-                    )
+                    product_filter = {'id': product_id}
+                    if not request.user.is_superuser:
+                        product_filter['business_id'] = request.user.business_id
+                    product = Product.objects.select_for_update().get(**product_filter)
                     if product.stock is not None and product.stock < quantity:
                         errors.append(
                             f"Stock insuficiente para '{product.name}'. "
@@ -107,10 +115,11 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
         request = self.request
         items_data = request.data.get('items', []) if request else []
 
-        sale = serializer.save(
-            business_id=request.user.business_id,
-            user_id=request.user
-        )
+        business_id = request.data.get('business_id')
+        if request.user.is_superuser and business_id:
+            sale = serializer.save(business_id=business_id, user_id=request.user)
+        else:
+            sale = serializer.save(business_id=request.user.business_id, user_id=request.user)
 
         for item_data in items_data:
             product_id = item_data.get('product')
@@ -118,9 +127,10 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
 
             if product_id and quantity > 0:
                 try:
-                    product = Product.objects.select_for_update().get(
-                        id=product_id, business_id=request.user.business_id
-                    )
+                    product_filter = {'id': product_id}
+                    if not request.user.is_superuser:
+                        product_filter['business_id'] = request.user.business_id
+                    product = Product.objects.select_for_update().get(**product_filter)
 
                     SaleItem.objects.create(
                         sale_id=sale,
@@ -139,6 +149,8 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
+        if self.request.user.is_superuser:
+            return obj
         if obj.business_id != self.request.user.business_id:
             raise PermissionDenied("You do not have access to this sale.")
         return obj
@@ -157,18 +169,28 @@ class SaleItemViewSet(FilteringMixin, viewsets.ModelViewSet):
     default_ordering = ['-created_at']
 
     def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            qs = super().get_queryset()
+            business_id = self.request.query_params.get('business_id')
+            if business_id:
+                qs = qs.filter(sale_id__business_id=business_id)
+            return self.filter_queryset_with_params(qs)
         queryset = super().get_queryset()
-        queryset = queryset.filter(sale_id__business_id=self.request.user.business_id)
+        queryset = queryset.filter(sale_id__business_id=user.business_id)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
-        sale = serializer.validated_data.get('sale_id')
-        if sale and sale.business_id != self.request.user.business_id:
-            raise PermissionDenied("No tienes acceso a esta venta.")
+        if not self.request.user.is_superuser:
+            sale = serializer.validated_data.get('sale_id')
+            if sale and sale.business_id != self.request.user.business_id:
+                raise PermissionDenied("No tienes acceso a esta venta.")
         serializer.save()
 
     def get_object(self):
         obj = super().get_object()
+        if self.request.user.is_superuser:
+            return obj
         if obj.sale_id.business_id != self.request.user.business_id:
             raise PermissionDenied("You do not have access to this item.")
         return obj
@@ -188,18 +210,28 @@ class PaymentViewSet(FilteringMixin, viewsets.ModelViewSet):
     default_ordering = ['-created_at']
 
     def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            qs = super().get_queryset()
+            business_id = self.request.query_params.get('business_id')
+            if business_id:
+                qs = qs.filter(sale_id__business_id=business_id)
+            return self.filter_queryset_with_params(qs)
         queryset = super().get_queryset()
-        queryset = queryset.filter(sale_id__business_id=self.request.user.business_id)
+        queryset = queryset.filter(sale_id__business_id=user.business_id)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
-        sale = serializer.validated_data.get('sale_id')
-        if sale and sale.business_id != self.request.user.business_id:
-            raise PermissionDenied("No tienes acceso a esta venta.")
+        if not self.request.user.is_superuser:
+            sale = serializer.validated_data.get('sale_id')
+            if sale and sale.business_id != self.request.user.business_id:
+                raise PermissionDenied("No tienes acceso a esta venta.")
         serializer.save()
 
     def get_object(self):
         obj = super().get_object()
+        if self.request.user.is_superuser:
+            return obj
         if obj.sale_id.business_id != self.request.user.business_id:
             raise PermissionDenied("You do not have access to this payment.")
         return obj
