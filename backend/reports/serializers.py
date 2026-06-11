@@ -11,7 +11,7 @@ class SalesReportSerializer(serializers.ModelSerializer):
             'id', 'business', 'business_name', 'start_date', 'end_date',
             'total_sales', 'total_items_sold', 'average_sale', 'created_at'
         ]
-        read_only_fields = ['created_at']
+        read_only_fields = ['business', 'created_at']
 
 
 class InventoryReportSerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class InventoryReportSerializer(serializers.ModelSerializer):
             'id', 'business', 'business_name', 'total_products', 'total_value',
             'low_stock_count', 'out_of_stock_count', 'report_date', 'created_at'
         ]
-        read_only_fields = ['created_at']
+        read_only_fields = ['business', 'created_at']
 
 
 class FinancialReportSerializer(serializers.ModelSerializer):
@@ -35,4 +35,4 @@ class FinancialReportSerializer(serializers.ModelSerializer):
             'id', 'business', 'business_name', 'start_date', 'end_date',
             'total_income', 'total_expenses', 'net_profit', 'created_at'
         ]
-        read_only_fields = ['created_at']
+        read_only_fields = ['business', 'created_at']
