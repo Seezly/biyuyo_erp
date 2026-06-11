@@ -2,7 +2,7 @@ from billing.models import Plan, Subscription, Invoice
 from rest_framework import serializers
 
 
-class PlanSerializer(serializers.ModelSerializer):
+class PlanSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for the Plan model.
     """
@@ -10,6 +10,7 @@ class PlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plan
         fields = [
+            "id",
             "url",
             "name",
             "price",
@@ -19,9 +20,10 @@ class PlanSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["created_at", "updated_at"]
+        extra_kwargs = {"url": {"view_name": "plans-detail"}}
 
 
-class SubscriptionSerializer(serializers.ModelSerializer):
+class SubscriptionSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for the Subscription model.
     """
@@ -39,9 +41,10 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["business_id", "created_at", "updated_at"]
+        extra_kwargs = {"url": {"view_name": "subscriptions-detail"}}
 
 
-class InvoiceSerializer(serializers.ModelSerializer):
+class InvoiceSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for the Invoice model.
     """
@@ -58,3 +61,4 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["created_at", "updated_at"]
+        extra_kwargs = {"url": {"view_name": "invoices-detail"}}

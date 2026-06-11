@@ -79,7 +79,11 @@ const formatDate = (dateString: string) => {
 
 		<div class="grid grid-cols-12 grid-rows-1 gap-4 w-full">
 			<BaseButton to="/users/add" text="Añadir usuario" class="col-span-12 lg:col-span-3" />
-			<BaseInput v-model="search" placeholder="Buscar usuario por nombre o email" class="col-span-12 lg:col-span-9" />
+			<BaseInput
+				v-model="search"
+				placeholder="Buscar usuario por nombre o email"
+				class="col-span-12 lg:col-span-9"
+			/>
 		</div>
 
 		<div v-if="authStore.loading" class="w-full text-center py-8">
@@ -113,7 +117,11 @@ const formatDate = (dateString: string) => {
 					</thead>
 
 					<tbody class="divide-y divide-gray-200 *:even:bg-gray-50">
-						<tr v-for="user in authStore.users" :key="user.id" class="*:text-gray-900 *:first:font-medium">
+						<tr
+							v-for="user in authStore.users"
+							:key="user.id"
+							class="*:text-gray-900 *:first:font-medium"
+						>
 							<td class="px-4 py-2 whitespace-nowrap">{{ user.first_name }} {{ user.last_name }}</td>
 							<td class="px-4 py-2 whitespace-nowrap">{{ user.email }}</td>
 							<td class="px-4 py-2 whitespace-nowrap">{{ user.phone }}</td>

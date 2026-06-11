@@ -39,7 +39,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 				<div class="flex flex-col gap-4">
 					<h2 class="text-xl font-bold text-primary">Negocios Registrados</h2>
 					<p class="text-gray-500">Ver y administrar los negocios activos en la plataforma.</p>
-					<BaseButton to="/businesses" text="Ver negocios" variant="outlined" />
+					<BaseButton to="/admin/businesses" text="Ver negocios" variant="outlined" />
 				</div>
 			</BaseCard>
 

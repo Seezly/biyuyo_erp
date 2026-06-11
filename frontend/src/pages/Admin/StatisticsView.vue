@@ -219,12 +219,14 @@ onMounted(() => {
 
       <!-- Users by Business -->
       <BaseCard variant="outlined" class="col-span-12 lg:col-span-4">
-        <div class="flex flex-col gap-4 h-full">
+        <div class="flex flex-col gap-4">
           <h2 class="text-xl font-bold text-primary">Productos por Negocio</h2>
-          <p class="text-gray-500 flex-1">
+          <p class="text-gray-500">
             Distribucion de productos en los diferentes negocios registrados.
           </p>
-          <canvas ref="usersChartRef" class="h-full w-full"></canvas>
+          <div class="relative h-64 w-full overflow-hidden">
+            <canvas ref="usersChartRef"></canvas>
+          </div>
           <div class="mt-4">
             <BaseButton
               text="Exportar datos"
@@ -237,12 +239,14 @@ onMounted(() => {
 
       <!-- Subscriptions by Plan -->
       <BaseCard variant="outlined" class="col-span-12 lg:col-span-4">
-        <div class="flex flex-col gap-4 h-full">
+        <div class="flex flex-col gap-4">
           <h2 class="text-xl font-bold text-primary">Suscripciones por Plan</h2>
-          <p class="text-gray-500 flex-1">
+          <p class="text-gray-500">
             Analisis de planes activos y su distribucion.
           </p>
-          <canvas ref="subscriptionsChartRef" class="h-full w-full"></canvas>
+          <div class="relative h-64 w-full overflow-hidden">
+            <canvas ref="subscriptionsChartRef"></canvas>
+          </div>
           <div class="mt-4">
             <BaseButton
               text="Ver detalles"
@@ -255,12 +259,14 @@ onMounted(() => {
 
       <!-- Monthly Revenue -->
       <BaseCard variant="outlined" class="col-span-12 lg:col-span-4">
-        <div class="flex flex-col gap-4 h-full">
+        <div class="flex flex-col gap-4">
           <h2 class="text-xl font-bold text-primary">Ingresos</h2>
-          <p class="text-gray-500 flex-1">
+          <p class="text-gray-500">
             Reporte de ingresos por suscripciones.
           </p>
-          <canvas ref="revenueChartRef" class="h-full w-full"></canvas>
+          <div class="relative h-64 w-full overflow-hidden">
+            <canvas ref="revenueChartRef"></canvas>
+          </div>
           <div class="mt-4">
             <BaseButton
               text="Descargar reporte"

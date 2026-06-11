@@ -15,114 +15,105 @@ const billingStore = useBillingStore()
 const loading = ref(false)
 const planId = Number(route.params.planId)
 if (!planId) {
-  router.back()
+	router.back()
 }
 
 const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, 'El nombre es requerido'),
-    price: z
-      .number()
-      .min(0, 'El precio debe ser mayor o igual a cero')
-      .positive('El precio debe ser un número positivo'),
-    max_users: z
-      .number()
-      .int()
-      .min(1, 'El número máximo de usuarios debe ser al menos 1'),
-    max_products: z
-      .number()
-      .int()
-      .min(1, 'El número máximo de productos debe ser al menos 1'),
-  }),
+	z.object({
+		name: z.string().min(1, 'El nombre es requerido'),
+		price: z.string().min(0, 'El precio debe ser mayor o igual a cero'),
+		max_users: z.number().min(1, 'El número máximo de usuarios debe ser al menos 1'),
+		max_products: z.number().min(1, 'El número máximo de productos debe ser al menos 1'),
+	}),
 )
 
 const { handleSubmit, errors, setValues } = useForm({
-  validationSchema,
-  initialValues: {
-    name: '',
-    price: 0,
-    max_users: 1,
-    max_products: 1,
-  },
+	validationSchema,
+	initialValues: {
+		name: '',
+		price: '0',
+		max_users: 1,
+		max_products: 1,
+	},
 })
 
 const { value: name } = useField<string>('name')
-const { value: price } = useField<number>('price')
+const { value: price } = useField<string>('price')
 const { value: max_users } = useField<number>('max_users')
 const { value: max_products } = useField<number>('max_products')
 
 watch(
-  () => route.params.planId,
-  async (newId) => {
-    if (newId) {
-      const plan = await billingStore.fetchPlan(Number(newId))
-      if (plan) {
-        setValues({
-          name: plan.name || '',
-          price: plan.price || 0,
-          max_users: plan.max_users || 1,
-          max_products: plan.max_products || 1,
-        })
-      }
-    }
-  },
-  { immediate: true }
+	() => route.params.planId,
+	async (newId) => {
+		if (newId) {
+			const plan = await billingStore.fetchPlan(Number(newId))
+			if (plan) {
+				setValues({
+					name: plan.name || '',
+					price: plan.price || 0,
+					max_users: plan.max_users || 1,
+					max_products: plan.max_products || 1,
+				})
+			}
+		}
+	},
+	{ immediate: true },
 )
 
 const onSubmit = handleSubmit(async (values) => {
-  loading.value = true
-  try {
-    const plan = await billingStore.updatePlan(planId, values)
-    if (plan) {
-      // Success toast will be handled by the store
-      router.push('/billing/plans')
-    }
-    // Error will be handled by the store
-  } catch (error) {
-    // Error will be handled by the store
-  } finally {
-    loading.value = false
-  }
+	loading.value = true
+	try {
+		const plan = await billingStore.updatePlan(planId, values)
+		if (plan) {
+			// Success toast will be handled by the store
+			router.push('/billing/plans')
+		}
+		// Error will be handled by the store
+	} catch (error) {
+		// Error will be handled by the store
+	} finally {
+		loading.value = false
+	}
 })
 </script>
 
 <template>
-  <section class="w-full flex flex-col gap-8 mx-8 justify-start items-start self-start">
-    <div>
-      <h1 class="text-primary text-2xl font-bold">Editar plan</h1>
-      <p>Actualiza la información del plan de suscripción</p>
-    </div>
+	<section class="w-full flex flex-col gap-8 mx-8 justify-start items-start self-start">
+		<div>
+			<h1 class="text-primary text-2xl font-bold">Editar plan</h1>
+			<p>Actualiza la información del plan de suscripción</p>
+		</div>
 
-    <form
-      @submit="onSubmit"
-      class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md"
-    >
-      <label class="w-full flex flex-col text-dark">
-        Nombre del plan *
-        <BaseInput v-model="name" type="text" name="name" placeholder="Nombre del plan" />
-        <span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
-      </label>
-      <label class="w-full flex flex-col text-dark">
-        Precio (USD) *
-        <BaseInput v-model="price" type="number" name="price" placeholder="0.00" step="0.01" min="0" />
-        <span v-if="errors.price" class="text-red-500 text-sm">{{ errors.price }}</span>
-      </label>
-      <label class="w-full flex flex-col text-dark">
-        Número máximo de usuarios *
-        <BaseInput v-model="max_users" type="number" name="max_users" placeholder="10" min="1" />
-        <span v-if="errors.max_users" class="text-red-500 text-sm">{{ errors.max_users }}</span>
-      </label>
-      <label class="w-full flex flex-col text-dark">
-        Número máximo de productos *
-        <BaseInput v-model="max_products" type="number" name="max_products" placeholder="100" min="1" />
-        <span v-if="errors.max_products" class="text-red-500 text-sm">{{ errors.max_products }}</span>
-      </label>
-      <BaseButton
-        :text="loading ? 'Actualizando...' : 'Actualizar plan'"
-        :loading="loading"
-        :disabled="loading"
-        type="submit"
-      />
-    </form>
-  </section>
+		<form
+			@submit="onSubmit"
+			class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md"
+		>
+			<label class="w-full flex flex-col text-dark">
+				Nombre del plan
+				<BaseInput v-model="name" type="text" name="name" placeholder="Nombre del plan" />
+				<span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
+			</label>
+			<label class="w-full flex flex-col text-dark">
+				Precio (USD)
+				<BaseInput v-model="price" type="number" name="price" placeholder="0.00" step="0.01" min="0" />
+				<span v-if="errors.price" class="text-red-500 text-sm">{{ errors.price }}</span>
+			</label>
+			<label class="w-full flex flex-col text-dark">
+				Número máximo de usuarios
+				<BaseInput v-model="max_users" type="number" name="max_users" placeholder="10" min="1" />
+				<span v-if="errors.max_users" class="text-red-500 text-sm">{{ errors.max_users }}</span>
+			</label>
+			<label class="w-full flex flex-col text-dark">
+				Número máximo de productos
+				<BaseInput v-model="max_products" type="number" name="max_products" placeholder="100" min="1" />
+				<span v-if="errors.max_products" class="text-red-500 text-sm">{{ errors.max_products }}</span>
+			</label>
+			<BaseButton
+				:text="loading ? 'Actualizando...' : 'Actualizar plan'"
+				:loading="loading"
+				:disabled="loading"
+				type="submit"
+			/>
+		</form>
+	</section>
 </template>

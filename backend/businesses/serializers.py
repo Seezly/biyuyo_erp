@@ -10,6 +10,7 @@ class BusinessSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
         fields = [
+            "id",
             "url",
             "name",
             "description",
