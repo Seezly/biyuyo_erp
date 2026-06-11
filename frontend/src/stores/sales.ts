@@ -1,39 +1,7 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
 import { useToastStore } from '@/stores/toast'
-
-interface SaleItem {
-	id: number
-	sale: number
-	product: number
-	quantity: number
-	unit_price: number
-	total_price: number
-}
-
-interface Sale {
-  id: number
-  business: number
-  customer: number
-  user: number
-  subtotal: number
-  discount: number
-  tax: number
-  total: number
-  status: string
-  created_at: string
-  items?: SaleItem[]
-}
-
-interface Payment {
-	id: number
-	sale: number
-	method: string
-	amount: number
-	reference: string
-	status: string
-	created_at: string
-}
+import type { Sale, SaleItem, Payment } from '@/types/sale'
 
 interface SaleForm {
 	customer_id?: number
@@ -42,7 +10,7 @@ interface SaleForm {
 	tax: number
 	total: number
 	status: string
-	items: { product: number; quantity: number; unit_price: number; total_price: number }[]
+	items: { product_id: number; quantity: number; unit_price: number; total_price: number }[]
 }
 
 export const useSalesStore = defineStore('sales', {

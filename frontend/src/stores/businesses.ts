@@ -1,22 +1,7 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
 import { useToastStore } from '@/stores/toast'
-
-interface Business {
-  id: number
-  name: string
-  description: string
-  rif: string
-  email: string
-  phone: string
-  address: string
-  state: string
-  municipality: string
-  is_active: boolean
-  start_date: string
-  created_at: string
-  updated_at: string
-}
+import type { Business } from '@/types/business'
 
 export const useBusinessesStore = defineStore('businesses', {
   state: () => ({

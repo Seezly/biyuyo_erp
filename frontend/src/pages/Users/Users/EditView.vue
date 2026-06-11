@@ -18,26 +18,28 @@ const loading = ref(false)
 
 const userId = Number(route.params.userId)
 if (!userId) {
-  router.back()
+	router.back()
 }
 
 const validationSchema = toTypedSchema(
-	z.object({
-		first_name: z.string().min(1, 'El nombre es requerido'),
-		last_name: z.string().min(1, 'El apellido es requerido'),
-		identification_number: z
-			.string()
-			.min(1, 'La identificaci��n es requerida')
-			.regex(/^[VEJGvejg]\d{5,9}$/, 'Formato: V12345678 o E123456789'),
-		email: z.string().min(1, 'El email es requerido').email('Email invǭlido'),
-		phone: z.string().min(1, 'El telǸfono es requerido'),
-		role: z.string().min(1, 'El rol es requerido'),
-		password: z.string().optional(),
-		confirm_password: z.string().optional(),
-	}).refine((data) => !data.password || data.password === data.confirm_password, {
-		message: 'Las contrase��as no coinciden',
-		path: ['confirm_password'],
-	})
+	z
+		.object({
+			first_name: z.string().min(1, 'El nombre es requerido'),
+			last_name: z.string().min(1, 'El apellido es requerido'),
+			identification_number: z
+				.string()
+				.min(1, 'La identificación es requerida')
+				.regex(/^[VEJGvejg]\d{5,9}$/, 'Formato: V12345678 o E123456789'),
+			email: z.string().min(1, 'El email es requerido').email('Email inválido'),
+			phone: z.string().min(1, 'El teléfono es requerido'),
+			role: z.string().min(1, 'El rol es requerido'),
+			password: z.string().optional(),
+			confirm_password: z.string().optional(),
+		})
+		.refine((data) => !data.password || data.password === data.confirm_password, {
+			message: 'Las contraseñas no coinciden',
+			path: ['confirm_password'],
+		}),
 )
 
 const { handleSubmit, errors, setValues } = useForm({
@@ -121,7 +123,10 @@ const onSubmit = handleSubmit(async (values) => {
 			<h1 class="text-primary text-2xl font-bold">Editar usuario</h1>
 			<p>Actualiza los datos del usuario</p>
 		</div>
-		<form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+		<form
+			@submit="onSubmit"
+			class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md"
+		>
 			<div class="grid grid-cols-2 grid-rows-1 gap-4">
 				<label class="w-full flex flex-col text-dark">
 					Primer nombre
@@ -136,8 +141,15 @@ const onSubmit = handleSubmit(async (values) => {
 			</div>
 			<label class="w-full flex flex-col text-dark">
 				Cédula de Identidad
-				<BaseInput v-model="identification_number" type="text" name="identification_number" placeholder="V12345678" />
-				<span v-if="errors.identification_number" class="text-red-500 text-sm">{{ errors.identification_number }}</span>
+				<BaseInput
+					v-model="identification_number"
+					type="text"
+					name="identification_number"
+					placeholder="V12345678"
+				/>
+				<span v-if="errors.identification_number" class="text-red-500 text-sm">{{
+					errors.identification_number
+				}}</span>
 			</label>
 			<label class="w-full flex flex-col text-dark">
 				Email
@@ -165,11 +177,23 @@ const onSubmit = handleSubmit(async (values) => {
 				</label>
 				<label class="w-full flex flex-col text-dark">
 					Confirmar Contraseña
-					<BaseInput v-model="confirm_password" type="password" name="confirm_password" placeholder="Confirmar" />
-					<span v-if="errors.confirm_password" class="text-red-500 text-sm">{{ errors.confirm_password }}</span>
+					<BaseInput
+						v-model="confirm_password"
+						type="password"
+						name="confirm_password"
+						placeholder="Confirmar"
+					/>
+					<span v-if="errors.confirm_password" class="text-red-500 text-sm">{{
+						errors.confirm_password
+					}}</span>
 				</label>
 			</div>
-			<BaseButton :text="loading ? 'Guardando...' : 'Editar usuario'" :loading="loading" :disabled="loading" type="submit" />
+			<BaseButton
+				:text="loading ? 'Guardando...' : 'Editar usuario'"
+				:loading="loading"
+				:disabled="loading"
+				type="submit"
+			/>
 		</form>
 	</section>
 </template>

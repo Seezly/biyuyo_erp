@@ -31,6 +31,7 @@ class SubscriptionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Subscription
         fields = [
+            "id",
             "url",
             "business_id",
             "plan_id",
@@ -52,6 +53,7 @@ class InvoiceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Invoice
         fields = [
+            "id",
             "url",
             "subscription_id",
             "amount",

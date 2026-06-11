@@ -1,36 +1,7 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
 import { useToastStore } from '@/stores/toast'
-
-interface Plan {
-	id: number
-	name: string
-	price: number
-	max_users: number
-	max_products: number
-	created_at: string
-	updated_at: string
-}
-
-interface Subscription {
-	id: number
-	business: number
-	plan: number
-	plan_name?: string
-	status: string
-	start_date: string
-	end_date: string | null
-}
-
-interface Invoice {
-	id: number
-	subscription: number
-	amount: number
-	method: string
-	status: string
-	created_at: string
-	updated_at: string
-}
+import type { Plan, Subscription, Invoice } from '@/types/billing'
 
 export const useBillingStore = defineStore('billing', {
 	state: () => ({
@@ -210,7 +181,7 @@ export const useBillingStore = defineStore('billing', {
 			}
 		},
 
-		async createSubscription(data: Omit<Subscription, 'id' | 'created_at' | 'updated_at' | 'plan_name'>) {
+		async createSubscription(data: Omit<Subscription, 'id' | 'created_at' | 'updated_at'>) {
 			this.loading = true
 			this.error = null
 			const toastStore = useToastStore()
@@ -233,7 +204,7 @@ export const useBillingStore = defineStore('billing', {
 			}
 		},
 
-		async updateSubscription(id: number, data: Partial<Omit<Subscription, 'created_at' | 'updated_at' | 'plan_name'>>) {
+		async updateSubscription(id: number, data: Partial<Omit<Subscription, 'created_at' | 'updated_at'>>) {
 			this.loading = true
 			this.error = null
 			const toastStore = useToastStore()

@@ -1,16 +1,7 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
 import { useToastStore } from '@/stores/toast'
-
-interface Customer {
-	id: number
-	name: string
-	business: number
-	phone: string
-	identification_number: string
-	created_at: string
-	updated_at: string
-}
+import type { Customer } from '@/types/customer'
 
 interface CustomerForm {
 	name: string
@@ -21,10 +12,8 @@ interface CustomerForm {
 export const useCustomersStore = defineStore('customers', {
 	state: () => ({
 		customers: [] as Customer[],
-		currentCustomer: null as Customer | null,
 		loading: false,
 		error: null as string | null,
-		// Pagination state
 		pagination: {
 			count: 0,
 			next: null as string | null,
@@ -152,11 +141,7 @@ export const useCustomersStore = defineStore('customers', {
 		}
 	},
 
-		clearCurrentCustomer() {
-			this.currentCustomer = null
-		},
-
-		searchCustomers(query: string) {
+	searchCustomers(query: string) {
 			const lowerQuery = query.toLowerCase()
 			return this.customers.filter(c => 
 				c.name.toLowerCase().includes(lowerQuery) ||

@@ -21,23 +21,14 @@ interface AuditLogEntry {
 }
 
 export const useAuditStore = defineStore('audit', {
-  state: () => ({
+	state: () => ({
     logs: [] as AuditLogEntry[],
     loading: false,
     error: null as string | null,
-    // Pagination state
     pagination: {
       count: 0,
       next: null as string | null,
       previous: null as string | null,
-    },
-    // Filters
-    filters: {
-      user_id: null as number | null,
-      action: null as string | null,
-      model_name: null as string | null,
-      start_date: null as string | null,
-      end_date: null as string | null,
     },
   }),
 
@@ -62,13 +53,6 @@ export const useAuditStore = defineStore('audit', {
         if (params.end_date) queryParams.set('end_date', params.end_date)
         if (params.ordering) queryParams.set('ordering', params.ordering)
         if (params.page) queryParams.set('page', params.page)
-
-        // Update filters
-        if (params.user_id !== null && params.user_id !== undefined) this.filters.user_id = params.user_id
-        if (params.action !== undefined) this.filters.action = params.action
-        if (params.model_name !== undefined) this.filters.model_name = params.model_name
-        if (params.start_date !== undefined) this.filters.start_date = params.start_date
-        if (params.end_date !== undefined) this.filters.end_date = params.end_date
 
         const queryString = queryParams.toString()
         const url = `/api/audit/logs/${queryString ? '?' + queryString : ''}`
@@ -103,38 +87,6 @@ export const useAuditStore = defineStore('audit', {
       } finally {
         this.loading = false
       }
-    },
-
-    clearFilters() {
-      this.filters = {
-        user_id: null,
-        action: null,
-        model_name: null,
-        start_date: null,
-        end_date: null,
-      }
-    },
-
-    applyFilters() {
-      this.fetchAuditLogs({
-        user_id: this.filters.user_id,
-        action: this.filters.action,
-        model_name: this.filters.model_name,
-        start_date: this.filters.start_date,
-        end_date: this.filters.end_date,
-      })
-    },
-  },
-
-  getters: {
-    recentLogs: (state) => {
-      return state.logs.slice(0, 10) // Return 10 most recent logs
-    },
-    logsByAction: (state) => {
-      return (action: string) => state.logs.filter(log => log.action === action)
-    },
-    logsByModel: (state) => {
-      return (modelName: string) => state.logs.filter(log => log.model_name === modelName)
     },
   },
 })

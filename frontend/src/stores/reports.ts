@@ -48,13 +48,6 @@ export const useReportsStore = defineStore('reports', {
         count: s.total_products,
       }))
     },
-    lowStockByBusiness(): { name: string; count: number }[] {
-      if (!this.summary.length) return []
-      return this.summary.map((s) => ({
-        name: s.business_name,
-        count: s.low_stock_count,
-      }))
-    },
     subscriptionsByPlan(): { name: string; count: number }[] {
       if (!this.stats) return []
       return [{ name: 'Activas', count: this.stats.activeSubscriptions }]

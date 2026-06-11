@@ -86,10 +86,6 @@ onMounted(async () => {
               <p class="text-dark">{{ business.is_active ? 'Sí' : 'No' }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Fecha de inicio</p>
-              <p class="text-dark">{{ formatDate(business.start_date) }}</p>
-            </div>
-            <div>
               <p class="text-sm text-gray-500">Fecha de creación</p>
               <p class="text-dark">{{ formatDate(business.created_at) }}</p>
             </div>

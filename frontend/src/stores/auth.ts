@@ -12,7 +12,7 @@ interface UserItem {
   phone: string
   identification_number: string
   role: string
-  business: number
+  business_id: number
   created_at: string
 }
 

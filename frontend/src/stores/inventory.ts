@@ -1,35 +1,15 @@
 import { defineStore } from 'pinia'
 import { apiFetch } from '@/utils/helpers'
 import type { Product, ProductForm } from '@/types/product'
+import type { Category, InventoryMovement } from '@/types/inventory'
 import { useToastStore } from '@/stores/toast'
-
-interface Category {
-	id: number
-	name: string
-	parent_id: number | null
-	business: number
-	created_at: string
-	updated_at: string
-}
-
-interface InventoryMovement {
-	id: number
-	business: number
-	product: number
-	type: 'in' | 'out' | 'adjustment'
-	quantity: number
-	reason: string
-	created_at: string
-}
 
 export const useInventoryStore = defineStore('inventory', {
 	state: () => ({
 		products: [] as Product[],
 		categories: [] as Category[],
-		movements: [] as InventoryMovement[],
 		loading: false,
 		error: null as string | null,
-		// Pagination state
 		pagination: {
 			count: 0,
 			next: null as string | null,
@@ -252,46 +232,6 @@ export const useInventoryStore = defineStore('inventory', {
 			} catch (e: any) {
 				this.error = e.message
 				return null
-			} finally {
-				this.loading = false
-			}
-		},
-
-		async fetchMovements() {
-			this.loading = true
-			this.error = null
-			try {
-				const response = await apiFetch('/api/inventory-movements/')
-				if (!response.ok) throw new Error('Failed to fetch movements')
-				this.movements = await response.json()
-			} catch (e: any) {
-				this.error = e.message
-			} finally {
-				this.loading = false
-			}
-		},
-
-		async createMovement(data: {
-			product: number
-			type: 'in' | 'out' | 'adjustment'
-			quantity: number
-			reference: string
-		}) {
-			this.loading = true
-			this.error = null
-			const toastStore = useToastStore()
-			try {
-				const response = await apiFetch('/api/inventory-movements/', {
-					method: 'POST',
-					body: JSON.stringify(data),
-				})
-				if (!response.ok) throw new Error('Failed to create movement')
-				const movement = await response.json()
-				this.movements.push(movement)
-				toastStore.success('Movimiento registrado correctamente')
-			} catch (e: any) {
-				this.error = e.message
-				toastStore.error(e.message || 'Error al registrar movimiento')
 			} finally {
 				this.loading = false
 			}
