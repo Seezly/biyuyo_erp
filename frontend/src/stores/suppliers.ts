@@ -9,6 +9,7 @@ interface SupplierForm {
   email: string
   address?: string
   phone?: string
+  business_id?: number
 }
 
 interface PurchaseForm {

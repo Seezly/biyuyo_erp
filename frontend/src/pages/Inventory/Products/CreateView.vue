@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useForm, useField } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -9,14 +9,24 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useInventoryStore } from '@/stores/inventory'
 import { useToastStore } from '@/stores/toast'
+import { useAuthStore } from '@/stores/auth'
+import { useBusinessesStore } from '@/stores/businesses'
 import { apiFetch } from '@/utils/helpers'
 
 const router = useRouter()
 const inventoryStore = useInventoryStore()
 const toastStore = useToastStore()
+const authStore = useAuthStore()
+const businessesStore = useBusinessesStore()
 const loading = ref(false)
 
+const isSuperadmin = computed(() => authStore.user?.is_superuser === true)
+const selectedBusinessId = ref<number | null>(null)
+
 onMounted(async () => {
+	if (isSuperadmin.value) {
+		await businessesStore.fetchBusinesses()
+	}
 	await inventoryStore.fetchCategories()
 })
 
@@ -71,6 +81,9 @@ const { value: min_stock } = useField<number | undefined>('min_stock')
 		if (values.category_id) {
 			payload.category_id = values.category_id
 		}
+		if (isSuperadmin.value && selectedBusinessId.value) {
+			payload.business_id = selectedBusinessId.value
+		}
 
 		const response = await apiFetch('/api/products/', {
 			method: 'POST',
@@ -101,6 +114,15 @@ const { value: min_stock } = useField<number | undefined>('min_stock')
 		</div>
 
 		<form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+			<label v-if="isSuperadmin" class="w-full flex flex-col text-dark">
+				Negocio *
+				<select v-model="selectedBusinessId" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+					<option :value="null">Seleccionar negocio</option>
+					<option v-for="b in businessesStore.businesses" :key="b.id" :value="b.id">
+						{{ b.name }}
+					</option>
+				</select>
+			</label>
 			<label class="w-full flex flex-col text-dark">
 				SKU *
 				<BaseInput v-model="sku" type="text" name="sku" placeholder="SKU" />

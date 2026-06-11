@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeMount } from 'vue'
+import { ref, computed, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useForm, useField } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -9,11 +9,18 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 import { useToastStore } from '@/stores/toast'
+import { useAuthStore } from '@/stores/auth'
+import { useBusinessesStore } from '@/stores/businesses'
 import { apiFetch } from '@/utils/helpers'
 
 const router = useRouter()
 const toastStore = useToastStore()
+const authStore = useAuthStore()
+const businessesStore = useBusinessesStore()
 const loading = ref(false)
+
+const isSuperadmin = computed(() => authStore.user?.is_superuser === true)
+const selectedBusinessId = ref<number | null>(null)
 
 interface Category {
 	id: number
@@ -34,7 +41,10 @@ const getCategories = async () => {
 	}
 }
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
+	if (isSuperadmin.value) {
+		await businessesStore.fetchBusinesses()
+	}
 	getCategories()
 })
 
@@ -75,6 +85,9 @@ const onSubmit = handleSubmit(async (values) => {
 		if (values.is_subcategory && values.parent_id) {
 			payload.parent_id = values.parent_id
 		}
+		if (isSuperadmin.value && selectedBusinessId.value) {
+			payload.business_id = selectedBusinessId.value
+		}
 
 		const response = await apiFetch('/api/categories/', {
 			method: 'POST',
@@ -104,6 +117,15 @@ const onSubmit = handleSubmit(async (values) => {
 			<p>Crea nuevas categorías para organizar tu inventario</p>
 		</div>
 		<form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+			<label v-if="isSuperadmin" class="w-full flex flex-col text-dark">
+				Negocio *
+				<select v-model="selectedBusinessId" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+					<option :value="null">Seleccionar negocio</option>
+					<option v-for="b in businessesStore.businesses" :key="b.id" :value="b.id">
+						{{ b.name }}
+					</option>
+				</select>
+			</label>
 			<label class="w-full flex flex-col text-dark">
 				Nombre de la categoría
 				<BaseInput v-model="name" type="text" name="name" placeholder="Nombre de la categoría" />

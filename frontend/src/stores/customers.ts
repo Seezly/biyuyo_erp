@@ -3,10 +3,11 @@ import { apiFetch } from '@/utils/helpers'
 import { useToastStore } from '@/stores/toast'
 import type { Customer } from '@/types/customer'
 
-interface CustomerForm {
+	interface CustomerForm {
 	name: string
 	phone: string
 	identification_number: string
+	business_id?: number
 }
 
 export const useCustomersStore = defineStore('customers', {

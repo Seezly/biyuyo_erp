@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useForm, useField } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -9,11 +9,18 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useInventoryStore } from '@/stores/inventory'
 import { useToastStore } from '@/stores/toast'
+import { useAuthStore } from '@/stores/auth'
+import { useBusinessesStore } from '@/stores/businesses'
 
 const router = useRouter()
 const route = useRoute()
 const inventoryStore = useInventoryStore()
 const toastStore = useToastStore()
+const authStore = useAuthStore()
+const businessesStore = useBusinessesStore()
+
+const isSuperadmin = computed(() => authStore.user?.is_superuser === true)
+const selectedBusinessId = ref<number | null>(null)
 
 const productId = Number(route.params.productId)
 if (!productId) {
@@ -23,6 +30,9 @@ const loading = ref(true)
 const saving = ref(false)
 
 onMounted(async () => {
+	if (isSuperadmin.value) {
+		await businessesStore.fetchBusinesses()
+	}
 	await inventoryStore.fetchCategories()
 	try {
 		const product = await inventoryStore.fetchProductById(productId)
@@ -115,6 +125,15 @@ const onSubmit = handleSubmit(async (values) => {
 
 		<div v-else>
 			<form @submit="onSubmit" class="flex justify-start mx-auto items-center flex-col gap-4 w-full lg:w-md">
+				<label v-if="isSuperadmin" class="w-full flex flex-col text-dark">
+					Negocio *
+					<select v-model="selectedBusinessId" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+						<option :value="null">Seleccionar negocio</option>
+						<option v-for="b in businessesStore.businesses" :key="b.id" :value="b.id">
+							{{ b.name }}
+						</option>
+					</select>
+				</label>
 				<label class="w-full flex flex-col text-dark">
 					SKU *
 					<BaseInput v-model="sku" type="text" name="sku" placeholder="SKU" />
