@@ -57,10 +57,18 @@ const cartIva = computed(() => cartTotal.value * IVA_RATE)
 const cartTotalWithIva = computed(() => cartSubtotal.value + cartIva.value)
 
 const addToCart = (product: any) => {
+	if (product.stock <= 0) {
+		toastStore.warning(`Sin stock: ${product.name}`)
+		return
+	}
 	const existing = cart.value.find(item => item.product === product.id)
 	if (existing) {
+		if (existing.quantity >= product.stock) {
+			toastStore.warning(`Stock máximo alcanzado para ${product.name}: ${product.stock}`)
+			return
+		}
 		existing.quantity += 1
-		existing.total = existing.quantity * product.sell_price
+		existing.total = existing.quantity * existing.unit_price
 	} else {
 		cart.value.push({
 			product: product.id,
@@ -276,27 +284,29 @@ const sendReceipt = () => {
 							<p class="text-gray-500">No hay productos disponibles</p>
 						</div>
 						<div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-							<BaseCard
-								v-for="product in filteredProducts"
-								:key="product.id"
-								variant="outlined"
-								class="cursor-pointer hover:border-primary transition-colors"
-								@click="addToCart(product)"
-							>
-								<div class="flex flex-col gap-2">
-									<div class="flex justify-between items-start">
-										<span
-											:class="product.stock === 0 ? 'bg-red-500' : product.stock <= product.min_stock ? 'bg-yellow-500' : 'bg-green-500'"
-											class="text-xs text-white px-2 py-1 rounded"
-										>
-											{{ product.stock }} uds
-										</span>
-									</div>
-									<h3 class="font-bold text-sm truncate">{{ product.name }}</h3>
-									<p class="text-lg font-bold text-primary">${{ product.sell_price }}</p>
-									<BaseButton text="Agregar" size="sm" width="full" />
+						<BaseCard
+							v-for="product in filteredProducts"
+							:key="product.id"
+							variant="outlined"
+							class="cursor-pointer hover:border-primary transition-colors"
+							:class="product.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''"
+							@click="product.stock > 0 && addToCart(product)"
+						>
+							<div class="flex flex-col gap-2">
+								<div class="flex justify-between items-start">
+									<span
+										:class="product.stock === 0 ? 'bg-red-500' : product.stock <= product.min_stock ? 'bg-yellow-500' : 'bg-green-500'"
+										class="text-xs text-white px-2 py-1 rounded"
+									>
+										{{ product.stock }} uds
+									</span>
 								</div>
-							</BaseCard>
+								<h3 class="font-bold text-sm truncate">{{ product.name }}</h3>
+								<p class="text-lg font-bold text-primary">${{ product.sell_price }}</p>
+								<p v-if="product.stock === 0" class="text-xs text-red-500 font-medium">Sin stock</p>
+								<p v-else class="text-xs text-green-600 font-medium">Agregar al carrito</p>
+							</div>
+						</BaseCard>
 						</div>
 					</div>
 					<BaseInput
@@ -343,12 +353,13 @@ const sendReceipt = () => {
 											-
 										</button>
 										<span class="text-sm font-bold">{{ item.quantity }}</span>
-										<button
-											class="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center"
-											@click="updateQuantity(index, 1)"
-										>
-											+
-										</button>
+									<button
+										class="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+										:disabled="item.quantity >= item.stock"
+										@click="updateQuantity(index, 1)"
+									>
+										+
+									</button>
 									</div>
 									<p class="text-sm font-bold">${{ item.total }}</p>
 									<button

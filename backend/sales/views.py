@@ -74,6 +74,7 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
             ],
         })
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         data = request.data
         items_data = data.get('items', [])
