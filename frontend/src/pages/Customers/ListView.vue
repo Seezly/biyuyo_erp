@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
+import { useAuthStore } from '@/stores/auth'
+import { useBusinessesStore } from '@/stores/businesses'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
@@ -10,12 +12,20 @@ import BaseAlert from '@/components/ui/BaseAlert.vue'
 const router = useRouter()
 const route = useRoute()
 const customersStore = useCustomersStore()
+const authStore = useAuthStore()
+const businessesStore = useBusinessesStore()
+
+const isSuperadmin = computed(() => authStore.user?.is_superuser === true)
+const selectedBusinessId = ref<number | null>(null)
 
 const search = ref('')
 const showDeleteAlert = ref(false)
 const customerToDelete = ref<number | null>(null)
 
-onMounted(() => {
+onMounted(async () => {
+	if (isSuperadmin.value) {
+		await businessesStore.fetchBusinesses()
+	}
 	search.value = (route.query.search as string) || ''
 	fetchCustomers()
 })
@@ -25,16 +35,20 @@ const fetchCustomers = () => {
 		search?: string
 		ordering?: string
 		page?: string
+		business_id?: number | null
 	} = {}
 
 	if (search.value) params.search = search.value
+	if (isSuperadmin.value && selectedBusinessId.value) {
+		params.business_id = selectedBusinessId.value
+	}
 	if (route.query.ordering) params.ordering = route.query.ordering as string
 	if (route.query.page) params.page = route.query.page as string
 
 	customersStore.fetchCustomers(params)
 }
 
-watch(search, () => {
+watch([search, selectedBusinessId], () => {
 	const query: Record<string, string> = {}
 	if (search.value) query.search = search.value
 	router.push({ query })
@@ -78,7 +92,15 @@ const formatDate = (dateString: string) => {
 
 		<div class="grid grid-cols-12 grid-rows-1 gap-4 w-full">
 			<BaseButton to="/customers/add" text="Añadir cliente" class="col-span-12 lg:col-span-3" />
-			<BaseInput v-model="search" placeholder="Buscar cliente por nombre, teléfono o identificación" class="col-span-12 lg:col-span-9" />
+			<BaseInput v-model="search" placeholder="Buscar cliente por nombre, teléfono o identificación" class="col-span-12 lg:col-span-6" />
+			<label v-if="isSuperadmin" class="w-full flex flex-col text-dark col-span-12 lg:col-span-3">
+				<select v-model="selectedBusinessId" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+					<option :value="null">Todos los negocios</option>
+					<option v-for="b in businessesStore.businesses" :key="b.id" :value="b.id">
+						{{ b.name }}
+					</option>
+				</select>
+			</label>
 		</div>
 
 		<div v-if="customersStore.loading" class="w-full text-center py-8">

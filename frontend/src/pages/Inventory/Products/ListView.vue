@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useInventoryStore } from '@/stores/inventory'
 import { useToastStore } from '@/stores/toast'
+import { useAuthStore } from '@/stores/auth'
+import { useBusinessesStore } from '@/stores/businesses'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseCard from '@/components/ui/BaseCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -12,6 +14,11 @@ const router = useRouter()
 const route = useRoute()
 const inventoryStore = useInventoryStore()
 const toastStore = useToastStore()
+const authStore = useAuthStore()
+const businessesStore = useBusinessesStore()
+
+const isSuperadmin = computed(() => authStore.user?.is_superuser === true)
+const selectedBusinessId = ref<number | null>(null)
 
 const search = ref('')
 const stockFilter = ref<'all' | 'low' | 'out'>('all')
@@ -19,7 +26,10 @@ const showDeleteAlert = ref(false)
 const productToDelete = ref<number | null>(null)
 
 // Initialize filters from URL query params
-onMounted(() => {
+onMounted(async () => {
+	if (isSuperadmin.value) {
+		await businessesStore.fetchBusinesses()
+	}
 	search.value = (route.query.search as string) || ''
 	stockFilter.value = ((route.query.stock as string) || 'all') as 'all' | 'low' | 'out'
 	fetchProducts()
@@ -32,9 +42,13 @@ const fetchProducts = () => {
 		stock?: string
 		ordering?: string
 		page?: string
+		business_id?: number | null
 	} = {}
 
 	if (search.value) params.search = search.value
+	if (isSuperadmin.value && selectedBusinessId.value) {
+		params.business_id = selectedBusinessId.value
+	}
 
 	// Stock filter: send the filter value for backend to handle
 	// The backend will filter based on stock value
@@ -52,7 +66,7 @@ const fetchProducts = () => {
 }
 
 // Watch for filter changes and update URL
-watch([search, stockFilter], () => {
+watch([search, stockFilter, selectedBusinessId], () => {
 	const query: Record<string, string> = {}
 	if (search.value) query.search = search.value
 	if (stockFilter.value !== 'all') query.stock = stockFilter.value
@@ -106,6 +120,14 @@ const getStockClass = (product: any) => {
 		<div class="grid grid-cols-12 grid-rows-1 gap-4 w-full">
 			<BaseButton to="/inventory/products/add" text="Añadir producto" class="col-span-12 lg:col-span-3" />
 			<BaseInput v-model="search" placeholder="Buscar producto por nombre o SKU" class="col-span-12 lg:col-span-5" />
+			<label v-if="isSuperadmin" class="w-full flex flex-col text-dark col-span-12 lg:col-span-2">
+				<select v-model="selectedBusinessId" class="py-2 px-4 rounded-xl border border-secondary text-primary">
+					<option :value="null">Todos los negocios</option>
+					<option v-for="b in businessesStore.businesses" :key="b.id" :value="b.id">
+						{{ b.name }}
+					</option>
+				</select>
+			</label>
 			<div class="flex lg:justify-end justify-between items-center gap-2 col-span-12 lg:col-span-4">
 				<label class="px-4 py-2 bg-[#fff] has-checked:bg-primary has-checked:text-[#fff] has-checked:hover:bg-primary/90 border border-primary rounded-full flex flex-col justify-center items-center text-center hover:bg-primary/90 hover:text-[#fff] relative transition cursor-pointer">
 					Todos
