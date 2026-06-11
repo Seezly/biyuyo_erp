@@ -44,7 +44,6 @@ const onSubmit = handleSubmit(async (values) => {
 	try {
 		const response = await apiFetch('/api/users/change-password/', {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
 				current_password: values.current_password,
 				new_password: values.new_password,

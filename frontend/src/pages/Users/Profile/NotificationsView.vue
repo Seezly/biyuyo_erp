@@ -39,7 +39,6 @@ const savePreferences = async () => {
   try {
     const response = await apiFetch(`/api/users/${authStore.user?.id}/`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email_notifications: emailEnabled.value,
         push_notifications: pushEnabled.value,

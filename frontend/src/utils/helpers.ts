@@ -12,15 +12,16 @@ refresh the token, retry the fetch and returns the final response
 */
 export async function apiFetch(url: string, options: RequestInit = {}) {
 	const csrfToken = getCookie('csrftoken') || ''
+	const { headers: userHeaders, ...restOptions } = options
 
 	const res = await fetch(import.meta.env.VITE_API_URL + url, {
+		...restOptions,
 		credentials: 'include',
 		headers: {
 			'Content-Type': 'application/json',
 			'X-CSRFToken': csrfToken,
-			...(options.headers || {}),
+			...(userHeaders || {}),
 		},
-		...options,
 	})
 
 	if (res.status === 401) {
@@ -31,13 +32,14 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 
 		if (refreshResponse.ok) {
 			const newCsrfToken = getCookie('csrftoken') || csrfToken
+			const { headers: retryHeaders, ...retryRest } = options
 			return fetch(import.meta.env.VITE_API_URL + url, {
-				...options,
+				...retryRest,
 				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json',
 					'X-CSRFToken': newCsrfToken,
-					...(options.headers || {}),
+					...(retryHeaders || {}),
 				},
 			})
 		} else {

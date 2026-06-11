@@ -43,7 +43,6 @@ const saveReminderSettings = async () => {
   try {
     const response = await apiFetch('/api/reminder-settings/current/', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(reminderSettings.value),
     })
     if (response.ok) {
