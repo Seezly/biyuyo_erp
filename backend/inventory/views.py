@@ -34,7 +34,7 @@ class CategoryViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.business)
+        serializer.save(business_id=self.get_required_business())
 
     def get_object(self):
         obj = super().get_object()
@@ -65,7 +65,7 @@ class ProductViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.business)
+        serializer.save(business_id=self.get_required_business())
 
     def get_object(self):
         obj = super().get_object()
@@ -80,7 +80,7 @@ class ProductViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet)
         Get products with stock below minimum threshold.
         """
         products = Product.objects.filter(
-            business_id=request.business,
+            business_id=self.get_required_business(),
             stock__isnull=False,
             min_stock__isnull=False,
             stock__lte=models.F('min_stock'),
@@ -111,7 +111,7 @@ class InventoryMovementViewSet(BusinessFilterMixin, FilteringMixin, viewsets.Mod
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.business)
+        serializer.save(business_id=self.get_required_business())
 
     def get_object(self):
         obj = super().get_object()

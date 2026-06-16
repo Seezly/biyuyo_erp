@@ -90,7 +90,7 @@ class SaleViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
                 try:
                     product = Product.objects.select_for_update().get(
                         id=product_id,
-                        business_id=request.business,
+                        business_id=self.get_required_business(),
                     )
                     if product.stock is not None and product.stock < quantity:
                         errors.append(
@@ -110,7 +110,7 @@ class SaleViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
         request = self.request
         items_data = request.data.get('items', []) if request else []
 
-        sale = serializer.save(business_id=request.business, user_id=request.user)
+        sale = serializer.save(business_id=self.get_required_business(), user_id=request.user)
 
         for item_data in items_data:
             product_id = item_data.get('product')
@@ -120,7 +120,7 @@ class SaleViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
                 try:
                     product = Product.objects.select_for_update().get(
                         id=product_id,
-                        business_id=request.business,
+                        business_id=self.get_required_business(),
                     )
 
                     SaleItem.objects.create(
@@ -167,7 +167,7 @@ class SaleItemViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet
 
     def perform_create(self, serializer):
         sale = serializer.validated_data.get('sale_id')
-        if sale and sale.business_id != self.request.business:
+        if sale and sale.business_id != self.get_business_filter():
             raise PermissionDenied("No tienes acceso a esta venta.")
         serializer.save()
 
@@ -201,7 +201,7 @@ class PaymentViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet)
 
     def perform_create(self, serializer):
         sale = serializer.validated_data.get('sale_id')
-        if sale and sale.business_id != self.request.business:
+        if sale and sale.business_id != self.get_business_filter():
             raise PermissionDenied("No tienes acceso a esta venta.")
         serializer.save()
 

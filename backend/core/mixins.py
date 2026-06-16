@@ -1,4 +1,5 @@
 from django.db.models import Q
+from rest_framework.exceptions import PermissionDenied
 
 
 class BusinessFilterMixin:
@@ -17,6 +18,12 @@ class BusinessFilterMixin:
         if user.is_superuser or user.groups.filter(name='admin').exists():
             return None
         return self.request.business
+
+    def get_required_business(self):
+        business = self.request.business
+        if not business:
+            raise PermissionDenied("Debe seleccionar un negocio primero.")
+        return business
 
 
 class FilteringMixin:

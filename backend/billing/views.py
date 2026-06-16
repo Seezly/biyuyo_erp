@@ -47,7 +47,7 @@ class SubscriptionViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelVie
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.business)
+        serializer.save(business_id=self.get_required_business())
 
     def get_object(self):
         obj = super().get_object()
@@ -85,6 +85,7 @@ class InvoiceViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet)
 
     def perform_create(self, serializer):
         subscription = serializer.validated_data.get('subscription_id')
-        if subscription and subscription.business_id != self.request.business:
+        business = self.get_business_filter()
+        if subscription and business and subscription.business_id != business:
             raise PermissionDenied("No tienes acceso a esta suscripción.")
         serializer.save()

@@ -31,7 +31,7 @@ class SupplierViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.business)
+        serializer.save(business_id=self.get_required_business())
 
     def get_object(self):
         obj = super().get_object()
@@ -62,7 +62,7 @@ class PurchaseViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.business)
+        serializer.save(business_id=self.get_required_business())
 
     def get_object(self):
         obj = super().get_object()
@@ -93,7 +93,8 @@ class PurchaseItemViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelVie
 
     def perform_create(self, serializer):
         purchase = serializer.validated_data.get('purchase_id')
-        if purchase and purchase.business_id != self.request.business:
+        business = self.get_business_filter()
+        if purchase and business and purchase.business_id != business:
             raise PermissionDenied("No tienes acceso a esta compra.")
         serializer.save()
 

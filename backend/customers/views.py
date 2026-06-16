@@ -27,7 +27,7 @@ class CustomerViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.business)
+        serializer.save(business_id=self.get_required_business())
 
     def get_object(self):
         obj = super().get_object()

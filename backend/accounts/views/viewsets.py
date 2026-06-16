@@ -56,7 +56,7 @@ class UserViewSet(BusinessFilterMixin, viewsets.ModelViewSet):
         return response
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.business)
+        serializer.save(business_id=self.get_required_business())
 
     @action(detail=False, methods=['post'], url_path='change-password')
     def change_password(self, request):
@@ -104,12 +104,12 @@ class ReminderSettingsViewSet(BusinessFilterMixin, viewsets.ModelViewSet):
         return ReminderSettings.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.request.business)
+        serializer.save(business_id=self.get_required_business())
 
     @action(detail=False, methods=["get", "patch"], url_path="current")
     def current(self, request):
         settings, _ = ReminderSettings.objects.get_or_create(
-            business_id=request.business
+            business_id=self.get_required_business()
         )
         if request.method == "PATCH":
             serializer = self.get_serializer(settings, data=request.data, partial=True)

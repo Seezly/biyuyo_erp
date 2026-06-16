@@ -9,6 +9,7 @@ from businesses.models import Business
 from sales.models import Sale
 from inventory.models import Product
 from suppliers.models import Purchase
+from core.mixins import BusinessFilterMixin
 
 from .models import SalesReport, InventoryReport, FinancialReport
 from .serializers import (
@@ -18,7 +19,7 @@ from .serializers import (
 )
 
 
-class ReportViewSet(viewsets.ReadOnlyModelViewSet):
+class ReportViewSet(BusinessFilterMixin, viewsets.ReadOnlyModelViewSet):
     """
     API endpoint for generating and retrieving reports.
     """
@@ -32,18 +33,10 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
             return SalesReport.objects.filter(business_id=business)
         return SalesReport.objects.all()
 
-    def get_business_filter(self):
-        if self.request.impersonated:
-            return self.request.business
-        user = self.request.user
-        if user.is_superuser or user.groups.filter(name='admin').exists():
-            return None
-        return self.request.business
-
     @action(detail=False, methods=["get"])
     def summary(self, request):
         """Get summary statistics for the business."""
-        business = request.business
+        business = self.get_required_business()
 
         total_sales = (
             Sale.objects.filter(business_id=business).aggregate(total=Sum("total"))[
@@ -84,7 +77,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=["get"])
     def sales(self, request):
         """Get sales summary."""
-        queryset = Sale.objects.filter(business_id=request.business)
+        business = self.get_required_business()
+        queryset = Sale.objects.filter(business_id=business)
 
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
@@ -109,7 +103,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=["get"])
     def inventory(self, request):
         """Get inventory summary."""
-        queryset = Product.objects.filter(business_id=request.business)
+        business = self.get_required_business()
+        queryset = Product.objects.filter(business_id=business)
 
         total_products = queryset.count()
         total_value = (
@@ -142,7 +137,8 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
         """Get customers summary."""
         from customers.models import Customer
 
-        queryset = Customer.objects.filter(business_id=request.business)
+        business = self.get_required_business()
+        queryset = Customer.objects.filter(business_id=business)
 
         total = queryset.count()
         with_sales = (
