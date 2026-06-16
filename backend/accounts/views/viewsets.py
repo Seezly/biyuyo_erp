@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from core.permissions import IsAdminUser, IsAdminOrBusinessUser
+from core.mixins import BusinessFilterMixin
 from accounts.serializers import (
     GroupSerializer,
     ReminderSettingsSerializer,
@@ -12,7 +13,7 @@ from accounts.serializers import (
 )
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(BusinessFilterMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     Admin-only access with business isolation.
@@ -22,9 +23,12 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
 
     def get_queryset(self):
-        return CustomUser.objects.filter(
-            business_id=self.request.business
-        ).select_related('business_id').order_by("-date_joined")
+        business = self.get_business_filter()
+        if business:
+            return CustomUser.objects.filter(
+                business_id=business
+            ).select_related('business_id').order_by("-date_joined")
+        return CustomUser.objects.select_related('business_id').order_by("-date_joined")
 
     def create(self, request, *args, **kwargs):
         role_name = request.data.get('role')
@@ -89,12 +93,15 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
 
 
-class ReminderSettingsViewSet(viewsets.ModelViewSet):
+class ReminderSettingsViewSet(BusinessFilterMixin, viewsets.ModelViewSet):
     serializer_class = ReminderSettingsSerializer
     permission_classes = [IsAdminOrBusinessUser]
 
     def get_queryset(self):
-        return ReminderSettings.objects.filter(business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            return ReminderSettings.objects.filter(business_id=business)
+        return ReminderSettings.objects.all()
 
     def perform_create(self, serializer):
         serializer.save(business_id=self.request.business)

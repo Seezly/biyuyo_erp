@@ -1,12 +1,12 @@
 from rest_framework import permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
 
-from core.mixins import FilteringMixin
+from core.mixins import BusinessFilterMixin, FilteringMixin
 from customers.models import Customer
 from customers.serializers import CustomerSerializer
 
 
-class CustomerViewSet(FilteringMixin, viewsets.ModelViewSet):
+class CustomerViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows customers to be edited or viewed.
     Supports search by name/phone, and ordering.
@@ -21,7 +21,9 @@ class CustomerViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
@@ -29,6 +31,7 @@ class CustomerViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.business_id != business:
             raise PermissionDenied("You do not have access to this customer.")
         return obj

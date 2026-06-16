@@ -5,7 +5,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from core.mixins import FilteringMixin
+from core.mixins import BusinessFilterMixin, FilteringMixin
 from inventory.serializers import (
     CategorySerializer,
     ProductSerializer,
@@ -13,7 +13,7 @@ from inventory.serializers import (
 )
 
 
-class CategoryViewSet(FilteringMixin, viewsets.ModelViewSet):
+class CategoryViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows categories to be viewed or edited.
     Supports search, filtering, and ordering.
@@ -28,7 +28,9 @@ class CategoryViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
@@ -36,12 +38,13 @@ class CategoryViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.business_id != business:
             raise PermissionDenied("You do not have access to this category.")
         return obj
 
 
-class ProductViewSet(FilteringMixin, viewsets.ModelViewSet):
+class ProductViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows products to be viewed or edited.
     Supports search by name/sku, filtering by category, and ordering.
@@ -56,7 +59,9 @@ class ProductViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
@@ -64,7 +69,8 @@ class ProductViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.business_id != business:
             raise PermissionDenied("You do not have access to this product.")
         return obj
 
@@ -84,7 +90,7 @@ class ProductViewSet(FilteringMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class InventoryMovementViewSet(FilteringMixin, viewsets.ModelViewSet):
+class InventoryMovementViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows inventory movements to be viewed or edited.
     Supports filtering by type and ordering.
@@ -99,7 +105,9 @@ class InventoryMovementViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
@@ -107,6 +115,7 @@ class InventoryMovementViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.business_id != business:
             raise PermissionDenied("You do not have access to this movement.")
         return obj

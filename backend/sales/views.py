@@ -5,13 +5,13 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status
 
-from core.mixins import FilteringMixin
+from core.mixins import BusinessFilterMixin, FilteringMixin
 from sales.models import Sale, SaleItem, Payment
 from sales.serializers import SaleSerializer, SaleItemSerializer, PaymentSerializer
 from inventory.models import Product
 
 
-class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
+class SaleViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows sales to be viewed or edited.
     Includes stock validation and automatic stock deduction.
@@ -27,8 +27,10 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(business_id=self.request.business).prefetch_related('saleitem_set', 'payment_set')
-        return self.filter_queryset_with_params(queryset)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(business_id=business)
+        return self.filter_queryset_with_params(queryset.prefetch_related('saleitem_set', 'payment_set'))
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -138,12 +140,13 @@ class SaleViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.business_id != business:
             raise PermissionDenied("You do not have access to this sale.")
         return obj
 
 
-class SaleItemViewSet(FilteringMixin, viewsets.ModelViewSet):
+class SaleItemViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows sale items to be viewed or edited.
     """
@@ -157,7 +160,9 @@ class SaleItemViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(sale_id__business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(sale_id__business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
@@ -168,12 +173,13 @@ class SaleItemViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.sale_id.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.sale_id.business_id != business:
             raise PermissionDenied("You do not have access to this item.")
         return obj
 
 
-class PaymentViewSet(FilteringMixin, viewsets.ModelViewSet):
+class PaymentViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows payments to be viewed or edited.
     Supports search by reference, filtering by method/status, and ordering.
@@ -188,7 +194,9 @@ class PaymentViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(sale_id__business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(sale_id__business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
@@ -199,6 +207,7 @@ class PaymentViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.sale_id.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.sale_id.business_id != business:
             raise PermissionDenied("You do not have access to this payment.")
         return obj

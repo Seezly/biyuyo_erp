@@ -12,21 +12,41 @@ class AuditLogListView(generics.ListAPIView):
     ordering_fields = ['timestamp']
     ordering = ['-timestamp']
 
+    def get_business_filter(self):
+        if self.request.impersonated:
+            return self.request.business
+        user = self.request.user
+        if user.is_superuser or user.groups.filter(name='admin').exists():
+            return None
+        return self.request.business
+
     def get_queryset(self):
-        return AuditLog.objects.select_related('user').filter(
-            user__business_id=self.request.business
-        )
+        business = self.get_business_filter()
+        if business:
+            return AuditLog.objects.select_related('user').filter(
+                user__business_id=business
+            )
+        return AuditLog.objects.select_related('user').all()
 
 
 class AuditLogDetailView(generics.RetrieveAPIView):
     serializer_class = AuditLogSerializer
     permission_classes = [permissions.IsAdminUser]
 
+    def get_business_filter(self):
+        if self.request.impersonated:
+            return self.request.business
+        user = self.request.user
+        if user.is_superuser or user.groups.filter(name='admin').exists():
+            return None
+        return self.request.business
+
     def get_object(self):
         obj = generics.get_object_or_404(
             AuditLog.objects.select_related('user'),
             pk=self.kwargs['pk']
         )
-        if obj.user is None or obj.user.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and (obj.user is None or obj.user.business_id != business):
             raise PermissionDenied("You do not have access to this audit log.")
         return obj

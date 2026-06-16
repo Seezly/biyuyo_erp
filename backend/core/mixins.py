@@ -1,6 +1,24 @@
 from django.db.models import Q
 
 
+class BusinessFilterMixin:
+    """
+    Mixin that provides business-level filtering based on impersonation state.
+
+    - Admin/superadmin NOT impersonating: returns None (show all data)
+    - Admin/superadmin impersonating: returns the impersonated business
+    - Regular user: returns their own business
+    """
+
+    def get_business_filter(self):
+        if self.request.impersonated:
+            return self.request.business
+        user = self.request.user
+        if user.is_superuser or user.groups.filter(name='admin').exists():
+            return None
+        return self.request.business
+
+
 class FilteringMixin:
     """
     Reusable mixin that adds filtering, search, and ordering capabilities to ViewSets.

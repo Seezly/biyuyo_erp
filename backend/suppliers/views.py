@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
 
-from core.mixins import FilteringMixin
+from core.mixins import BusinessFilterMixin, FilteringMixin
 from suppliers.models import Supplier, Purchase, PurchaseItem
 from suppliers.serializers import (
     SupplierSerializer,
@@ -10,7 +10,7 @@ from suppliers.serializers import (
 )
 
 
-class SupplierViewSet(FilteringMixin, viewsets.ModelViewSet):
+class SupplierViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows suppliers to be viewed or edited.
     Supports search by name/rif/phone, and ordering.
@@ -25,7 +25,9 @@ class SupplierViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
@@ -33,12 +35,13 @@ class SupplierViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.business_id != business:
             raise PermissionDenied("You do not have access to this supplier.")
         return obj
 
 
-class PurchaseViewSet(FilteringMixin, viewsets.ModelViewSet):
+class PurchaseViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows purchase orders to be viewed or edited.
     Supports search by supplier name, filtering by status, and ordering.
@@ -53,7 +56,9 @@ class PurchaseViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
@@ -61,12 +66,13 @@ class PurchaseViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.business_id != business:
             raise PermissionDenied("You do not have access to this purchase.")
         return obj
 
 
-class PurchaseItemViewSet(FilteringMixin, viewsets.ModelViewSet):
+class PurchaseItemViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows purchase items to be viewed or edited.
     """
@@ -80,7 +86,9 @@ class PurchaseItemViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(purchase_id__business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(purchase_id__business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
@@ -91,6 +99,7 @@ class PurchaseItemViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.purchase_id.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.purchase_id.business_id != business:
             raise PermissionDenied("You do not have access to this purchase item.")
         return obj

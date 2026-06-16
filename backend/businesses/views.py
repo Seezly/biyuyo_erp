@@ -2,14 +2,14 @@ from businesses.models import Business
 from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
 
-from core.mixins import FilteringMixin
+from core.mixins import BusinessFilterMixin, FilteringMixin
 from businesses.serializers import BusinessSerializer
 
 
-class BusinessViewSet(FilteringMixin, viewsets.ModelViewSet):
+class BusinessViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows businesses to be viewed or edited.
-    Superadmins can see all businesses. Admins see only the impersonated business.
+    Superadmins can see all businesses. Admins see all when not impersonating.
     """
 
     serializer_class = BusinessSerializer
@@ -19,23 +19,16 @@ class BusinessViewSet(FilteringMixin, viewsets.ModelViewSet):
     default_ordering = ['-created_at']
 
     def get_queryset(self):
-        user = self.request.user
-
-        if user.is_superuser:
+        business = self.get_business_filter()
+        if business:
+            queryset = Business.objects.filter(id=business.id)
+        else:
             queryset = Business.objects.all()
-            return self.filter_queryset_with_params(queryset)
-
-        queryset = Business.objects.filter(id=self.request.business.id)
         return self.filter_queryset_with_params(queryset)
 
     def get_object(self):
         obj = super().get_object()
-        user = self.request.user
-
-        if user.is_superuser:
-            return obj
-
-        if obj.id != self.request.business.id:
+        business = self.get_business_filter()
+        if business and obj.id != business.id:
             raise PermissionDenied("You do not have access to this business.")
-
         return obj

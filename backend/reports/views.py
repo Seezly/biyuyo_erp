@@ -27,7 +27,18 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return SalesReport.objects.filter(business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            return SalesReport.objects.filter(business_id=business)
+        return SalesReport.objects.all()
+
+    def get_business_filter(self):
+        if self.request.impersonated:
+            return self.request.business
+        user = self.request.user
+        if user.is_superuser or user.groups.filter(name='admin').exists():
+            return None
+        return self.request.business
 
     @action(detail=False, methods=["get"])
     def summary(self, request):

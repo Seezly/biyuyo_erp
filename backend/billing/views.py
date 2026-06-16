@@ -2,7 +2,7 @@ from billing.models import Plan, Subscription, Invoice
 from rest_framework import permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
 
-from core.mixins import FilteringMixin
+from core.mixins import BusinessFilterMixin, FilteringMixin
 from billing.serializers import (
     PlanSerializer,
     SubscriptionSerializer,
@@ -27,7 +27,7 @@ class PlanViewSet(FilteringMixin, viewsets.ModelViewSet):
         return super().get_queryset()
 
 
-class SubscriptionViewSet(FilteringMixin, viewsets.ModelViewSet):
+class SubscriptionViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows subscriptions to be viewed or edited.
     """
@@ -41,7 +41,9 @@ class SubscriptionViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def perform_create(self, serializer):
@@ -49,12 +51,13 @@ class SubscriptionViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_object(self):
         obj = super().get_object()
-        if obj.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.business_id != business:
             raise PermissionDenied("You do not have access to this subscription.")
         return obj
 
 
-class InvoiceViewSet(FilteringMixin, viewsets.ModelViewSet):
+class InvoiceViewSet(BusinessFilterMixin, FilteringMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows invoices to be viewed or edited.
     """
@@ -68,12 +71,15 @@ class InvoiceViewSet(FilteringMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(subscription_id__business_id=self.request.business)
+        business = self.get_business_filter()
+        if business:
+            queryset = queryset.filter(subscription_id__business_id=business)
         return self.filter_queryset_with_params(queryset)
 
     def get_object(self):
         obj = super().get_object()
-        if obj.subscription_id.business_id != self.request.business:
+        business = self.get_business_filter()
+        if business and obj.subscription_id.business_id != business:
             raise PermissionDenied("You do not have access to this invoice.")
         return obj
 
