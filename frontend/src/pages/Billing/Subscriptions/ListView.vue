@@ -108,7 +108,7 @@ const getStatusClass = (status: string) => {
 					</div>
 					<div class="flex flex-col gap-2">
 						<h2 class="font-bold text-xl">Suscripción #{{ subscription.id }}</h2>
-						<p class="text-sm">Plan: {{ subscription.plan_name || `Plan #${subscription.plan}` }}</p>
+						<p class="text-sm">Plan: {{ subscription.plan_id }}</p>
 						<p class="text-sm text-gray-500">Desde: {{ formatDate(subscription.start_date) }}</p>
 						<p class="text-sm text-gray-500">Hasta: {{ formatDate(subscription.end_date || '') }}</p>
 					</div>

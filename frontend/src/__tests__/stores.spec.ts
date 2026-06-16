@@ -186,9 +186,9 @@ describe('Sales Store', () => {
     const today = new Date().toISOString().split('T')[0]
     
     store.sales = [
-      { id: 1, total: 100, created_at: `${today}T10:00:00Z`, business: 1, customer: 1, user: 1, subtotal: 100, discount: 0, tax: 0, status: 'completed', payment_status: 'pending' },
-      { id: 2, total: 200, created_at: `${today}T11:00:00Z`, business: 1, customer: 1, user: 1, subtotal: 200, discount: 0, tax: 0, status: 'completed', payment_status: 'pending' },
-      { id: 3, total: 50, created_at: '2023-01-01T10:00:00Z', business: 1, customer: 1, user: 1, subtotal: 50, discount: 0, tax: 0, status: 'completed', payment_status: 'pending' },
+      { id: 1, total: 100, created_at: `${today}T10:00:00Z`, updated_at: '', business_id: 1, customer_id: 1, user_id: 1, subtotal: 100, discount: 0, tax: 0, status: 'completed' },
+      { id: 2, total: 200, created_at: `${today}T11:00:00Z`, updated_at: '', business_id: 1, customer_id: 1, user_id: 1, subtotal: 200, discount: 0, tax: 0, status: 'completed' },
+      { id: 3, total: 50, created_at: '2023-01-01T10:00:00Z', updated_at: '', business_id: 1, customer_id: 1, user_id: 1, subtotal: 50, discount: 0, tax: 0, status: 'completed' },
     ]
     
     expect(store.todayTotal).toBe(300)
@@ -201,14 +201,14 @@ it('should return 0 when no sales today', () => {
       id: 1, 
       total: 100, 
       created_at: '2023-01-01T10:00:00Z',
-      business: 1,
-      customer: 1,
-      user: 1,
+      updated_at: '',
+      business_id: 1,
+      customer_id: 1,
+      user_id: 1,
       subtotal: 100,
       discount: 0,
       tax: 0,
       status: 'completed',
-      payment_status: 'pending'
     },
   ]
   
@@ -251,8 +251,8 @@ describe('Customers Store', () => {
 it('should search customers by name', () => {
   const store = useCustomersStore()
   store.customers = [
-    { id: 1, name: 'John Doe', phone: '04121234567', identification_number: 'V12345678', business: 1, created_at: '', updated_at: '' },
-    { id: 2, name: 'Jane Smith', phone: '04129876543', identification_number: 'V87654321', business: 1, created_at: '', updated_at: '' },
+    { id: 1, name: 'John Doe', phone: '04121234567', identification_number: 'V12345678', business_id: 1, created_at: '', updated_at: '' },
+    { id: 2, name: 'Jane Smith', phone: '04129876543', identification_number: 'V87654321', business_id: 1, created_at: '', updated_at: '' },
   ]
   
   const results = store.searchCustomers('john')
@@ -264,8 +264,8 @@ it('should search customers by name', () => {
 it('should search customers by phone', () => {
   const store = useCustomersStore()
   store.customers = [
-    { id: 1, name: 'John Doe', phone: '04121234567', identification_number: 'V12345678', business: 1, created_at: '', updated_at: '' },
-    { id: 2, name: 'Jane Smith', phone: '04129876543', identification_number: 'V87654321', business: 1, created_at: '', updated_at: '' },
+    { id: 1, name: 'John Doe', phone: '04121234567', identification_number: 'V12345678', business_id: 1, created_at: '', updated_at: '' },
+    { id: 2, name: 'Jane Smith', phone: '04129876543', identification_number: 'V87654321', business_id: 1, created_at: '', updated_at: '' },
   ]
   
   const results = store.searchCustomers('0412123')
@@ -277,8 +277,8 @@ it('should search customers by phone', () => {
 it('should get customer count', () => {
   const store = useCustomersStore()
   store.customers = [
-    { id: 1, name: 'Customer 1', phone: '04121234567', identification_number: 'V12345678', business: 1, created_at: '', updated_at: '' },
-    { id: 2, name: 'Customer 2', phone: '04129876543', identification_number: 'V87654321', business: 1, created_at: '', updated_at: '' },
+    { id: 1, name: 'Customer 1', phone: '04121234567', identification_number: 'V12345678', business_id: 1, created_at: '', updated_at: '' },
+    { id: 2, name: 'Customer 2', phone: '04129876543', identification_number: 'V87654321', business_id: 1, created_at: '', updated_at: '' },
   ]
   
   expect(store.customerCount).toBe(2)
@@ -287,8 +287,8 @@ it('should get customer count', () => {
 it('should find customer by id', () => {
   const store = useCustomersStore()
   store.customers = [
-    { id: 1, name: 'Customer 1', phone: '04121234567', identification_number: 'V12345678', business: 1, created_at: '', updated_at: '' },
-    { id: 2, name: 'Customer 2', phone: '04129876543', identification_number: 'V87654321', business: 1, created_at: '', updated_at: '' },
+    { id: 1, name: 'Customer 1', phone: '04121234567', identification_number: 'V12345678', business_id: 1, created_at: '', updated_at: '' },
+    { id: 2, name: 'Customer 2', phone: '04129876543', identification_number: 'V87654321', business_id: 1, created_at: '', updated_at: '' },
   ]
   
   const customer = store.customerById(2)
@@ -323,8 +323,8 @@ describe('Suppliers Store', () => {
 it('should filter active suppliers', () => {
   const store = useSuppliersStore()
   store.suppliers = [
-    { id: 1, name: 'Active', business: 1, rif: '', email: '', address: '', phone: '', is_active: true, created_at: '', updated_at: '' },
-    { id: 2, name: 'Inactive', business: 1, rif: '', email: '', address: '', phone: '', is_active: false, created_at: '', updated_at: '' },
+    { id: 1, name: 'Active', business_id: 1, rif: '', email: '', address: '', phone: '', is_active: true, created_at: '', updated_at: '' },
+    { id: 2, name: 'Inactive', business_id: 1, rif: '', email: '', address: '', phone: '', is_active: false, created_at: '', updated_at: '' },
   ]
   
   expect(store.activeSuppliers.length).toBe(1)
@@ -334,8 +334,8 @@ it('should filter active suppliers', () => {
 it('should find supplier by id', () => {
   const store = useSuppliersStore()
   store.suppliers = [
-    { id: 1, name: 'Supplier 1', business: 1, rif: '', email: '', address: '', phone: '', is_active: true, created_at: '', updated_at: '' },
-    { id: 2, name: 'Supplier 2', business: 1, rif: '', email: '', address: '', phone: '', is_active: false, created_at: '', updated_at: '' },
+    { id: 1, name: 'Supplier 1', business_id: 1, rif: '', email: '', address: '', phone: '', is_active: true, created_at: '', updated_at: '' },
+    { id: 2, name: 'Supplier 2', business_id: 1, rif: '', email: '', address: '', phone: '', is_active: false, created_at: '', updated_at: '' },
   ]
   
   const supplier = store.supplierById(2)

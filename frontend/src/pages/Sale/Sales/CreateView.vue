@@ -128,7 +128,7 @@ const processPayment = async () => {
 		total: cartTotalWithIva.value,
 		status: 'completed',
 		items: cart.value.map(item => ({
-			product: item.product,
+			product_id: item.product,
 			quantity: item.quantity,
 			unit_price: item.unit_price,
 			total_price: item.total,
