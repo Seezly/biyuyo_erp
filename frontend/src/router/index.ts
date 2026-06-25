@@ -12,12 +12,9 @@ const router = createRouter({
 	routes: [
 		{
 			path: '/',
-			name: 'Home',
-			redirect: (to) => {
-				const auth = useAuthStore()
-				if (!auth.isAuthenticated) return '/login'
-				return auth.user?.role === 'admin' ? '/admin' : '/dashboard'
-			},
+			name: 'Landing',
+			component: () => import('@/pages/LandingView.vue'),
+			meta: { title: 'Inicio' },
 		},
 		{
 			path: '/login',
@@ -487,6 +484,10 @@ router.beforeEach(async (to, from, next) => {
 
 	if (guestOnly && auth.isAuthenticated) {
 		return next('/dashboard')
+	}
+
+	if (to.name === 'Landing' && auth.isAuthenticated) {
+		return next(auth.user?.role === 'admin' ? '/admin' : '/dashboard')
 	}
 
 	if (adminOnly && auth.user?.role !== 'admin' && !auth.user?.is_superuser) {

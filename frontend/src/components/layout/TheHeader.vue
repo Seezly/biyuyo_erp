@@ -46,6 +46,7 @@ const showAdminNav = computed(() => isAdmin.value && !auth.isImpersonating && au
 			</NavItem>
 			<NavItem v-if="!auth.isAuthenticated" class="hidden md:flex">
 				<RouterLink class="rounded-full py-2 px-4" to="/">Inicio</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="/#features">Funcionalidades</RouterLink>
 			</NavItem>
 			<NavItem v-if="showUserNav" class="hidden md:flex">
 				<RouterLink class="rounded-full py-2 px-4" to="/dashboard">Inicio</RouterLink>
@@ -87,6 +88,9 @@ const showAdminNav = computed(() => isAdmin.value && !auth.isImpersonating && au
 			<div v-if="!auth.isAuthenticated" class="flex flex-col gap-2 pt-4">
 				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/" role="menuitem"
 					>Inicio</RouterLink
+				>
+				<RouterLink class="rounded-lg py-2 px-4 hover:bg-gray-100" to="/#features" role="menuitem"
+					>Funcionalidades</RouterLink
 				>
 				<div class="flex gap-2 pt-2">
 					<BaseButton to="/login" text="Iniciar sesión" width="auto" />

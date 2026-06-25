@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import TheHeader from './components/layout/TheHeader.vue'
 import TheBusinessBar from './components/layout/TheBusinessBar.vue'
 import TheFooter from './components/layout/TheFooter.vue'
 import Toast from './components/ui/Toast.vue'
 import Breadcrumb from './components/Breadcrumb.vue'
+
+const route = useRoute()
+const isLanding = computed(() => route.name === 'Landing')
 </script>
 
 <template>
@@ -19,12 +24,13 @@ import Breadcrumb from './components/Breadcrumb.vue'
 	<main
 		id="main-content"
 		tabindex="-1"
-		class="max-w-7xl flex-1 mx-auto w-full flex flex-col items-start justify-start gap-4"
+		:class="[
+			'flex-1 w-full flex flex-col items-start justify-start gap-4',
+			isLanding ? '' : 'max-w-7xl mx-auto',
+		]"
 	>
-		<Breadcrumb />
+		<Breadcrumb v-if="!isLanding" />
 		<RouterView />
 	</main>
 	<TheFooter />
 </template>
-
-<style scoped></style>
