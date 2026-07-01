@@ -1,0 +1,56 @@
+# ============================================================
+# Stage 1: Build frontend
+# ============================================================
+FROM node:20-alpine AS frontend-build
+
+WORKDIR /app/frontend
+
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+COPY frontend/ ./
+RUN npm run build
+
+# ============================================================
+# Stage 2: Build backend
+# ============================================================
+FROM python:3.13-slim AS backend-build
+
+WORKDIR /app/backend
+
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+COPY backend/ ./
+
+# ============================================================
+# Stage 3: Runtime (nginx + gunicorn)
+# ============================================================
+FROM nginx:1.27-alpine
+
+# Install python and supervisor
+RUN apk add --no-cache python3 py3-pip supervisor \
+    && pip3 install --break-system-packages --no-cache-dir --prefix=/install \
+       gunicorn==23.0.0 psycopg[binary]==3.3.3 python-dotenv==1.2.2 \
+       PyJWT==2.12.1 requests==2.34.2 whitenoise==6.9.0
+
+# Copy Python packages
+COPY --from=backend-build /install /usr/local
+
+# Copy backend application
+COPY --from=backend-build /app/backend /app/backend
+
+# Copy built frontend
+COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
+
+# Copy nginx config
+COPY nginx/default.conf /etc/nginx/templates/default.conf.template
+
+# Copy supervisord config
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+WORKDIR /app/backend
+
+EXPOSE 8000
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
