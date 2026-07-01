@@ -1,5 +1,7 @@
 import { useAuthStore } from '@/stores/auth'
 
+const API_BASE = import.meta.env.VITE_API_URL || ''
+
 // Function that takes the cookies object and search for a specific cookie
 export function getCookie(name: string): string | undefined {
 	const value = `; ${document.cookie}`
@@ -22,7 +24,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 		businessHeaders['X-Business-Id'] = auth.impersonatedBusinessId.toString()
 	}
 
-	const res = await fetch(import.meta.env.VITE_API_URL + url, {
+	const res = await fetch(API_BASE + url, {
 		...restOptions,
 		credentials: 'include',
 		headers: {
@@ -34,7 +36,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 	})
 
 	if (res.status === 401) {
-		const refreshResponse = await fetch(import.meta.env.VITE_API_URL + '/api/refresh/', {
+		const refreshResponse = await fetch(API_BASE + '/api/refresh/', {
 			method: 'POST',
 			credentials: 'include',
 		})
@@ -42,7 +44,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 		if (refreshResponse.ok) {
 			const newCsrfToken = getCookie('csrftoken') || csrfToken
 			const { headers: retryHeaders, ...retryRest } = options
-			return fetch(import.meta.env.VITE_API_URL + url, {
+			return fetch(API_BASE + url, {
 				...retryRest,
 				credentials: 'include',
 				headers: {
@@ -53,7 +55,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 				},
 			})
 		} else {
-			await fetch(import.meta.env.VITE_API_URL + '/api/logout/', {
+			await fetch(API_BASE + '/api/logout/', {
 				method: 'POST',
 				credentials: 'include',
 			})
