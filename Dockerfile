@@ -25,11 +25,14 @@ COPY backend/ ./
 
 # ============================================================
 # Stage 3: Runtime (nginx + gunicorn)
+# Uses Debian-based nginx to avoid musl/glibc ABI mismatch
+# with Python packages compiled on python:3.13-slim
 # ============================================================
-FROM nginx:1.27-alpine
+FROM nginx:1.27
 
-# Install python3 and supervisor only
-RUN apk add --no-cache python3 supervisor
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 supervisor \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy Python packages from build stage
 COPY --from=backend-build /install /usr/local
