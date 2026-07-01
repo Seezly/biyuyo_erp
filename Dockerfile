@@ -29,8 +29,9 @@ COPY backend/ ./
 FROM python:3.13-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx supervisor \
-    && rm -rf /var/lib/apt/lists/*
+    nginx supervisor gettext-base \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /etc/nginx/sites-enabled/default
 
 # Copy python packages from build stage
 COPY --from=backend-build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
@@ -45,9 +46,11 @@ COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
 # Copy configs
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 WORKDIR /app/backend
 
 EXPOSE 8000
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/docker-entrypoint.sh"]
