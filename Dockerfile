@@ -28,13 +28,10 @@ COPY backend/ ./
 # ============================================================
 FROM nginx:1.27-alpine
 
-# Install python and supervisor
-RUN apk add --no-cache python3 py3-pip supervisor \
-    && pip3 install --break-system-packages --no-cache-dir --prefix=/install \
-       gunicorn==23.0.0 psycopg[binary]==3.3.3 python-dotenv==1.2.2 \
-       PyJWT==2.12.1 requests==2.34.2 whitenoise==6.9.0
+# Install python3 and supervisor only
+RUN apk add --no-cache python3 supervisor
 
-# Copy Python packages
+# Copy Python packages from build stage
 COPY --from=backend-build /install /usr/local
 
 # Copy backend application
