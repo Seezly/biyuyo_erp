@@ -67,6 +67,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -147,7 +148,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # djangorestframework Authentication Classes
 REST_FRAMEWORK = {
@@ -177,11 +184,10 @@ AUTH_USER_MODEL = "accounts.CustomUser"
 CORS_ALLOW_CREDENTIALS = True
 
 # Restrict CORS to the frontend domain
-CORS_ALLOWED_ORIGINS = [
-    "http://frontend:80",
-    "http://localhost:5173",
-    "http://frontend:5173",
-]
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    "CORS_ALLOWED_ORIGINS",
+    "http://frontend:80,http://localhost:5173,http://frontend:5173",
+).split(",")
 
 # Restrict CORS to the frontend domain for all API endpoints
 CORS_URLS_REGEX = r"^/api/.*$"
@@ -223,6 +229,7 @@ SPECTACULAR_SETTINGS = {
 
 # Production security settings (activate when DEBUG=False)
 if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
