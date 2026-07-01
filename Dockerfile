@@ -22,7 +22,6 @@ COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/ ./
-RUN python manage.py collectstatic --noinput
 
 # ============================================================
 # Stage 3: Runtime
