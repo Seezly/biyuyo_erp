@@ -12,5 +12,8 @@ mv /tmp/default.conf /etc/nginx/conf.d/default.conf
 cd /app/backend
 python manage.py migrate --noinput
 
+# Seed admin if DB is empty
+python manage.py seed_admin
+
 # Start supervisord (nginx + gunicorn)
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
