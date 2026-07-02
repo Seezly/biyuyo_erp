@@ -21,8 +21,8 @@ watch(
 )
 
 const isAdmin = computed(() => auth.user?.role === 'admin' || auth.user?.is_superuser)
-const showUserNav = computed(() =>
-	(!isAdmin.value && auth.isAuthenticated) || (auth.isImpersonating && auth.isAuthenticated)
+const showUserNav = computed(
+	() => (!isAdmin.value && auth.isAuthenticated) || (auth.isImpersonating && auth.isAuthenticated),
 )
 const showAdminNav = computed(() => isAdmin.value && !auth.isImpersonating && auth.isAuthenticated)
 </script>
@@ -46,7 +46,7 @@ const showAdminNav = computed(() => isAdmin.value && !auth.isImpersonating && au
 			</NavItem>
 			<NavItem v-if="!auth.isAuthenticated" class="hidden md:flex">
 				<RouterLink class="rounded-full py-2 px-4" to="/">Inicio</RouterLink>
-				<RouterLink class="rounded-full py-2 px-4" to="/#features">Funcionalidades</RouterLink>
+				<RouterLink class="rounded-full py-2 px-4" to="#features">Funcionalidades</RouterLink>
 			</NavItem>
 			<NavItem v-if="showUserNav" class="hidden md:flex">
 				<RouterLink class="rounded-full py-2 px-4" to="/dashboard">Inicio</RouterLink>

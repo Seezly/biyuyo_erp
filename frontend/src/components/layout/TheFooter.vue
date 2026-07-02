@@ -20,9 +20,16 @@ const auth = useAuthStore()
 				<div>
 					<h3 class="font-heading font-bold mb-4">Producto</h3>
 					<ul class="flex flex-col gap-2 text-sm text-white/70">
-						<li><RouterLink to="/#features" class="hover:text-white transition-colors">Funcionalidades</RouterLink></li>
-						<li><RouterLink to="/login" class="hover:text-white transition-colors">Iniciar sesión</RouterLink></li>
-						<li><RouterLink to="/register" class="hover:text-white transition-colors">Registrarse</RouterLink></li>
+						<li>
+							<RouterLink to="/login" class="hover:text-white transition-colors"
+								>Iniciar sesión</RouterLink
+							>
+						</li>
+						<li>
+							<RouterLink to="/register" class="hover:text-white transition-colors"
+								>Registrarse</RouterLink
+							>
+						</li>
 					</ul>
 				</div>
 
@@ -47,7 +54,9 @@ const auth = useAuthStore()
 			</div>
 
 			<!-- Bottom bar -->
-			<div class="border-t border-white/20 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+			<div
+				class="border-t border-white/20 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4"
+			>
 				<p class="text-white/50 text-sm">&copy; 2026 Biyuyo ERP. Todos los derechos reservados.</p>
 				<div class="flex gap-4 text-white/50">
 					<a href="#" aria-label="Twitter" class="hover:text-white transition-colors">
