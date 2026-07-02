@@ -135,8 +135,8 @@ class CustomTokenSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
 
-        token["business_id"] = user.business_id.id
-        token["business_name"] = user.business_id.name
+        token["business_id"] = user.business_id.id if user.business_id else None
+        token["business_name"] = user.business_id.name if user.business_id else None
         token["first_name"] = user.first_name
         group = user.groups.first()
         token["role"] = group.name if group else None
@@ -149,8 +149,8 @@ class CustomTokenSerializer(TokenObtainPairSerializer):
         group = self.user.groups.first()
         data["user"] = {
             "id": self.user.id,
-            "business_id": self.user.business_id.id,
-            "business_name": self.user.business_id.name,
+            "business_id": self.user.business_id.id if self.user.business_id else None,
+            "business_name": self.user.business_id.name if self.user.business_id else None,
             "first_name": self.user.first_name,
             "role": group.name if group else None,
         }

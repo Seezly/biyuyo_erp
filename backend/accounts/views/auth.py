@@ -56,8 +56,8 @@ class LoginView(views.APIView):
                 "message": "All good!",
                 "user": {
                     "id": user.id,
-                    "business_id": user.business_id.id,
-                    "business_name": user.business_id.name,
+                    "business_id": user.business_id.id if user.business_id else None,
+                    "business_name": user.business_id.name if user.business_id else None,
                     "first_name": user.first_name,
                     "role": role,
                 },

@@ -8,5 +8,9 @@ rm -f /etc/nginx/sites-enabled/default
 envsubst '${PORT}' < /etc/nginx/conf.d/default.conf > /tmp/default.conf
 mv /tmp/default.conf /etc/nginx/conf.d/default.conf
 
+# Run migrations
+cd /app/backend
+python manage.py migrate --noinput
+
 # Start supervisord (nginx + gunicorn)
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
